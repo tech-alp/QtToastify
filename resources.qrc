@@ -1,0 +1,30 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/fonts/Montserrat-Black.ttf</file>
+        <file>resources/fonts/Montserrat-BlackItalic.ttf</file>
+        <file>resources/fonts/Montserrat-Bold.ttf</file>
+        <file>resources/fonts/Montserrat-BoldItalic.ttf</file>
+        <file>resources/fonts/Montserrat-ExtraBold.ttf</file>
+        <file>resources/fonts/Montserrat-ExtraBoldItalic.ttf</file>
+        <file>resources/fonts/Montserrat-ExtraLight.ttf</file>
+        <file>resources/fonts/Montserrat-ExtraLightItalic.ttf</file>
+        <file>resources/fonts/Montserrat-Italic.ttf</file>
+        <file>resources/fonts/Montserrat-Light.ttf</file>
+        <file>resources/fonts/Montserrat-LightItalic.ttf</file>
+        <file>resources/fonts/Montserrat-Medium.ttf</file>
+        <file>resources/fonts/Montserrat-MediumItalic.ttf</file>
+        <file>resources/fonts/Montserrat-Regular.ttf</file>
+        <file>resources/fonts/Montserrat-SemiBold.ttf</file>
+        <file>resources/fonts/Montserrat-SemiBoldItalic.ttf</file>
+        <file>resources/fonts/Montserrat-Thin.ttf</file>
+        <file>resources/fonts/Montserrat-ThinItalic.ttf</file>
+        <file>resources/icons/info.svg</file>
+        <file>resources/icons/error.svg</file>
+        <file>resources/icons/success.svg</file>
+        <file>resources/icons/warning.svg</file>
+        <file>resources/icons/error-white.svg</file>
+        <file>resources/icons/info-white.svg</file>
+        <file>resources/icons/success-white.svg</file>
+        <file>resources/icons/warning-white.svg</file>
+    </qresource>
+</RCC>
