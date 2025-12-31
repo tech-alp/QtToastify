@@ -16,6 +16,7 @@ qt_add_qml_module(QtToastifyPlayground
         styles/LightStyle.qml
         styles/CompactStyle.qml
         styles/DefaultStyle.qml
+
 )
 
 target_link_libraries(QtToastifyPlayground PRIVATE
@@ -23,7 +24,6 @@ target_link_libraries(QtToastifyPlayground PRIVATE
     Qt6::Quick
     Qt6::Qml
     Qt6::QuickControls2
-    QtAwesome
     Toastifyplugin
 )
 
@@ -38,7 +38,7 @@ if(CMAKE_INSTALL_PREFIX)
     install(TARGETS QtToastifyPlayground
         DESTINATION bin
     )
-    
+
     install(FILES
         README.md
         StyleCustomizationGuide.md

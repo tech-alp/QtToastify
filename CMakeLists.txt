@@ -12,16 +12,6 @@ find_package(Qt6 REQUIRED COMPONENTS
     QuickControls2
 )
 
-# QtAwesome - FetchContent ile ekleme
-include(FetchContent)
-
-FetchContent_Declare(
-    QtAwesome
-    GIT_REPOSITORY https://github.com/gamecreature/QtAwesome.git
-    GIT_TAG main
-)
-FetchContent_MakeAvailable(QtAwesome)
-
 qt_standard_project_setup()
 
 qt_policy(SET QTP0001 NEW)
@@ -36,7 +26,7 @@ if(BUILD_TESTS)
 endif()
 
 # Add playground examples subdirectory
-option(BUILD_PLAYGROUND "Build playground examples" OFF)
+option(BUILD_PLAYGROUND "Build playground examples" ON)
 if(BUILD_PLAYGROUND)
     add_subdirectory(playground)
 endif()

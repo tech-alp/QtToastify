@@ -16,7 +16,7 @@ ToastifyStyleProvider {
         container: 8,         // Less container padding
         closeButton: {
             padding: 4,       // Less padding around close button
-            size: 18          // Smaller close button
+            size: 12          // Smaller close button
         },
         
         // Calculated spacing functions

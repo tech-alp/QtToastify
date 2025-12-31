@@ -26,7 +26,7 @@ QtObject {
         container: 12,               // Container padding
         closeButton: {
             padding: 6,              // Close button padding
-            size: 18                 // Close button size
+            size: 12                 // Close button size
         },
         
         // Calculated spacing functions (for backward compatibility)

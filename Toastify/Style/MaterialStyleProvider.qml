@@ -24,7 +24,7 @@ ToastifyStyleProvider {
         container: 16,        // 2 * 8dp
         closeButton: {
             padding: 8,       // 1 * 8dp
-            size: 24          // 3 * 8dp
+            size: 16          // 2 * 8dp
         },
         
         // Calculated spacing functions

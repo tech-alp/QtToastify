@@ -49,12 +49,12 @@ Control {
 
     readonly property string iconName: {
         switch(root.type) {
-            case Toastify.Info: return "image://fa/solid/circle-info";
-            case Toastify.Success: return "image://fa/solid/circle-check";
-            case Toastify.Warning: return "image://fa/solid/triangle-exclamation"
-            case Toastify.Error: return "image://fa/solid/circle-xmark";
+            case Toastify.Info: return "qrc:/qt/qml/Toastify/icons/info.svg"
+            case Toastify.Success: return "qrc:/qt/qml/Toastify/icons/success.svg"
+            case Toastify.Warning: return "qrc:/qt/qml/Toastify/icons/warning.svg"
+            case Toastify.Error: return "qrc:/qt/qml/Toastify/icons/error.svg"
         }
-        return "image://fa/solid/circle-info";
+        return "qrc:/qt/qml/Toastify/icons/info.svg"
     }
 
     implicitWidth: Math.max(minimumWidth, Math.min(preferredWidth, maximumWidth))
@@ -92,36 +92,27 @@ Control {
         }
     }
 
-    // --- İçerik ---
     contentItem: RowLayout {
         id: mainLayout
         spacing: spacingConfig.mainSpacing
 
         RowLayout {
             id: contentArea
-            objectName: "contentArea"
+            Layout.alignment: Qt.AlignTop
             Layout.fillWidth: true
             Layout.maximumWidth: root.width - spacingConfig.mainSpacing - root.leftPadding - root.rightPadding
             Layout.minimumWidth: 100  // Ensure minimum content width
             spacing: spacingConfig.contentSpacing
 
-            Image {
+            ColoredImage {
                 id: iconImage
                 Layout.alignment: Qt.AlignTop
                 Layout.preferredWidth: styleProvider.iconSize
                 Layout.preferredHeight: styleProvider.iconSize
                 Layout.minimumWidth: styleProvider.iconSize
                 Layout.minimumHeight: styleProvider.iconSize
-                source: root.iconName + "?color=" + styleProvider.textColors.color
-
-                // Optimized settings for QtAwesome font-based icons
-                smooth: true
-                mipmap: true
-                antialiasing: true
-
-                // Cache for better performance
-                cache: true
-                asynchronous: false  // Synchronous loading for immediate display
+                source: root.iconName
+                color: styleProvider.textColors.color
             }
 
             // Text content area with proper wrapping and expansion
@@ -167,23 +158,16 @@ Control {
                 color: "transparent"
             }
 
-            contentItem: Image {
-                source: "image://fa/solid/xmark?color=" + styleProvider.textColors.color
+            contentItem: ColoredImage {
+                source: "qrc:/qt/qml/Toastify/icons/xmark.svg"
                 sourceSize.width: spacingConfig.closeButtonTotalWidth
                 sourceSize.height: spacingConfig.closeButtonTotalWidth
-                smooth: true
-                mipmap: true
-                antialiasing: true
-                fillMode: Image.PreserveAspectFit
-                cache: true
-                asynchronous: false
             }
 
             onClicked: root.close()
         }
     }
 
-    // --- Etkileşim ---
     MouseArea {
         anchors.fill: parent
         enabled: root.closeOnClick
@@ -194,7 +178,6 @@ Control {
         }
     }
 
-    // --- Animasyonlar ---
     transform: Translate { id: trans }
 
     Component.onCompleted: enterAnim.start()
@@ -208,7 +191,6 @@ Control {
 
     ParallelAnimation {
         id: enterAnim
-        // Pozisyona göre geliş yönü
         NumberAnimation {
             target: trans
             property: "x"
