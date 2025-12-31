@@ -36,7 +36,7 @@ if(BUILD_TESTS)
 endif()
 
 # Add playground examples subdirectory
-option(BUILD_PLAYGROUND "Build playground examples" ON)
+option(BUILD_PLAYGROUND "Build playground examples" OFF)
 if(BUILD_PLAYGROUND)
     add_subdirectory(playground)
 endif()

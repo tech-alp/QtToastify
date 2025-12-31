@@ -5,6 +5,7 @@ qt_add_library(Toastify STATIC)
 qt_add_qml_module(Toastify
     URI Toastify
     VERSION 1.0
+    OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Toastify
     QML_FILES
         Toastify.qml
         ToastifyDelegate.qml
