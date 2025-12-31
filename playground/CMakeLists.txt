@@ -12,6 +12,8 @@ qt_add_qml_module(QtToastifyPlayground
     QML_FILES
         PlaygroundApp.qml
         StyledToastDelegate.qml
+        PromiseToastExample.qml
+        PlaygorundMainPage.qml
         styles/CustomStyle.qml
         styles/LightStyle.qml
         styles/CompactStyle.qml

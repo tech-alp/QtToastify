@@ -110,6 +110,10 @@ Item {
             hideProgressBar: options.hideProgressBar ?? false,
             clickAction: options.clickAction ?? null,
             
+            // Promise support
+            isPromiseToast: options.isPromiseToast ?? false,
+            promiseResult: options.promiseResult ?? null,
+            
             // Style injection - pass the style provider to the toast
             styleProvider: root.style
         };
@@ -151,5 +155,50 @@ Item {
     function info(message, options = {}) {
         const config = Object.assign({}, options, { type: Toastify.Info });
         return createMessage(message, config);
+    }
+
+    // Promise support function - React Toastify benzeri
+    function promise(promiseOrFunction, options = {}) {
+        if (!options.pending && !options.success && !options.error) {
+            console.error("Toastify: Promise options must include pending, success, and error messages");
+            return null;
+        }
+
+        // Pending toast'ı oluştur
+        const pendingConfig = Object.assign({}, options, {
+            type: Toastify.Info,
+            autoClose: false, // Promise tamamlanana kadar açık kalsın
+            hideProgressBar: true, // Progress bar'ı gizle
+            closeOnClick: false, // Tıklayarak kapatmayı devre dışı bırak
+            isPromiseToast: true // Promise toast olduğunu belirt
+        });
+
+        const pendingToast = createMessage(options.pending, pendingConfig);
+        if (!pendingToast) return null;
+
+        // Promise'i resolve et
+        let targetPromise;
+        if (typeof promiseOrFunction === 'function') {
+            try {
+                targetPromise = promiseOrFunction();
+            } catch (error) {
+                targetPromise = Promise.reject(error);
+            }
+        } else {
+            targetPromise = promiseOrFunction;
+        }
+
+        // Promise'in sonucunu bekle
+        targetPromise
+            .then(result => {
+                // Success durumu
+                pendingToast.updateToSuccess(options.success, result);
+            })
+            .catch(error => {
+                // Error durumu
+                pendingToast.updateToError(options.error, error);
+            });
+
+        return pendingToast;
     }
 }

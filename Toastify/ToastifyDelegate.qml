@@ -17,6 +17,10 @@ Control {
     property bool hideProgressBar: false
     property var clickAction: null
 
+    // Promise support properties
+    property bool isPromiseToast: false
+    property var promiseResult: null
+
     // Style provider injection - uses default ToastifyStyleProvider if null
     property ToastifyStyleProvider styleProvider: ToastifyStyleProvider {}
 
@@ -49,7 +53,7 @@ Control {
 
     readonly property string iconName: {
         switch(root.type) {
-            case Toastify.Info: return "image://fa/solid/circle-info";
+            case Toastify.Info: return root.isPromiseToast ? "image://fa/solid/spinner" : "image://fa/solid/circle-info";
             case Toastify.Success: return "image://fa/solid/circle-check";
             case Toastify.Warning: return "image://fa/solid/triangle-exclamation"
             case Toastify.Error: return "image://fa/solid/circle-xmark";
@@ -122,6 +126,18 @@ Control {
                 // Cache for better performance
                 cache: true
                 asynchronous: false  // Synchronous loading for immediate display
+
+                // Spinner animation for promise pending state
+                RotationAnimation {
+                    id: spinnerAnimation
+                    target: iconImage
+                    property: "rotation"
+                    from: 0
+                    to: 360
+                    duration: 1000
+                    loops: Animation.Infinite
+                    running: root.isPromiseToast && root.type === Toastify.Info
+                }
             }
 
             // Text content area with proper wrapping and expansion
@@ -246,5 +262,36 @@ Control {
         }
         NumberAnimation { target: root; property: "Layout.preferredHeight"; to: 0; duration: 200 }
         ScriptAction { script: root.destroy() }
+    }
+
+    // Promise support functions
+    function updateToSuccess(message, result) {
+        root.isPromiseToast = false;
+        root.promiseResult = result;
+        root.message = message;
+        root.type = Toastify.Success;
+        root.autoClose = 5000; // Default auto close
+        root.closeOnClick = true;
+        root.hideProgressBar = false;
+        
+        // Restart progress animation
+        if (root.autoClose > 0) {
+            progressAnim.restart();
+        }
+    }
+
+    function updateToError(message, error) {
+        root.isPromiseToast = false;
+        root.promiseResult = error;
+        root.message = message;
+        root.type = Toastify.Error;
+        root.autoClose = 5000; // Default auto close
+        root.closeOnClick = true;
+        root.hideProgressBar = false;
+        
+        // Restart progress animation
+        if (root.autoClose > 0) {
+            progressAnim.restart();
+        }
     }
 }
