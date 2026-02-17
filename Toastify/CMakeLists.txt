@@ -56,7 +56,3 @@ qt_add_qml_module(Toastify
     DEPENDENCIES TARGET
         ToastifyStyle
 )
-
-target_link_libraries(Toastify PUBLIC
-    ToastifyStyleplugin
-)
