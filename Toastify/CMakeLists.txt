@@ -53,6 +53,8 @@ qt_add_qml_module(Toastify
         resources/icons/warning.svg
         resources/icons/success.svg
         resources/icons/xmark.svg
+    IMPORTS
+        QtQuick.Effects
     DEPENDENCIES TARGET
         ToastifyStyle
 )

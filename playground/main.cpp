@@ -3,6 +3,9 @@
 #include <QQmlContext>
 #include <QDir>
 #include <QDebug>
+#include <QQmlEngineExtensionPlugin>
+
+// Q_IMPORT_QML_PLUGIN(ToastifyPlugin)
 
 int main(int argc, char *argv[])
 {

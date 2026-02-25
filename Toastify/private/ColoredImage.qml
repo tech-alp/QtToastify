@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Controls
-import Qt5Compat.GraphicalEffects
+import QtQuick.Effects
 
 Item {
     property color color: "white"   // Image color
@@ -32,9 +32,10 @@ Item {
         anchors.fill:       parent
     }
 
-    ColorOverlay {
+    MultiEffect {
         anchors.fill:       image
         source:             image
-        color:              parent.color
+        colorization:       1.0
+        colorizationColor:  parent.color
     }
 }
