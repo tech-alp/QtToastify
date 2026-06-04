@@ -23,8 +23,8 @@ ToastifyStyleProvider {
         text: 6,                     // More space between text lines
         container: 16,               // More container padding
         closeButton: {
-            padding: 8,              // More padding around close button
-            size: 32                 // Larger close button
+            padding: 16,             // More padding around close button
+            size: 16                 // Larger close button
         },
         
         // Calculated spacing functions

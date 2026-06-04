@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 
 # Create single playground executable
 qt_add_executable(QtToastifyPlayground
-    playground_main.cpp
+    main.cpp
 )
 
 qt_add_qml_module(QtToastifyPlayground
@@ -16,6 +16,8 @@ qt_add_qml_module(QtToastifyPlayground
         styles/LightStyle.qml
         styles/CompactStyle.qml
         styles/DefaultStyle.qml
+    DEPENDENCIES
+        Toastify
 )
 
 target_link_libraries(QtToastifyPlayground PRIVATE
@@ -23,8 +25,6 @@ target_link_libraries(QtToastifyPlayground PRIVATE
     Qt6::Quick
     Qt6::Qml
     Qt6::QuickControls2
-    QtAwesome
-    Toastifyplugin
 )
 
 # Set properties
@@ -38,7 +38,7 @@ if(CMAKE_INSTALL_PREFIX)
     install(TARGETS QtToastifyPlayground
         DESTINATION bin
     )
-    
+
     install(FILES
         README.md
         StyleCustomizationGuide.md
