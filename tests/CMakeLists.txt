@@ -20,8 +20,8 @@ target_link_libraries(tst_toast_layout PRIVATE
     Qt6::Quick
     Qt6::Qml
     Qt6::QuickTest
-    QtAwesome
     Toastifyplugin
+    ToastifyStyleplugin
 )
 
 # Add the parent directory to include path so we can import Toastify

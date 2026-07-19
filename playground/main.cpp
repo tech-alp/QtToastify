@@ -5,7 +5,8 @@
 #include <QDebug>
 #include <QQmlEngineExtensionPlugin>
 
-// Q_IMPORT_QML_PLUGIN(ToastifyPlugin)
+Q_IMPORT_QML_PLUGIN(ToastifyPlugin)
+Q_IMPORT_QML_PLUGIN(Toastify_StylePlugin)
 
 int main(int argc, char *argv[])
 {
@@ -19,6 +20,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     
     // Add import paths
+    engine.addImportPath("qrc:/qt/qml");
     engine.addImportPath("qrc:/");
     engine.addImportPath(":/");
 

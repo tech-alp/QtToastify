@@ -2,10 +2,9 @@
 #include <QQmlEngine>
 #include <QQmlContext>
 #include <QQmlEngineExtensionPlugin>
-#include <QtAwesome.h>
-#include <QtAwesomeQuickImageProvider.h>
 
 Q_IMPORT_QML_PLUGIN(ToastifyPlugin)
+Q_IMPORT_QML_PLUGIN(Toastify_StylePlugin)
 
 class Setup : public QObject
 {
@@ -19,11 +18,6 @@ public slots:
         engine->addImportPath("../");
         engine->addImportPath("../qml");
         engine->addImportPath("qrc:/");
-
-        // Initialize QtAwesome
-        fa::QtAwesome* awesome = new fa::QtAwesome(qApp);
-        awesome->initFontAwesome();
-        engine->addImageProvider("fa", new QtAwesomeQuickImageProvider(awesome));
     }
 };
 

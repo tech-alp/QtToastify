@@ -1,8 +1,10 @@
+pragma ComponentBehavior:Bound
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Effects
-import QtQuick.Templates as T
+import QtQuick.Shapes
 import Toastify 1.0
 import Toastify.Style 1.0
 
@@ -21,29 +23,30 @@ Control {
     property ToastifyStyleProvider styleProvider: ToastifyStyleProvider {}
 
     // Container size constraints from styleProvider
-    property int minimumWidth: styleProvider.containerSizes.minimum
-    property int preferredWidth: styleProvider.containerSizes.preferred
-    property int maximumWidth: styleProvider.containerSizes.maximum
+    property int minimumWidth: root.styleProvider.containerSizes.minimum
+    property int preferredWidth: root.styleProvider.containerSizes.preferred
+    property int maximumWidth: root.styleProvider.containerSizes.maximum
 
     // Spacing consistency system - using styleProvider
     readonly property QtObject spacingConfig: QtObject {
-        readonly property int mainSpacing: styleProvider.spacing.main
-        readonly property int contentSpacing: styleProvider.spacing.content
-        readonly property int textSpacing: styleProvider.spacing.text
-        readonly property int containerPadding: styleProvider.spacing.container
-        readonly property int closeButtonPadding: styleProvider.spacing.closeButton.padding
+        readonly property int mainSpacing: root.styleProvider.spacing.main
+        readonly property int contentSpacing: root.styleProvider.spacing.content
+        readonly property int textSpacing: root.styleProvider.spacing.text
+        readonly property int containerPadding: root.styleProvider.spacing.container
+        readonly property int closeButtonPadding: root.styleProvider.spacing.closeButton.padding
+        readonly property int closeButtonSize: root.styleProvider.spacing.closeButton.size
+        readonly property int closeButtonTotalWidth: closeButtonSize + closeButtonPadding * 2
 
         // Calculated spacing values using styleProvider
-        readonly property int totalHorizontalSpacing: styleProvider.spacing.totalHorizontal()
-        readonly property int closeButtonTotalWidth: styleProvider.spacing.closeButtonTotal()
+        readonly property int totalHorizontalSpacing: root.styleProvider.spacing.totalHorizontal()
     }
 
     readonly property color accentColor: {
         switch(root.type) {
-            case 1: return styleProvider.colors.success;
-            case 2: return styleProvider.colors.warning;
-            case 3: return styleProvider.colors.error;
-            default: return styleProvider.colors.info;
+            case 1: return root.styleProvider.colors.success;
+            case 2: return root.styleProvider.colors.warning;
+            case 3: return root.styleProvider.colors.error;
+            default: return root.styleProvider.colors.info;
         }
     }
 
@@ -57,62 +60,119 @@ Control {
         return "qrc:/qt/qml/Toastify/icons/info.svg"
     }
 
+    function progressPath(width, height, barHeight, cornerRadius) {
+        const w = Math.max(0, width)
+        const h = Math.max(0, height)
+        const ph = Math.min(Math.max(0, barHeight), h)
+        const r = Math.min(Math.max(0, cornerRadius), w / 2, h / 2)
+        const y = h - ph
+
+        if (w <= 0 || h <= 0 || ph <= 0)
+            return ""
+
+        if (r <= 0)
+            return "M 0 " + y + " L " + w + " " + y + " L " + w + " " + h + " L 0 " + h + " Z"
+
+        if (ph < r) {
+            const dy = r - ph
+            const inset = r - Math.sqrt(Math.max(0, r * r - dy * dy))
+            return "M " + inset + " " + y +
+                   " L " + (w - inset) + " " + y +
+                   " A " + r + " " + r + " 0 0 1 " + (w - r) + " " + h +
+                   " L " + r + " " + h +
+                   " A " + r + " " + r + " 0 0 1 " + inset + " " + y +
+                   " Z"
+        }
+
+        return "M 0 " + y +
+               " L " + w + " " + y +
+               " L " + w + " " + (h - r) +
+               " A " + r + " " + r + " 0 0 1 " + (w - r) + " " + h +
+               " L " + r + " " + h +
+               " A " + r + " " + r + " 0 0 1 0 " + (h - r) +
+               " L 0 " + y +
+               " Z"
+    }
+
     implicitWidth: Math.max(minimumWidth, Math.min(preferredWidth, maximumWidth))
     implicitHeight: contentItem.implicitHeight + topPadding + bottomPadding
 
-    padding: spacingConfig.containerPadding
-    leftPadding: spacingConfig.containerPadding
-    rightPadding: spacingConfig.containerPadding
-    topPadding: spacingConfig.containerPadding
-    bottomPadding: spacingConfig.containerPadding
+    padding: root.spacingConfig.containerPadding
+    leftPadding: root.spacingConfig.containerPadding
+    rightPadding: root.spacingConfig.containerPadding + root.spacingConfig.closeButtonTotalWidth
+    topPadding: root.spacingConfig.containerPadding
+    bottomPadding: root.spacingConfig.containerPadding
 
     background: Rectangle {
+        id: backgroundItem
+
         color: root.accentColor
-        topLeftRadius: styleProvider.cornerRadius
-        topRightRadius: styleProvider.cornerRadius
+        radius: root.styleProvider.cornerRadius
 
         layer.enabled: true
         layer.effect: MultiEffect {
             shadowEnabled: true
-            shadowColor: styleProvider.shadow.color
-            shadowBlur: styleProvider.shadow.blur
-            shadowOpacity: styleProvider.shadow.opacity
-            shadowVerticalOffset: styleProvider.shadow.verticalOffset
+            shadowColor: root.styleProvider.shadow.color
+            shadowBlur: root.styleProvider.shadow.blur
+            shadowOpacity: root.styleProvider.shadow.opacity
+            shadowVerticalOffset: root.styleProvider.shadow.verticalOffset
         }
 
         // Progress Bar
-        Rectangle {
+        Item {
+            id: progressClip
+
             visible: root.autoClose > 0 && !root.hideProgressBar
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            height: styleProvider.progressBar.height
+            anchors.left: backgroundItem.left
+            anchors.top: backgroundItem.top
+            height: backgroundItem.height
             width: parent.width * (1.0 - root.progressValue)
-            radius: styleProvider.progressBar.radius
-            color: Qt.lighter(accentColor, 1.4) //Qt.rgba(255, 255, 255, 0.4)
+            clip: true
+
+            Shape {
+                width: backgroundItem.width
+                height: backgroundItem.height
+                preferredRendererType: Shape.CurveRenderer
+
+                ShapePath {
+                    strokeColor: "transparent"
+                    fillColor: Qt.lighter(root.accentColor, 1.4) //Qt.rgba(255, 255, 255, 0.4)
+
+                    PathSvg {
+                        path: root.progressPath(
+                                  backgroundItem.width,
+                                  backgroundItem.height,
+                                  root.styleProvider.progressBar.height,
+                                  root.styleProvider.cornerRadius)
+                    }
+                }
+            }
         }
     }
 
     contentItem: RowLayout {
         id: mainLayout
-        spacing: spacingConfig.mainSpacing
+        spacing: root.spacingConfig.mainSpacing
 
         RowLayout {
             id: contentArea
             Layout.alignment: Qt.AlignTop
             Layout.fillWidth: true
-            Layout.maximumWidth: root.width - spacingConfig.mainSpacing - root.leftPadding - root.rightPadding
+            Layout.maximumWidth: root.width - root.leftPadding - root.rightPadding
             Layout.minimumWidth: 100  // Ensure minimum content width
-            spacing: spacingConfig.contentSpacing
+            spacing: root.spacingConfig.contentSpacing
 
             ColoredImage {
                 id: iconImage
                 Layout.alignment: Qt.AlignTop
-                Layout.preferredWidth: styleProvider.iconSize
-                Layout.preferredHeight: styleProvider.iconSize
-                Layout.minimumWidth: styleProvider.iconSize
-                Layout.minimumHeight: styleProvider.iconSize
+                Layout.preferredWidth: root.styleProvider.iconSize
+                Layout.preferredHeight: root.styleProvider.iconSize
+                Layout.minimumWidth: root.styleProvider.iconSize
+                Layout.minimumHeight: root.styleProvider.iconSize
                 source: root.iconName
-                color: styleProvider.textColors.color
+                color: root.styleProvider.textColors.color
+                sourceSize.width: root.styleProvider.iconSize
+                sourceSize.height: root.styleProvider.iconSize
             }
 
             // Text content area with proper wrapping and expansion
@@ -121,21 +181,21 @@ Control {
                 Layout.fillWidth: true
                 Layout.maximumWidth: contentArea.Layout.maximumWidth - iconImage.Layout.preferredWidth - contentArea.spacing
                 Layout.minimumWidth: 50  // Minimum text area width
-                spacing: spacingConfig.textSpacing  // Consistent text spacing
+                spacing: root.spacingConfig.textSpacing  // Consistent text spacing
 
                 Label {
                     id: messageLabel
                     text: root.message
-                    color: styleProvider.textColors.color
-                    font.family: styleProvider.fonts.family
-                    font.pixelSize: styleProvider.fonts.size
+                    color: root.styleProvider.textColors.color
+                    font.family: root.styleProvider.fonts.family
+                    font.pixelSize: root.styleProvider.fonts.size
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: textContentArea.Layout.maximumWidth
 
                     // Ensure proper vertical expansion for wrapped text
                     onImplicitHeightChanged: {
-                        if (implicitHeight > styleProvider.fonts.size * 1.5) {
+                        if (implicitHeight > root.styleProvider.fonts.size * 1.5) {
                             // Multi-line text detected, ensure container expands
                             root.implicitHeight = Qt.binding(function() {
                                 return contentItem.implicitHeight + root.topPadding + root.bottomPadding
@@ -145,36 +205,44 @@ Control {
                 }
             }
         }
-
-        // Close button area (fixed width)
-        T.Button {
-            id: closeButton
-            objectName: "closeButton"
-            Layout.preferredWidth: spacingConfig.closeButtonTotalWidth
-            Layout.preferredHeight: spacingConfig.closeButtonTotalWidth
-            Layout.alignment: Qt.AlignTop
-
-            background: Rectangle {
-                color: "transparent"
-            }
-
-            contentItem: ColoredImage {
-                source: "qrc:/qt/qml/Toastify/icons/xmark.svg"
-                sourceSize.width: spacingConfig.closeButtonTotalWidth
-                sourceSize.height: spacingConfig.closeButtonTotalWidth
-            }
-
-            onClicked: root.close()
-        }
     }
 
     MouseArea {
         anchors.fill: parent
         enabled: root.closeOnClick
         cursorShape: Qt.PointingHandCursor
+        z: 1
         onClicked: {
             if (root.clickAction) root.clickAction()
             root.close()
+        }
+    }
+
+    ColoredImage {
+        id: closeButton
+        objectName: "closeButtonArea"
+        width: root.spacingConfig.closeButtonSize
+        height: root.spacingConfig.closeButtonSize
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.topMargin: root.spacingConfig.closeButtonPadding * 2
+        anchors.rightMargin: root.spacingConfig.closeButtonPadding * 2
+        z: 2
+        source: "qrc:/qt/qml/Toastify/icons/xmark.svg"
+        sourceSize.width: root.spacingConfig.closeButtonSize
+        sourceSize.height: root.spacingConfig.closeButtonSize
+        color: root.styleProvider.textColors.color
+
+        HoverHandler {
+            margin: root.spacingConfig.closeButtonPadding
+            cursorShape: Qt.PointingHandCursor
+        }
+
+        TapHandler {
+            acceptedButtons: Qt.LeftButton
+            gesturePolicy: TapHandler.WithinBounds
+            margin: root.spacingConfig.closeButtonPadding
+            onTapped: root.close()
         }
     }
 
@@ -197,7 +265,16 @@ Control {
             from: (root.position === Toastify.TopLeftCorner || root.position === Toastify.BottomLeftCorner) ? -50 :
                   (root.position === Toastify.TopRightCorner || root.position === Toastify.BottomRightCorner) ? 50 : 0
             to: 0
-            duration: styleProvider.animation.enterDuration
+            duration: root.styleProvider.animation.enterDuration
+            easing.type: Easing.OutBack
+        }
+        NumberAnimation {
+            target: trans
+            property: "y"
+            from: root.position === Toastify.TopCenter ? -50 :
+                  root.position === Toastify.BottomCenter ? 50 : 0
+            to: 0
+            duration: root.styleProvider.animation.enterDuration
             easing.type: Easing.OutBack
         }
         NumberAnimation {
@@ -223,10 +300,10 @@ Control {
     SequentialAnimation {
         id: exitAnim
         ParallelAnimation {
-            NumberAnimation { target: root; property: "opacity"; to: 0; duration: styleProvider.animation.exitDuration }
-            NumberAnimation { target: root; property: "scale"; to: 0.8; duration: styleProvider.animation.exitDuration }
+            NumberAnimation { target: root; property: "opacity"; to: 0; duration: root.styleProvider.animation.exitDuration }
+            NumberAnimation { target: root; property: "scale"; to: 0.8; duration: root.styleProvider.animation.exitDuration }
         }
-        NumberAnimation { target: root; property: "Layout.preferredHeight"; to: 0; duration: 200 }
+        NumberAnimation { target: root; property: "height"; to: 0; duration: 200; easing.type: Easing.OutCubic }
         ScriptAction { script: root.destroy() }
     }
 }

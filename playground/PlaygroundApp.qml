@@ -39,6 +39,7 @@ ApplicationWindow {
     property int selectedPosition: Toastify.TopRightCorner
     property bool selectedCloseOnClick: true
     property bool selectedHideProgressBar: false
+    property bool selectedNewestOnTop: false
     property int selectedAutoClose: 5000
     
     // Background
@@ -264,7 +265,6 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         text: "Bu bir örnek toast mesajıdır. Farklı uzunluklarda mesajları test edebilirsiniz."
                         wrapMode: TextInput.Wrap
-                        selectByMouse: true
                         
                         background: Rectangle {
                             color: selectedStyleIndex === 1 ? "#333333" : "#FFFFFF"
@@ -375,7 +375,19 @@ ApplicationWindow {
                             text: "Hide Progress Bar"
                             checked: selectedHideProgressBar
                             onCheckedChanged: selectedHideProgressBar = checked
-                            
+
+                            contentItem: Text {
+                                text: parent.text
+                                color: selectedStyleIndex === 1 ? "#FFFFFF" : "#333333"
+                                leftPadding: parent.indicator.width + parent.spacing
+                            }
+                        }
+
+                        CheckBox {
+                            text: "Newest on Top"
+                            checked: selectedNewestOnTop
+                            onCheckedChanged: selectedNewestOnTop = checked
+
                             contentItem: Text {
                                 text: parent.text
                                 color: selectedStyleIndex === 1 ? "#FFFFFF" : "#333333"
@@ -520,5 +532,6 @@ ApplicationWindow {
     Toastify {
         id: toastify
         style: currentStyle
+        newestOnTop: selectedNewestOnTop
     }
 }

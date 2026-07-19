@@ -25,6 +25,8 @@ target_link_libraries(QtToastifyPlayground PRIVATE
     Qt6::Quick
     Qt6::Qml
     Qt6::QuickControls2
+    Toastifyplugin
+    ToastifyStyleplugin
 )
 
 # Set properties

@@ -55,6 +55,7 @@ qt_add_qml_module(Toastify
         resources/icons/xmark.svg
     IMPORTS
         QtQuick.Effects
+        QtQuick.Shapes
     DEPENDENCIES TARGET
         ToastifyStyle
 )
