@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
 import Toastify.Style 1.0
 
 Item {
@@ -10,6 +9,9 @@ Item {
     
     // Style provider - uses default ToastifyStyleProvider if not specified
     property ToastifyStyleProvider style: ToastifyStyleProvider {}
+
+    // Newest toast is placed at the top of the stack instead of the bottom
+    property bool newestOnTop: false
 
     anchors.fill: parent
 
@@ -36,31 +38,35 @@ Item {
     }
 
     // Pozisyon Kolonları - İçeriğe göre boyutlanır
-    ColumnLayout {
+    Column {
         id: topLeftColumn
+        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
         x: 12
         y: 12
         spacing: 10
     }
 
-    ColumnLayout {
+    Column {
         id: topRightColumn
+        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
         anchors.right: parent.right
         anchors.rightMargin: 12
         y: 12
         spacing: 10
     }
 
-    ColumnLayout {
+    Column {
         id: bottomLeftColumn
+        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
         x: 12
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 12
         spacing: 10
     }
 
-    ColumnLayout {
+    Column {
         id: bottomRightColumn
+        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
         anchors.right: parent.right
         anchors.rightMargin: 12
         anchors.bottom: parent.bottom
@@ -68,15 +74,17 @@ Item {
         spacing: 10
     }
 
-    ColumnLayout {
+    Column {
         id: topCenterColumn
+        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
         anchors.horizontalCenter: parent.horizontalCenter
         y: 50
         spacing: 10
     }
 
-    ColumnLayout {
+    Column {
         id: bottomCenterColumn
+        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 50
@@ -127,6 +135,10 @@ Item {
         if (toast === null) {
             console.error("Toastify: Error creating toast object.");
             return null;
+        }
+
+        if (root.newestOnTop && targetLayout.children.length > 1) {
+            toast.stackBefore(targetLayout.children[0]);
         }
 
         return toast;

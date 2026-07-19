@@ -162,6 +162,10 @@ Control {
                 source: "qrc:/qt/qml/Toastify/icons/xmark.svg"
                 sourceSize.width: spacingConfig.closeButtonTotalWidth
                 sourceSize.height: spacingConfig.closeButtonTotalWidth
+                scale: closeButton.pressed ? 0.9 : 1.0
+                Behavior on scale {
+                    NumberAnimation { duration: 120; easing.type: Easing.OutQuad }
+                }
             }
 
             onClicked: root.close()
@@ -201,6 +205,15 @@ Control {
             easing.type: Easing.OutBack
         }
         NumberAnimation {
+            target: trans
+            property: "y"
+            from: root.position === Toastify.TopCenter ? -50 :
+                  root.position === Toastify.BottomCenter ? 50 : 0
+            to: 0
+            duration: styleProvider.animation.enterDuration
+            easing.type: Easing.OutBack
+        }
+        NumberAnimation {
             target: root
             property: "opacity"
             from: 0; to: 1
@@ -226,7 +239,7 @@ Control {
             NumberAnimation { target: root; property: "opacity"; to: 0; duration: styleProvider.animation.exitDuration }
             NumberAnimation { target: root; property: "scale"; to: 0.8; duration: styleProvider.animation.exitDuration }
         }
-        NumberAnimation { target: root; property: "Layout.preferredHeight"; to: 0; duration: 200 }
+        NumberAnimation { target: root; property: "height"; to: 0; duration: 200; easing.type: Easing.OutCubic }
         ScriptAction { script: root.destroy() }
     }
 }
