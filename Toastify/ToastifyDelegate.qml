@@ -19,45 +19,43 @@ Control {
     property bool hideProgressBar: false
     property var clickAction: null
 
-    // Style provider injection - uses default ToastifyStyleProvider if null
     property ToastifyStyleProvider styleProvider: ToastifyStyleProvider {}
 
-    // Container size constraints from styleProvider
     property int minimumWidth: root.styleProvider.containerSizes.minimum
     property int preferredWidth: root.styleProvider.containerSizes.preferred
     property int maximumWidth: root.styleProvider.containerSizes.maximum
+    readonly property int minimumToastHeight: root.styleProvider.containerSizes.minimumHeight ?? 0
 
-    // Spacing consistency system - using styleProvider
-    readonly property QtObject spacingConfig: QtObject {
-        readonly property int mainSpacing: root.styleProvider.spacing.main
-        readonly property int contentSpacing: root.styleProvider.spacing.content
-        readonly property int textSpacing: root.styleProvider.spacing.text
-        readonly property int containerPadding: root.styleProvider.spacing.container
-        readonly property int closeButtonPadding: root.styleProvider.spacing.closeButton.padding
-        readonly property int closeButtonSize: root.styleProvider.spacing.closeButton.size
-        readonly property int closeButtonTotalWidth: closeButtonSize + closeButtonPadding * 2
+    readonly property int mainSpacing: root.styleProvider.spacing.main
+    readonly property int contentSpacing: root.styleProvider.spacing.content
+    readonly property int textSpacing: root.styleProvider.spacing.text
+    readonly property int containerPadding: root.styleProvider.spacing.container
+    readonly property int closeButtonPadding: root.styleProvider.spacing.closeButton.padding
+    readonly property int closeButtonSize: root.styleProvider.spacing.closeButton.size
+    readonly property int closeButtonWidth: root.styleProvider.spacing.closeButton.width ?? root.closeButtonSize
+    readonly property int closeButtonHeight: root.styleProvider.spacing.closeButton.height ?? root.closeButtonSize
+    readonly property int closeButtonTotalWidth: root.closeButtonWidth + root.closeButtonPadding * 2
+    readonly property real progressRadius: root.styleProvider.progressBar.radius ?? root.styleProvider.cornerRadius
+    readonly property color accentColor: root.styleProvider.getColorForType(root.type)
 
-        // Calculated spacing values using styleProvider
-        readonly property int totalHorizontalSpacing: root.styleProvider.spacing.totalHorizontal()
+    Component {
+        id: infoIconComponent
+        InfoIcon { color: root.accentColor }
     }
 
-    readonly property color accentColor: {
-        switch(root.type) {
-            case 1: return root.styleProvider.colors.success;
-            case 2: return root.styleProvider.colors.warning;
-            case 3: return root.styleProvider.colors.error;
-            default: return root.styleProvider.colors.info;
-        }
+    Component {
+        id: successIconComponent
+        SuccessIcon { color: root.accentColor }
     }
 
-    readonly property string iconName: {
-        switch(root.type) {
-            case Toastify.Info: return "qrc:/qt/qml/Toastify/icons/info.svg"
-            case Toastify.Success: return "qrc:/qt/qml/Toastify/icons/success.svg"
-            case Toastify.Warning: return "qrc:/qt/qml/Toastify/icons/warning.svg"
-            case Toastify.Error: return "qrc:/qt/qml/Toastify/icons/error.svg"
-        }
-        return "qrc:/qt/qml/Toastify/icons/info.svg"
+    Component {
+        id: warningIconComponent
+        WarningIcon { color: root.accentColor }
+    }
+
+    Component {
+        id: errorIconComponent
+        ErrorIcon { color: root.accentColor }
     }
 
     function progressPath(width, height, barHeight, cornerRadius) {
@@ -95,33 +93,53 @@ Control {
     }
 
     implicitWidth: Math.max(minimumWidth, Math.min(preferredWidth, maximumWidth))
-    implicitHeight: contentItem.implicitHeight + topPadding + bottomPadding
+    implicitHeight: Math.max(root.minimumToastHeight,
+                             contentItem.implicitHeight + topPadding + bottomPadding)
 
-    padding: root.spacingConfig.containerPadding
-    leftPadding: root.spacingConfig.containerPadding
-    rightPadding: root.spacingConfig.containerPadding + root.spacingConfig.closeButtonTotalWidth
-    topPadding: root.spacingConfig.containerPadding
-    bottomPadding: root.spacingConfig.containerPadding
+    padding: root.containerPadding
+    leftPadding: root.containerPadding
+    rightPadding: root.containerPadding + root.closeButtonTotalWidth
+    topPadding: root.containerPadding
+    bottomPadding: root.containerPadding
 
     background: Rectangle {
         id: backgroundItem
 
-        color: root.accentColor
+        color: root.styleProvider.backgroundColor
         radius: root.styleProvider.cornerRadius
 
-        layer.enabled: true
+        layer.enabled: root.styleProvider.shadow.opacity > 0
         layer.effect: MultiEffect {
             shadowEnabled: true
             shadowColor: root.styleProvider.shadow.color
             shadowBlur: root.styleProvider.shadow.blur
             shadowOpacity: root.styleProvider.shadow.opacity
+            shadowHorizontalOffset: root.styleProvider.shadow.horizontalOffset
             shadowVerticalOffset: root.styleProvider.shadow.verticalOffset
         }
 
-        // Progress Bar
-        Item {
-            id: progressClip
+        Shape {
+            visible: root.autoClose > 0 && !root.hideProgressBar
+            width: backgroundItem.width
+            height: backgroundItem.height
+            opacity: root.styleProvider.progressBar.backgroundOpacity ?? 0.2
+            preferredRendererType: Shape.CurveRenderer
 
+            ShapePath {
+                strokeColor: "transparent"
+                fillColor: root.accentColor
+
+                PathSvg {
+                    path: root.progressPath(
+                              backgroundItem.width,
+                              backgroundItem.height,
+                              root.styleProvider.progressBar.height,
+                              root.progressRadius)
+                }
+            }
+        }
+
+        Item {
             visible: root.autoClose > 0 && !root.hideProgressBar
             anchors.left: backgroundItem.left
             anchors.top: backgroundItem.top
@@ -132,18 +150,19 @@ Control {
             Shape {
                 width: backgroundItem.width
                 height: backgroundItem.height
+                opacity: root.styleProvider.progressBar.opacity ?? 0.7
                 preferredRendererType: Shape.CurveRenderer
 
                 ShapePath {
                     strokeColor: "transparent"
-                    fillColor: Qt.lighter(root.accentColor, 1.4) //Qt.rgba(255, 255, 255, 0.4)
+                    fillColor: root.accentColor
 
                     PathSvg {
                         path: root.progressPath(
                                   backgroundItem.width,
                                   backgroundItem.height,
                                   root.styleProvider.progressBar.height,
-                                  root.styleProvider.cornerRadius)
+                                  root.progressRadius)
                     }
                 }
             }
@@ -151,57 +170,52 @@ Control {
     }
 
     contentItem: RowLayout {
-        id: mainLayout
-        spacing: root.spacingConfig.mainSpacing
+        spacing: root.mainSpacing
 
         RowLayout {
             id: contentArea
-            Layout.alignment: Qt.AlignTop
+            Layout.alignment: Qt.AlignVCenter
             Layout.fillWidth: true
             Layout.maximumWidth: root.width - root.leftPadding - root.rightPadding
-            Layout.minimumWidth: 100  // Ensure minimum content width
-            spacing: root.spacingConfig.contentSpacing
+            Layout.minimumWidth: 100
+            spacing: root.contentSpacing
 
-            ColoredImage {
+            Loader {
                 id: iconImage
-                Layout.alignment: Qt.AlignTop
+                objectName: "statusIcon"
+                Layout.alignment: Qt.AlignVCenter
                 Layout.preferredWidth: root.styleProvider.iconSize
                 Layout.preferredHeight: root.styleProvider.iconSize
                 Layout.minimumWidth: root.styleProvider.iconSize
                 Layout.minimumHeight: root.styleProvider.iconSize
-                source: root.iconName
-                color: root.styleProvider.textColors.color
-                sourceSize.width: root.styleProvider.iconSize
-                sourceSize.height: root.styleProvider.iconSize
+                sourceComponent: {
+                    switch (root.type) {
+                    case Toastify.Success: return successIconComponent
+                    case Toastify.Warning: return warningIconComponent
+                    case Toastify.Error: return errorIconComponent
+                    default: return infoIconComponent
+                    }
+                }
             }
 
-            // Text content area with proper wrapping and expansion
             ColumnLayout {
                 id: textContentArea
+                objectName: "textContentArea"
                 Layout.fillWidth: true
                 Layout.maximumWidth: contentArea.Layout.maximumWidth - iconImage.Layout.preferredWidth - contentArea.spacing
-                Layout.minimumWidth: 50  // Minimum text area width
-                spacing: root.spacingConfig.textSpacing  // Consistent text spacing
+                Layout.minimumWidth: 50
+                spacing: root.textSpacing
 
                 Label {
-                    id: messageLabel
                     text: root.message
                     color: root.styleProvider.textColors.color
                     font.family: root.styleProvider.fonts.family
                     font.pixelSize: root.styleProvider.fonts.size
+                    font.weight: root.styleProvider.fonts.weight
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: textContentArea.Layout.maximumWidth
 
-                    // Ensure proper vertical expansion for wrapped text
-                    onImplicitHeightChanged: {
-                        if (implicitHeight > root.styleProvider.fonts.size * 1.5) {
-                            // Multi-line text detected, ensure container expands
-                            root.implicitHeight = Qt.binding(function() {
-                                return contentItem.implicitHeight + root.topPadding + root.bottomPadding
-                            })
-                        }
-                    }
                 }
             }
         }
@@ -218,30 +232,34 @@ Control {
         }
     }
 
-    ColoredImage {
-        id: closeButton
+    CloseIcon {
         objectName: "closeButtonArea"
-        width: root.spacingConfig.closeButtonSize
-        height: root.spacingConfig.closeButtonSize
+        width: root.closeButtonWidth
+        height: root.closeButtonHeight
         anchors.top: parent.top
         anchors.right: parent.right
-        anchors.topMargin: root.spacingConfig.closeButtonPadding * 2
-        anchors.rightMargin: root.spacingConfig.closeButtonPadding * 2
+        anchors.topMargin: root.closeButtonPadding
+        anchors.rightMargin: root.closeButtonPadding
         z: 2
-        source: "qrc:/qt/qml/Toastify/icons/xmark.svg"
-        sourceSize.width: root.spacingConfig.closeButtonSize
-        sourceSize.height: root.spacingConfig.closeButtonSize
-        color: root.styleProvider.textColors.color
+        color: root.styleProvider.closeButtonStyle.color
+        opacity: closeButtonHover.hovered
+                 ? root.styleProvider.closeButtonStyle.hoveredOpacity
+                 : root.styleProvider.closeButtonStyle.opacity
+
+        Behavior on opacity {
+            NumberAnimation { duration: 300 }
+        }
 
         HoverHandler {
-            margin: root.spacingConfig.closeButtonPadding
+            id: closeButtonHover
+            margin: root.closeButtonPadding
             cursorShape: Qt.PointingHandCursor
         }
 
         TapHandler {
             acceptedButtons: Qt.LeftButton
             gesturePolicy: TapHandler.WithinBounds
-            margin: root.spacingConfig.closeButtonPadding
+            margin: root.closeButtonPadding
             onTapped: root.close()
         }
     }

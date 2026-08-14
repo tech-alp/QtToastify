@@ -1,6 +1,8 @@
 import QtQuick
 
 ToastifyStyleProvider {
+    backgroundColor: "#121212"
+
     // Dark theme colors - Material Design inspired
     colors: ({
         info: "#2196F3",      // Material Blue
@@ -64,4 +66,14 @@ ToastifyStyleProvider {
     
     // Larger icons
     iconSize: 20
+
+    textColors: ({
+        color: "#ffffff"
+    })
+
+    closeButtonStyle: ({
+        color: "#ffffff",
+        opacity: 0.7,
+        hoveredOpacity: 1.0
+    })
 }

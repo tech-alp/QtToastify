@@ -41,54 +41,54 @@ Item {
     Column {
         id: topLeftColumn
         move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
-        x: 12
-        y: 12
-        spacing: 10
+        x: root.style.toastOffset
+        y: root.style.toastOffset
+        spacing: root.style.toastSpacing
     }
 
     Column {
         id: topRightColumn
         move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
         anchors.right: parent.right
-        anchors.rightMargin: 12
-        y: 12
-        spacing: 10
+        anchors.rightMargin: root.style.toastOffset
+        y: root.style.toastOffset
+        spacing: root.style.toastSpacing
     }
 
     Column {
         id: bottomLeftColumn
         move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
-        x: 12
-        y: parent.height - height - 12
+        x: root.style.toastOffset
+        y: parent.height - height - root.style.toastOffset
         Behavior on y { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
-        spacing: 10
+        spacing: root.style.toastSpacing
     }
 
     Column {
         id: bottomRightColumn
         move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
         anchors.right: parent.right
-        anchors.rightMargin: 12
-        y: parent.height - height - 12
+        anchors.rightMargin: root.style.toastOffset
+        y: parent.height - height - root.style.toastOffset
         Behavior on y { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
-        spacing: 10
+        spacing: root.style.toastSpacing
     }
 
     Column {
         id: topCenterColumn
         move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
         anchors.horizontalCenter: parent.horizontalCenter
-        y: 50
-        spacing: 10
+        y: root.style.toastOffset
+        spacing: root.style.toastSpacing
     }
 
     Column {
         id: bottomCenterColumn
         move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
         anchors.horizontalCenter: parent.horizontalCenter
-        y: parent.height - height - 50
+        y: parent.height - height - root.style.toastOffset
         Behavior on y { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
-        spacing: 10
+        spacing: root.style.toastSpacing
     }
 
 

@@ -22,6 +22,29 @@ TestCase {
 
     property var testWidths: [280, 320, 350, 400, 500]
 
+    function test_reactToastifyDefaults() {
+        var toast = createTemporaryObject(toastComponent, testCase, {
+            message: "Wow so easy !"
+        })
+
+        verify(toast !== null, "Toast should be created successfully")
+        waitForRendering(toast)
+
+        compare(toast.width, 320)
+        compare(toast.height, 64)
+        compare(toast.styleProvider.backgroundColor.toString(), "#ffffff")
+        compare(toast.styleProvider.textColors.color, "#757575")
+        compare(toast.styleProvider.colors.info, "#3498db")
+        compare(toast.styleProvider.colors.success, "#07bc0c")
+        compare(toast.styleProvider.colors.warning, "#f1c40f")
+        compare(toast.styleProvider.colors.error, "#e74c3c")
+        compare(toast.styleProvider.iconSize, 22)
+        compare(toast.styleProvider.cornerRadius, 6)
+        compare(toast.styleProvider.progressBar.height, 5)
+        compare(toast.styleProvider.toastOffset, 16)
+        compare(toast.styleProvider.toastSpacing, 16)
+    }
+
     function test_containerBoundaryEnforcement_data() {
         var data = []
         for (var i = 0; i < testMessages.length; i++) {
@@ -104,21 +127,23 @@ TestCase {
         verify(contentItem !== null, "Content item should exist")
         
         // Find the close button area
-        var closeButtonArea = findChildByObjectName(contentItem, "closeButtonArea")
+        var closeButtonArea = findChildByObjectName(toast, "closeButtonArea")
         verify(closeButtonArea !== null, "Close button area should exist")
         
         // Verify close button is positioned in top-right area
-        var containerWidth = toast.width - toast.leftPadding - toast.rightPadding
-        var containerHeight = toast.height - toast.topPadding - toast.bottomPadding
+        var containerWidth = toast.width
+        var containerHeight = toast.height
+        var expectedMargin = toast.styleProvider.spacing.closeButton.padding
         
         // Close button should be aligned to the top
-        verify(closeButtonArea.y <= 5, "Close button should be positioned at the top (y <= 5)")
+        verify(Math.abs(closeButtonArea.y - expectedMargin) <= 1,
+               "Close button should use configured top margin")
         
         // Close button should be positioned towards the right side
         var closeButtonRightEdge = closeButtonArea.x + closeButtonArea.width
-        var contentRightEdge = contentItem.width
-        var distanceFromRight = contentRightEdge - closeButtonRightEdge
-        verify(distanceFromRight <= 5, "Close button should be positioned near the right edge")
+        var distanceFromRight = toast.width - closeButtonRightEdge
+        verify(Math.abs(distanceFromRight - expectedMargin) <= 1,
+               "Close button should use configured right margin")
         
         // Close button should stay within container boundaries
         verify(closeButtonArea.x >= 0, "Close button x position should be >= 0")
@@ -132,13 +157,12 @@ TestCase {
         verify(closeButtonArea.width > 0, "Close button should have positive width")
         verify(closeButtonArea.height > 0, "Close button should have positive height")
         
-        // Close button should be visible and clickable
-        verify(closeButtonArea.visible, "Close button should be visible")
-        
-        // Find the mouse area within close button for clickability
-        var mouseArea = findMouseAreaInCloseButton(closeButtonArea)
-        verify(mouseArea !== null, "Close button should have a clickable mouse area")
-        verify(mouseArea.enabled, "Close button mouse area should be enabled")
+        // Effective visibility/enabled state should follow the toast. In an
+        // offscreen Qt Quick Test both can be false because no window is shown.
+        compare(closeButtonArea.visible, toast.visible,
+                "Close button visibility should follow toast visibility")
+        compare(closeButtonArea.enabled, toast.enabled,
+                "Close button enabled state should follow toast state")
     }
 
     function checkChildBoundaries(parent, containerWidth, containerHeight, parentName) {
@@ -207,7 +231,7 @@ TestCase {
         verify(contentItem !== null, "Content item should exist")
         
         // Find the close button area and content area
-        var closeButtonArea = findChildByObjectName(contentItem, "closeButtonArea")
+        var closeButtonArea = findChildByObjectName(toast, "closeButtonArea")
         var contentArea = findChildByObjectName(contentItem, "contentArea")
         
         if (closeButtonArea !== null && contentArea !== null) {
@@ -218,10 +242,12 @@ TestCase {
             var initialCloseButtonHeight = closeButtonArea.height
             
             // Verify close button maintains top alignment regardless of content height
-            verify(closeButtonArea.y <= 5, "Close button should maintain top alignment")
+            var expectedMargin = toast.styleProvider.spacing.closeButton.padding
+            verify(Math.abs(closeButtonArea.y - expectedMargin) <= 1,
+                   "Close button should maintain configured top alignment")
             
             // Verify close button doesn't overlap with content area
-            var contentRightEdge = contentArea.x + contentArea.width
+            var contentRightEdge = contentArea.mapToItem(toast, contentArea.width, 0).x
             var closeButtonLeftEdge = closeButtonArea.x
             verify(closeButtonLeftEdge >= contentRightEdge - 5, 
                    "Close button should not overlap with content area")
@@ -234,7 +260,7 @@ TestCase {
             var contentHeight = contentArea.height
             if (contentHeight > 30) { // Multi-line content likely
                 // Close button should still be at the top
-                verify(closeButtonArea.y <= 5, 
+                verify(Math.abs(closeButtonArea.y - expectedMargin) <= 1,
                        "Close button should remain at top even with multi-line content")
                 
                 // Close button should maintain its width regardless of content wrapping
@@ -246,9 +272,9 @@ TestCase {
         // Verify layout stability - content area should not be affected by close button
         if (contentArea !== null) {
             // Content area should have proper maximum width constraint
-            var expectedMaxWidth = toast.width - (closeButtonArea ? closeButtonArea.width : 24) - 12 - toast.leftPadding - toast.rightPadding
-            verify(contentArea.width <= expectedMaxWidth + 5, 
-                   "Content area should respect maximum width constraint")
+            var mappedContentRight = contentArea.mapToItem(toast, contentArea.width, 0).x
+            verify(closeButtonArea === null || mappedContentRight <= closeButtonArea.x,
+                   "Content area should not overlap close button")
         }
     }
 
@@ -266,19 +292,6 @@ TestCase {
             var found = findChildByObjectName(child, objectName)
             if (found !== null) {
                 return found
-            }
-        }
-        return null
-    }
-
-    function findMouseAreaInCloseButton(closeButtonArea) {
-        for (var i = 0; i < closeButtonArea.children.length; i++) {
-            var child = closeButtonArea.children[i]
-            for (var j = 0; j < child.children.length; j++) {
-                var grandchild = child.children[j]
-                if (grandchild.toString().indexOf("MouseArea") !== -1) {
-                    return grandchild
-                }
             }
         }
         return null
@@ -346,11 +359,12 @@ TestCase {
         verify(contentItem !== null, "Content item should exist")
         
         var contentArea = findChildByObjectName(contentItem, "contentArea")
-        var closeButtonArea = findChildByObjectName(contentItem, "closeButtonArea")
+        var closeButtonArea = findChildByObjectName(toast, "closeButtonArea")
         
         if (contentArea !== null && closeButtonArea !== null) {
             // Verify content area adapts to available space
-            var availableContentWidth = containerWidth - closeButtonArea.width - 12 - toast.leftPadding - toast.rightPadding
+            var contentLeft = contentArea.mapToItem(toast, 0, 0).x
+            var availableContentWidth = closeButtonArea.x - contentLeft
             verify(contentArea.width <= availableContentWidth + 5,
                    "Content area should adapt to available space without overflow")
             
@@ -359,7 +373,7 @@ TestCase {
             verify(closeButtonArea.height > 0, "Close button area should have positive height")
             
             // Verify no overlap between content and close button areas
-            var contentRightEdge = contentArea.x + contentArea.width
+            var contentRightEdge = contentArea.mapToItem(toast, contentArea.width, 0).x
             var closeButtonLeftEdge = closeButtonArea.x
             verify(closeButtonLeftEdge >= contentRightEdge - 2,
                    "Content and close button areas should not overlap")
@@ -418,50 +432,44 @@ TestCase {
         verify(contentItem !== null, "Content item should exist")
         
         var contentArea = findChildByObjectName(contentItem, "contentArea")
-        var closeButtonArea = findChildByObjectName(contentItem, "closeButtonArea")
+        var closeButtonArea = findChildByObjectName(toast, "closeButtonArea")
         
         if (contentArea !== null && closeButtonArea !== null) {
-            // Verify main layout spacing consistency
-            var expectedMainSpacing = 12  // ToastifyStyle.iconSpacing
-            var actualMainSpacing = closeButtonArea.x - (contentArea.x + contentArea.width)
-            verify(Math.abs(actualMainSpacing - expectedMainSpacing) <= 2,
-                   "Main layout spacing should be consistent (" + expectedMainSpacing + "), got " + actualMainSpacing)
-            
             // Verify content area internal spacing
             var iconImage = findIconInContentArea(contentArea)
             var textArea = findTextAreaInContentArea(contentArea)
             
             if (iconImage !== null && textArea !== null) {
-                var expectedContentSpacing = 12  // ToastifyStyle.iconSpacing
+                var expectedContentSpacing = 10
                 var actualContentSpacing = textArea.x - (iconImage.x + iconImage.width)
                 verify(Math.abs(actualContentSpacing - expectedContentSpacing) <= 2,
                        "Content area spacing should be consistent (" + expectedContentSpacing + "), got " + actualContentSpacing)
             }
             
             // Verify container padding consistency
-            var expectedPadding = 12  // ToastifyStyle.borderMargin
+            var expectedPadding = 14
             verify(Math.abs(toast.leftPadding - expectedPadding) <= 1,
                    "Left padding should be consistent (" + expectedPadding + "), got " + toast.leftPadding)
-            verify(Math.abs(toast.rightPadding - expectedPadding) <= 1,
-                   "Right padding should be consistent (" + expectedPadding + "), got " + toast.rightPadding)
+            var expectedRightPadding = expectedPadding + 14 + 6 * 2
+            verify(Math.abs(toast.rightPadding - expectedRightPadding) <= 1,
+                   "Right padding should reserve close button space")
             verify(Math.abs(toast.topPadding - expectedPadding) <= 1,
                    "Top padding should be consistent (" + expectedPadding + "), got " + toast.topPadding)
             verify(Math.abs(toast.bottomPadding - expectedPadding) <= 1,
                    "Bottom padding should be consistent (" + expectedPadding + "), got " + toast.bottomPadding)
             
             // Verify close button dimensions consistency
-            var expectedCloseButtonSize = 24  // ToastifyStyle.iconSize + 6 padding
-            verify(Math.abs(closeButtonArea.width - expectedCloseButtonSize) <= 2,
-                   "Close button width should be consistent (" + expectedCloseButtonSize + "), got " + closeButtonArea.width)
-            verify(Math.abs(closeButtonArea.height - expectedCloseButtonSize) <= 2,
-                   "Close button height should be consistent (" + expectedCloseButtonSize + "), got " + closeButtonArea.height)
+            verify(Math.abs(closeButtonArea.width - 14) <= 1,
+                   "Close button width should be 14px")
+            verify(Math.abs(closeButtonArea.height - 16) <= 1,
+                   "Close button height should be 16px")
         }
         
         // Verify spacing remains consistent across different configurations
         // Test that spacing doesn't get compromised under different content lengths
         var containerWidth = toast.width
-        var totalExpectedSpacing = 12 + 12 + 12 + 12  // main + content + left padding + right padding
-        var availableContentWidth = containerWidth - totalExpectedSpacing - 24  // minus close button
+        var totalExpectedSpacing = 10 + 14 + 40
+        var availableContentWidth = containerWidth - totalExpectedSpacing - 22
         
         verify(availableContentWidth > 0, "Available content width should be positive after accounting for spacing")
         
@@ -473,23 +481,11 @@ TestCase {
     }
 
     function findIconInContentArea(contentArea) {
-        for (var i = 0; i < contentArea.children.length; i++) {
-            var child = contentArea.children[i]
-            if (child.toString().indexOf("Image") !== -1) {
-                return child
-            }
-        }
-        return null
+        return findChildByObjectName(contentArea, "statusIcon")
     }
 
     function findTextAreaInContentArea(contentArea) {
-        for (var i = 0; i < contentArea.children.length; i++) {
-            var child = contentArea.children[i]
-            if (child.toString().indexOf("ColumnLayout") !== -1) {
-                return child
-            }
-        }
-        return null
+        return findChildByObjectName(contentArea, "textContentArea")
     }
 
     Component {

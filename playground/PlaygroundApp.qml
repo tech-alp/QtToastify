@@ -18,7 +18,7 @@ ApplicationWindow {
     
     // Available styles using new StyleProvider system
     property var availableStyles: [
-        { name: "Default", provider: defaultStyleProvider, description: "QtToastify'ın varsayılan stil ayarları" },
+        { name: "Default", provider: defaultStyleProvider, description: "React-Toastify varsayılan açık tema" },
         { name: "Dark Theme", provider: darkStyleProvider, description: "Koyu tema, büyük fontlar ve artırılmış spacing" },
         { name: "Compact", provider: compactStyleProvider, description: "Ultra-kompakt layout, minimal alan kullanımı" },
         { name: "Material", provider: materialStyleProvider, description: "Material Design 3 stil rehberi" }

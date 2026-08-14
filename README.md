@@ -16,7 +16,7 @@ A modern, customizable toast notification library for Qt/QML applications, inspi
 - 🖱️ **Interactive**: Click-to-close and custom action buttons
 - 🎯 **Style Provider System**: Easy theming with pluggable style providers
 - 📱 **Responsive**: Automatic text wrapping and container sizing
-- 🔤 **FontAwesome Icons**: Beautiful icons using QtAwesome
+- 🔤 **Vector Icons**: SVG paths compiled to native QML Shapes with `svgtoqml`
 
 ## Built-in Styles
 
@@ -24,7 +24,7 @@ QtToastify comes with 4 pre-configured style providers:
 
 | Style | Description | Font Size | Container Width |
 |-------|-------------|-----------|-----------------|
-| **Default** | Standard style with balanced spacing | 14px | 280-500px |
+| **Default** | React-Toastify light theme | 16px | 320px |
 | **Dark Theme** | Dark theme with larger fonts and enhanced shadows | 16px | 320-600px |
 | **Material** | Material Design 3 compliant style | 14px | 288-568px |
 | **Compact** | Minimal layout for space-constrained UIs | 12px | 200-350px |
@@ -228,6 +228,8 @@ import QtQuick
 import Toastify.Style 1.0
 
 ToastifyStyleProvider {
+    backgroundColor: "#ffffff"
+
     // Custom colors
     colors: ({
         info: "#6366f1",      // Indigo
@@ -251,7 +253,9 @@ ToastifyStyleProvider {
         container: 14,
         closeButton: {
             padding: 7,
-            size: 20
+            size: 20,
+            width: 20,
+            height: 20
         }
     })
     
@@ -259,7 +263,8 @@ ToastifyStyleProvider {
     containerSizes: ({
         minimum: 300,
         preferred: 380,
-        maximum: 550
+        maximum: 550,
+        minimumHeight: 64
     })
     
     // Custom corner radius
@@ -282,13 +287,21 @@ ToastifyStyleProvider {
     
     // Custom text colors
     textColors: ({
-        color: "#ffffff"
+        color: "#333333"
+    })
+
+    closeButtonStyle: ({
+        color: "#000000",
+        opacity: 0.3,
+        hoveredOpacity: 1.0
     })
     
     // Custom progress bar
     progressBar: ({
         height: 5,
-        radius: 3
+        radius: 3,
+        opacity: 0.7,
+        backgroundOpacity: 0.2
     })
 }
 ```
@@ -307,10 +320,10 @@ Toastify {
 All style providers support the following properties:
 
 #### Colors
-- `colors.info` (color): Info toast background color
-- `colors.success` (color): Success toast background color
-- `colors.warning` (color): Warning toast background color
-- `colors.error` (color): Error toast background color
+- `colors.info` (color): Info icon and progress color
+- `colors.success` (color): Success icon and progress color
+- `colors.warning` (color): Warning icon and progress color
+- `colors.error` (color): Error icon and progress color
 
 #### Fonts
 - `fonts.family` (string): Font family name
@@ -324,15 +337,21 @@ All style providers support the following properties:
 - `spacing.container` (int): Container padding
 - `spacing.closeButton.padding` (int): Close button padding
 - `spacing.closeButton.size` (int): Close button size
+- `spacing.closeButton.width` (int): Close icon width
+- `spacing.closeButton.height` (int): Close icon height
 
 #### Container Sizes
 - `containerSizes.minimum` (int): Minimum container width
 - `containerSizes.preferred` (int): Preferred container width
 - `containerSizes.maximum` (int): Maximum container width
+- `containerSizes.minimumHeight` (int): Minimum toast height
 
 #### Visual Styling
 - `cornerRadius` (real): Corner radius in pixels
 - `iconSize` (real): Icon size in pixels
+- `backgroundColor` (color): Toast surface color
+- `toastOffset` (real): Distance from screen edges
+- `toastSpacing` (real): Distance between stacked toasts
 
 #### Shadow
 - `shadow.blur` (real): Shadow blur amount
@@ -348,9 +367,16 @@ All style providers support the following properties:
 #### Text Colors
 - `textColors.color` (color): Text color
 
+#### Close Button
+- `closeButtonStyle.color` (color): Close icon color
+- `closeButtonStyle.opacity` (real): Default opacity
+- `closeButtonStyle.hoveredOpacity` (real): Hover opacity
+
 #### Progress Bar
 - `progressBar.height` (int): Progress bar height in pixels
 - `progressBar.radius` (int): Progress bar corner radius
+- `progressBar.opacity` (real): Active progress opacity
+- `progressBar.backgroundOpacity` (real): Progress trail opacity
 
 ## Playground Examples
 

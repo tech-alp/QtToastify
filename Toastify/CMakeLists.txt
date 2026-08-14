@@ -3,40 +3,13 @@ add_subdirectory(Style)
 qt_add_library(Toastify STATIC)
 
 set_source_files_properties(
-    private/ColoredImage.qml
+    private/InfoIcon.qml
+    private/SuccessIcon.qml
+    private/WarningIcon.qml
+    private/ErrorIcon.qml
+    private/CloseIcon.qml
     PROPERTIES QT_QML_INTERNAL_TYPE TRUE
 )
-
-set_source_files_properties(
-    private/ShadowEffect.qml
-    PROPERTIES QT_QML_INTERNAL_TYPE TRUE
-)
-
-set_source_files_properties(
-    resources/icons/error.svg
-    PROPERTIES QT_RESOURCE_ALIAS icons/error.svg
-)
-
-set_source_files_properties(
-    resources/icons/info.svg
-    PROPERTIES QT_RESOURCE_ALIAS icons/info.svg
-)
-
-set_source_files_properties(
-    resources/icons/warning.svg
-    PROPERTIES QT_RESOURCE_ALIAS icons/warning.svg
-)
-
-set_source_files_properties(
-    resources/icons/success.svg
-    PROPERTIES QT_RESOURCE_ALIAS icons/success.svg
-)
-
-set_source_files_properties(
-    resources/icons/xmark.svg
-    PROPERTIES QT_RESOURCE_ALIAS icons/xmark.svg
-)
-
 
 qt_add_qml_module(Toastify
     URI Toastify
@@ -45,14 +18,11 @@ qt_add_qml_module(Toastify
     QML_FILES
         Toastify.qml
         ToastifyDelegate.qml
-        private/ColoredImage.qml
-        private/ShadowEffect.qml
-    RESOURCES
-        resources/icons/error.svg
-        resources/icons/info.svg
-        resources/icons/warning.svg
-        resources/icons/success.svg
-        resources/icons/xmark.svg
+        private/InfoIcon.qml
+        private/SuccessIcon.qml
+        private/WarningIcon.qml
+        private/ErrorIcon.qml
+        private/CloseIcon.qml
     IMPORTS
         QtQuick.Effects
         QtQuick.Shapes

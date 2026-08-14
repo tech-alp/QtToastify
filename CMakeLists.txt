@@ -17,6 +17,7 @@ qt_standard_project_setup()
 qt_policy(SET QTP0001 NEW)
 qt_policy(SET QTP0002 NEW)
 qt_policy(SET QTP0004 NEW)
+qt_policy(SET QTP0005 NEW)
 
 add_subdirectory(Toastify)
 
