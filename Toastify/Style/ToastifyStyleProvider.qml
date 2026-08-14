@@ -56,6 +56,9 @@ QtObject {
     property real iconSize: 22
     property real toastOffset: 16
     property real toastSpacing: 16
+    property real collapsedToastOffset: 10
+    property real collapsedToastScaleStep: 0.05
+    property int stackTransitionDuration: 400
     
     // Shadow configuration
     property var shadow: ({

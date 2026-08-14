@@ -8,6 +8,7 @@ set_source_files_properties(
     private/WarningIcon.qml
     private/ErrorIcon.qml
     private/CloseIcon.qml
+    private/ToastStack.qml
     PROPERTIES QT_QML_INTERNAL_TYPE TRUE
 )
 
@@ -23,6 +24,7 @@ qt_add_qml_module(Toastify
         private/WarningIcon.qml
         private/ErrorIcon.qml
         private/CloseIcon.qml
+        private/ToastStack.qml
     IMPORTS
         QtQuick.Effects
         QtQuick.Shapes

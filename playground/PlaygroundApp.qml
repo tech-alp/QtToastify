@@ -40,6 +40,7 @@ ApplicationWindow {
     property bool selectedCloseOnClick: true
     property bool selectedHideProgressBar: false
     property bool selectedNewestOnTop: false
+    property bool selectedExpand: false
     property int selectedAutoClose: 5000
     
     // Background
@@ -384,14 +385,63 @@ ApplicationWindow {
                         }
 
                         CheckBox {
-                            text: "Newest on Top"
-                            checked: selectedNewestOnTop
-                            onCheckedChanged: selectedNewestOnTop = checked
+                            id: newestOnTopCheckBox
+                            text: "Newest on Top (Expand)"
+                            checked: window.selectedNewestOnTop
+                            enabled: window.selectedExpand
+                            opacity: newestOnTopCheckBox.enabled ? 1 : 0.5
+                            onToggled: window.selectedNewestOnTop
+                                       = newestOnTopCheckBox.checked
 
                             contentItem: Text {
-                                text: parent.text
-                                color: selectedStyleIndex === 1 ? "#FFFFFF" : "#333333"
-                                leftPadding: parent.indicator.width + parent.spacing
+                                text: newestOnTopCheckBox.text
+                                color: window.selectedStyleIndex === 1
+                                       ? "#FFFFFF" : "#333333"
+                                leftPadding: newestOnTopCheckBox.indicator.width
+                                             + newestOnTopCheckBox.spacing
+                            }
+                        }
+
+                        RowLayout {
+                            spacing: 12
+
+                            Text {
+                                text: "Stack Mode:"
+                                color: window.selectedStyleIndex === 1 ? "#FFFFFF" : "#333333"
+                            }
+
+                            ButtonGroup {
+                                id: stackModeGroup
+                            }
+
+                            RadioButton {
+                                id: defaultStackMode
+                                text: "Default"
+                                ButtonGroup.group: stackModeGroup
+                                checked: !window.selectedExpand
+                                onClicked: window.selectedExpand = false
+
+                                contentItem: Text {
+                                    text: defaultStackMode.text
+                                    color: window.selectedStyleIndex === 1 ? "#FFFFFF" : "#333333"
+                                    leftPadding: defaultStackMode.indicator.width
+                                                 + defaultStackMode.spacing
+                                }
+                            }
+
+                            RadioButton {
+                                id: expandedStackMode
+                                text: "Expand"
+                                ButtonGroup.group: stackModeGroup
+                                checked: window.selectedExpand
+                                onClicked: window.selectedExpand = true
+
+                                contentItem: Text {
+                                    text: expandedStackMode.text
+                                    color: window.selectedStyleIndex === 1 ? "#FFFFFF" : "#333333"
+                                    leftPadding: expandedStackMode.indicator.width
+                                                 + expandedStackMode.spacing
+                                }
                             }
                         }
                         
@@ -531,7 +581,8 @@ ApplicationWindow {
     // Toastify instance with current style
     Toastify {
         id: toastify
-        style: currentStyle
-        newestOnTop: selectedNewestOnTop
+        style: window.currentStyle
+        newestOnTop: window.selectedNewestOnTop
+        expand: window.selectedExpand
     }
 }

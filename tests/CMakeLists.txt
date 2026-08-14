@@ -12,6 +12,7 @@ qt_add_qml_module(tst_toast_layout
     VERSION 1.0
     QML_FILES
         tst_container_boundary.qml
+        tst_stack_behavior.qml
     DEPENDENCIES TARGET Toastify
 )
 

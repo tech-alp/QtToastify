@@ -13,6 +13,7 @@ A modern, customizable toast notification library for Qt/QML applications, inspi
 - 🎭 **Customizable Styles**: Built-in style providers with full customization support
 - ⏱️ **Auto-Close with Progress Bar**: Configurable auto-close duration with visual progress indicator
 - ✨ **Smooth Animations**: Enter and exit animations for polished user experience
+- 🗂️ **Sonner-Style Stacks**: Compact by default, expanded on hover or permanently with `expand`
 - 🖱️ **Interactive**: Click-to-close and custom action buttons
 - 🎯 **Style Provider System**: Easy theming with pluggable style providers
 - 📱 **Responsive**: Automatic text wrapping and container sizing
@@ -143,6 +144,32 @@ toastify.createMessage("Custom message", {
 |----------|------|---------|-------------|
 | `toastItem` | Component | `ToastifyDelegate{}` | Custom toast component |
 | `style` | ToastifyStyleProvider | `ToastifyStyleProvider{}` | Style provider for theming |
+| `expand` | bool | `false` | Keep stacks permanently expanded; default stacks expand on hover |
+| `visibleToasts` | int | `3` | Maximum visible toasts per position stack |
+| `newestOnTop` | bool | `false` | Put newest first in permanently expanded stacks; compact/hover mode keeps newest at the edge anchor |
+
+```qml
+Toastify {
+    id: toastify
+    expand: true       // false: compact stack + hover expansion
+    visibleToasts: 3
+}
+```
+
+Custom `toastItem` components can participate in the full stack behavior by
+exposing these optional hooks:
+
+```qml
+property bool stackCovered: false // Hide content/actions when true
+property bool stackPaused: false  // Pause the auto-close timer when true
+property real stackHeight: -1     // Use as the explicit height when >= 0
+
+height: stackHeight >= 0 ? stackHeight : implicitHeight
+```
+
+The built-in `ToastifyDelegate` already implements this contract. Components
+without these hooks still stack and clip correctly, but must manage covered
+content and timer pausing themselves.
 
 #### Methods
 
@@ -352,6 +379,9 @@ All style providers support the following properties:
 - `backgroundColor` (color): Toast surface color
 - `toastOffset` (real): Distance from screen edges
 - `toastSpacing` (real): Distance between stacked toasts
+- `collapsedToastOffset` (real): Visible offset between compact stacked cards
+- `collapsedToastScaleStep` (real): Scale reduction per covered toast
+- `stackTransitionDuration` (int): Stack expand/collapse duration in ms
 
 #### Shadow
 - `shadow.blur` (real): Shadow blur amount

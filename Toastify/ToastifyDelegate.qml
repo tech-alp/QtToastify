@@ -18,6 +18,9 @@ Control {
     property bool closeOnClick: true
     property bool hideProgressBar: false
     property var clickAction: null
+    property bool stackCovered: false
+    property bool stackPaused: false
+    property real stackHeight: -1
 
     property ToastifyStyleProvider styleProvider: ToastifyStyleProvider {}
 
@@ -95,6 +98,7 @@ Control {
     implicitWidth: Math.max(minimumWidth, Math.min(preferredWidth, maximumWidth))
     implicitHeight: Math.max(root.minimumToastHeight,
                              contentItem.implicitHeight + topPadding + bottomPadding)
+    height: root.stackHeight >= 0 ? root.stackHeight : implicitHeight
 
     padding: root.containerPadding
     leftPadding: root.containerPadding
@@ -120,6 +124,7 @@ Control {
 
         Shape {
             visible: root.autoClose > 0 && !root.hideProgressBar
+                     && !root.stackCovered
             width: backgroundItem.width
             height: backgroundItem.height
             opacity: root.styleProvider.progressBar.backgroundOpacity ?? 0.2
@@ -141,6 +146,7 @@ Control {
 
         Item {
             visible: root.autoClose > 0 && !root.hideProgressBar
+                     && !root.stackCovered
             anchors.left: backgroundItem.left
             anchors.top: backgroundItem.top
             height: backgroundItem.height
@@ -171,6 +177,11 @@ Control {
 
     contentItem: RowLayout {
         spacing: root.mainSpacing
+        opacity: root.stackCovered ? 0 : 1
+
+        Behavior on opacity {
+            NumberAnimation { duration: 200 }
+        }
 
         RowLayout {
             id: contentArea
@@ -223,7 +234,7 @@ Control {
 
     MouseArea {
         anchors.fill: parent
-        enabled: root.closeOnClick
+        enabled: root.closeOnClick && !root.stackCovered
         cursorShape: Qt.PointingHandCursor
         z: 1
         onClicked: {
@@ -234,6 +245,7 @@ Control {
 
     CloseIcon {
         objectName: "closeButtonArea"
+        visible: !root.stackCovered
         width: root.closeButtonWidth
         height: root.closeButtonHeight
         anchors.top: parent.top
@@ -268,6 +280,18 @@ Control {
 
     Component.onCompleted: enterAnim.start()
 
+    onStackPausedChanged: updateProgressPauseState()
+
+    function updateProgressPauseState() {
+        if (!progressAnim.running)
+            return
+
+        if (root.stackPaused && !progressAnim.paused)
+            progressAnim.pause()
+        else if (!root.stackPaused && progressAnim.paused)
+            progressAnim.resume()
+    }
+
     function close() {
         if(!exitAnim.running) {
             progressAnim.stop()
@@ -301,7 +325,12 @@ Control {
             from: 0; to: 1
             duration: 300
         }
-        onFinished: { if (root.autoClose > 0) progressAnim.start() }
+        onFinished: {
+            if (root.autoClose > 0) {
+                progressAnim.start()
+                root.updateProgressPauseState()
+            }
+        }
     }
 
     property real progressValue: 0.0
@@ -321,7 +350,6 @@ Control {
             NumberAnimation { target: root; property: "opacity"; to: 0; duration: root.styleProvider.animation.exitDuration }
             NumberAnimation { target: root; property: "scale"; to: 0.8; duration: root.styleProvider.animation.exitDuration }
         }
-        NumberAnimation { target: root; property: "height"; to: 0; duration: 200; easing.type: Easing.OutCubic }
         ScriptAction { script: root.destroy() }
     }
 }

@@ -10,8 +10,15 @@ Item {
     // Style provider - uses default ToastifyStyleProvider if not specified
     property ToastifyStyleProvider style: ToastifyStyleProvider {}
 
-    // Newest toast is placed at the top of the stack instead of the bottom
+    // In permanently expanded stacks, place the newest toast at the visual top.
+    // Compact/hover stacks always keep the newest toast at the screen-edge anchor.
     property bool newestOnTop: false
+
+    // Default mode is compact; hover expands the stack temporarily.
+    property bool expand: false
+    property int visibleToasts: 3
+
+    property int _toastSequence: 0
 
     anchors.fill: parent
 
@@ -37,58 +44,94 @@ Item {
         }
     }
 
-    // Pozisyon Kolonları - İçeriğe göre boyutlanır
-    Column {
+    // Position stacks - compact by default, expanded on hover.
+    ToastStack {
         id: topLeftColumn
-        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
+        objectName: "topLeftStack"
         x: root.style.toastOffset
         y: root.style.toastOffset
-        spacing: root.style.toastSpacing
+        expandByDefault: root.expand
+        expandedSpacing: root.style.toastSpacing
+        collapsedOffset: root.style.collapsedToastOffset
+        collapsedScaleStep: root.style.collapsedToastScaleStep
+        transitionDuration: root.style.stackTransitionDuration
+        visibleToasts: root.visibleToasts
+        newestOnTop: root.newestOnTop
     }
 
-    Column {
+    ToastStack {
         id: topRightColumn
-        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
+        objectName: "topRightStack"
         anchors.right: parent.right
         anchors.rightMargin: root.style.toastOffset
         y: root.style.toastOffset
-        spacing: root.style.toastSpacing
+        expandByDefault: root.expand
+        expandedSpacing: root.style.toastSpacing
+        collapsedOffset: root.style.collapsedToastOffset
+        collapsedScaleStep: root.style.collapsedToastScaleStep
+        transitionDuration: root.style.stackTransitionDuration
+        visibleToasts: root.visibleToasts
+        newestOnTop: root.newestOnTop
     }
 
-    Column {
+    ToastStack {
         id: bottomLeftColumn
-        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
+        objectName: "bottomLeftStack"
         x: root.style.toastOffset
-        y: parent.height - height - root.style.toastOffset
-        Behavior on y { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
-        spacing: root.style.toastSpacing
+        y: parent.height - root.style.toastOffset
+        bottomAligned: true
+        expandByDefault: root.expand
+        expandedSpacing: root.style.toastSpacing
+        collapsedOffset: root.style.collapsedToastOffset
+        collapsedScaleStep: root.style.collapsedToastScaleStep
+        transitionDuration: root.style.stackTransitionDuration
+        visibleToasts: root.visibleToasts
+        newestOnTop: root.newestOnTop
     }
 
-    Column {
+    ToastStack {
         id: bottomRightColumn
-        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
+        objectName: "bottomRightStack"
         anchors.right: parent.right
         anchors.rightMargin: root.style.toastOffset
-        y: parent.height - height - root.style.toastOffset
-        Behavior on y { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
-        spacing: root.style.toastSpacing
+        y: parent.height - root.style.toastOffset
+        bottomAligned: true
+        expandByDefault: root.expand
+        expandedSpacing: root.style.toastSpacing
+        collapsedOffset: root.style.collapsedToastOffset
+        collapsedScaleStep: root.style.collapsedToastScaleStep
+        transitionDuration: root.style.stackTransitionDuration
+        visibleToasts: root.visibleToasts
+        newestOnTop: root.newestOnTop
     }
 
-    Column {
+    ToastStack {
         id: topCenterColumn
-        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
+        objectName: "topCenterStack"
         anchors.horizontalCenter: parent.horizontalCenter
         y: root.style.toastOffset
-        spacing: root.style.toastSpacing
+        expandByDefault: root.expand
+        expandedSpacing: root.style.toastSpacing
+        collapsedOffset: root.style.collapsedToastOffset
+        collapsedScaleStep: root.style.collapsedToastScaleStep
+        transitionDuration: root.style.stackTransitionDuration
+        visibleToasts: root.visibleToasts
+        newestOnTop: root.newestOnTop
     }
 
-    Column {
+    ToastStack {
         id: bottomCenterColumn
-        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
+        objectName: "bottomCenterStack"
         anchors.horizontalCenter: parent.horizontalCenter
-        y: parent.height - height - root.style.toastOffset
-        Behavior on y { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
-        spacing: root.style.toastSpacing
+        y: parent.height - root.style.toastOffset
+        bottomAligned: true
+        expandByDefault: root.expand
+        expandedSpacing: root.style.toastSpacing
+        collapsedOffset: root.style.collapsedToastOffset
+        collapsedScaleStep: root.style.collapsedToastScaleStep
+        transitionDuration: root.style.stackTransitionDuration
+        visibleToasts: root.visibleToasts
+        newestOnTop: root.newestOnTop
     }
 
 
@@ -129,25 +172,25 @@ Item {
             }
         });
 
+        const entry = targetLayout.createEntry(++root._toastSequence);
+        if (entry === null) {
+            console.error("Toastify: Error creating stack entry.");
+            return null;
+        }
+
         // Toast oluştur
-        const toast = toastItem.createObject(targetLayout, properties);
+        // Toastify owns the toast lifetime; the entry is only its visual parent.
+        // Keeping ownership here also makes an explicit reparent safe.
+        const toast = toastItem.createObject(root, properties);
 
         if (toast === null) {
+            entry.destroy();
             console.error("Toastify: Error creating toast object.");
             return null;
         }
 
-        if (root.newestOnTop && targetLayout.children.length > 1) {
-            // stackBefore QML'den çağrılamıyor; eski toast'ları yeniden ekleyerek
-            // yeni toast'ı çocuk sırasında başa alıyoruz
-            const olds = [];
-            for (let i = 0; i < targetLayout.children.length - 1; ++i)
-                olds.push(targetLayout.children[i]);
-            for (const c of olds) {
-                c.parent = null;
-                c.parent = targetLayout;
-            }
-        }
+        toast.parent = entry;
+        entry.attachToast(toast);
 
         return toast;
     }
