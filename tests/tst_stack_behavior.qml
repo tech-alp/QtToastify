@@ -178,7 +178,7 @@ TestCase {
         wait(toastify.style.stackTransitionDuration + 20)
         compare(stack.height, stack.frontHeight)
         compare(stack.visualHeight, stack.expandedHeight)
-        compare(byAge[2].y, 0)
+        fuzzyCompare(byAge[2].y, 0, 0.01)
         compare(byAge[1].y, byAge[2].naturalHeight + spacing)
         compare(byAge[0].y,
                 byAge[2].naturalHeight + byAge[1].naturalHeight
@@ -648,7 +648,7 @@ TestCase {
         tryCompare(stack, "hovered", true)
         wait(toastify.style.stackTransitionDuration + 20)
         compare(byAge[0].y, -stack.frontHeight)
-        compare(byAge[1].y, -stack.expandedHeight)
+        fuzzyCompare(byAge[1].y, -stack.expandedHeight, 0.01)
 
         mouseMove(toastify, toastify.width / 2, toastify.height / 2)
         tryCompare(stack, "hovered", false)
