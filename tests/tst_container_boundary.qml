@@ -1,7 +1,5 @@
 import QtQuick
 import QtTest
-import QtQuick.Controls
-import QtQuick.Layouts
 import Toastify 1.0
 import Toastify.Style 1.0
 
@@ -43,6 +41,7 @@ TestCase {
         compare(toast.styleProvider.colors.success, "#07bc0c")
         compare(toast.styleProvider.colors.warning, "#f1c40f")
         compare(toast.styleProvider.colors.error, "#e74c3c")
+        compare(toast.styleProvider.fonts.family, "")
         compare(toast.styleProvider.iconSize, 22)
         compare(toast.styleProvider.cornerRadius, 6)
         compare(toast.styleProvider.progressBar.height, 5)

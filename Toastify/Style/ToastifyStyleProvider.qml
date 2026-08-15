@@ -13,9 +13,10 @@ QtObject {
     
     property color backgroundColor: "#ffffff"
 
-    // Browser default is 16px sans-serif; use the platform sans-serif in Qt.
+    // Empty family inherits Qt's platform font without resolving a generic
+    // family alias such as "Sans Serif" on every process start.
     property var fonts: ({
-        family: Qt.application.font.family,
+        family: "",
         size: 16,
         weight: Font.Normal
     })

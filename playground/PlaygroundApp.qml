@@ -210,7 +210,9 @@ ApplicationWindow {
                             }
                             
                             Text {
-                                text: "Font: " + currentStyle.fonts.family + " " + currentStyle.fonts.size + "px"
+                                text: "Font: "
+                                      + (currentStyle.fonts.family || "System")
+                                      + " " + currentStyle.fonts.size + "px"
                                 font.pixelSize: 11
                                 color: selectedStyleIndex === 1 ? "#CCCCCC" : "#666666"
                             }
@@ -351,7 +353,6 @@ ApplicationWindow {
                         id: messageField
                         Layout.fillWidth: true
                         text: "Bu bir örnek toast mesajıdır. Farklı uzunluklarda mesajları test edebilirsiniz."
-                        wrapMode: TextInput.Wrap
                         
                         background: Rectangle {
                             color: selectedStyleIndex === 1 ? "#333333" : "#FFFFFF"

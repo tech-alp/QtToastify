@@ -432,7 +432,7 @@ All style providers support the following properties:
 - `colors.error` (color): Error icon and progress color
 
 #### Fonts
-- `fonts.family` (string): Font family name
+- `fonts.family` (string): Font family name; empty uses the platform default
 - `fonts.size` (int): Font size in pixels
 - `fonts.weight` (enum): Font weight (Normal, Bold, etc.)
 
