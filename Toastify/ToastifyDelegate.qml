@@ -18,9 +18,13 @@ Control {
     property bool closeOnClick: true
     property bool hideProgressBar: false
     property var clickAction: null
+    property bool closeButton: true
+    property var action: null
+    property bool isLoading: false
     property bool stackCovered: false
     property bool stackPaused: false
     property real stackHeight: -1
+    property bool _entered: false
 
     property ToastifyStyleProvider styleProvider: ToastifyStyleProvider {}
 
@@ -38,10 +42,17 @@ Control {
     readonly property int closeButtonWidth: root.styleProvider.spacing.closeButton.width ?? root.closeButtonSize
     readonly property int closeButtonHeight: root.styleProvider.spacing.closeButton.height ?? root.closeButtonSize
     readonly property int closeButtonTotalWidth: root.closeButtonWidth + root.closeButtonPadding * 2
+    readonly property int closeButtonReservedWidth: root.closeButton
+                                                    ? root.closeButtonTotalWidth
+                                                    : 0
+    readonly property bool hasAction: root.action !== null
+                                      && typeof root.action === "object"
+                                      && root.action.label !== undefined
     readonly property real progressRadius: Math.max(
                                                root.styleProvider.cornerRadius,
                                                root.styleProvider.progressBar.radius ?? 0)
     readonly property color accentColor: root.styleProvider.getColorForType(root.type)
+    readonly property bool closing: exitAnim.running
 
     Component {
         id: infoIconComponent
@@ -61,6 +72,113 @@ Control {
     Component {
         id: errorIconComponent
         ErrorIcon { color: root.accentColor }
+    }
+
+    Component {
+        id: loadingIconComponent
+
+        Item {
+            id: loadingIndicator
+
+            objectName: "loadingIndicator"
+            property bool running: !root.stackCovered
+            readonly property real spinnerStrokeWidth:
+                Math.max(2, loadingIndicator.width / 8)
+
+            Shape {
+                anchors.fill: parent
+                preferredRendererType: Shape.CurveRenderer
+
+                ShapePath {
+                    strokeColor: root.accentColor
+                    strokeWidth: loadingIndicator.spinnerStrokeWidth
+                    fillColor: "transparent"
+                    capStyle: ShapePath.RoundCap
+
+                    PathAngleArc {
+                        centerX: loadingIndicator.width / 2
+                        centerY: loadingIndicator.height / 2
+                        radiusX: Math.max(0, loadingIndicator.width / 2
+                                          - loadingIndicator.spinnerStrokeWidth)
+                        radiusY: radiusX
+                        startAngle: -90
+                        sweepAngle: 270
+                    }
+                }
+            }
+
+            RotationAnimator on rotation {
+                from: 0
+                to: 360
+                duration: 900
+                loops: Animation.Infinite
+                running: loadingIndicator.running
+            }
+        }
+    }
+
+    Component {
+        id: actionButtonComponent
+
+        Rectangle {
+            id: actionButtonItem
+
+            objectName: "actionButton"
+            readonly property real horizontalPadding:
+                Math.max(8, root.contentSpacing)
+
+            enabled: root.hasAction && !root.stackCovered
+                     && (root.action.enabled === undefined
+                         || root.action.enabled)
+            implicitWidth: Math.min(root.maximumWidth * 0.4,
+                                    Math.max(48, actionLabel.implicitWidth
+                                             + horizontalPadding * 2))
+            implicitHeight: Math.max(28, actionLabel.implicitHeight + 12)
+            color: root.styleProvider.textColors.color
+            opacity: !enabled ? 0.5
+                     : actionTap.pressed ? 0.75
+                     : actionHover.hovered ? 0.9 : 1
+            radius: Math.max(3, root.styleProvider.cornerRadius / 2)
+            activeFocusOnTab: true
+
+            Accessible.role: Accessible.Button
+            Accessible.name: actionLabel.text
+            Accessible.onPressAction: root.triggerAction()
+
+            Text {
+                id: actionLabel
+
+                anchors.fill: parent
+                anchors.leftMargin: actionButtonItem.horizontalPadding
+                anchors.rightMargin: actionButtonItem.horizontalPadding
+                text: root.hasAction ? String(root.action.label) : ""
+                color: root.styleProvider.backgroundColor
+                font.family: root.styleProvider.fonts.family
+                font.pixelSize: Math.max(11,
+                                         root.styleProvider.fonts.size - 2)
+                font.weight: Font.Medium
+                elide: Text.ElideRight
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            HoverHandler {
+                id: actionHover
+                cursorShape: actionButtonItem.enabled
+                             ? Qt.PointingHandCursor : Qt.ArrowCursor
+            }
+
+            TapHandler {
+                id: actionTap
+                enabled: actionButtonItem.enabled
+                acceptedButtons: Qt.LeftButton
+                gesturePolicy: TapHandler.WithinBounds
+                onTapped: root.triggerAction()
+            }
+
+            Keys.onSpacePressed: root.triggerAction()
+            Keys.onReturnPressed: root.triggerAction()
+        }
     }
 
     function progressPath(width, height, barHeight, cornerRadius) {
@@ -104,7 +222,7 @@ Control {
 
     padding: root.containerPadding
     leftPadding: root.containerPadding
-    rightPadding: root.containerPadding + root.closeButtonTotalWidth
+    rightPadding: root.containerPadding + root.closeButtonReservedWidth
     topPadding: root.containerPadding
     bottomPadding: root.containerPadding
 
@@ -196,6 +314,9 @@ Control {
     }
 
     contentItem: RowLayout {
+        id: contentRow
+
+        z: 2
         spacing: root.mainSpacing
         opacity: root.stackCovered ? 0 : 1
 
@@ -220,6 +341,9 @@ Control {
                 Layout.minimumWidth: root.styleProvider.iconSize
                 Layout.minimumHeight: root.styleProvider.iconSize
                 sourceComponent: {
+                    if (root.isLoading)
+                        return loadingIconComponent
+
                     switch (root.type) {
                     case Toastify.Success: return successIconComponent
                     case Toastify.Warning: return warningIconComponent
@@ -250,6 +374,16 @@ Control {
                 }
             }
         }
+
+        Loader {
+            id: actionLoader
+
+            objectName: "actionLoader"
+            active: root.hasAction
+            visible: active
+            Layout.alignment: Qt.AlignVCenter
+            sourceComponent: actionButtonComponent
+        }
     }
 
     MouseArea {
@@ -265,7 +399,7 @@ Control {
 
     CloseIcon {
         objectName: "closeButtonArea"
-        visible: !root.stackCovered
+        visible: root.closeButton && !root.stackCovered
         width: root.closeButtonWidth
         height: root.closeButtonHeight
         anchors.top: parent.top
@@ -312,6 +446,33 @@ Control {
             progressAnim.resume()
     }
 
+    function restartAutoClose() {
+        progressAnim.stop()
+        root.progressValue = 0
+
+        if (!root._entered || root.autoClose <= 0 || root.closing)
+            return
+
+        progressAnim.start()
+        root.updateProgressPauseState()
+    }
+
+    function triggerAction() {
+        const currentAction = root.action
+        if (!currentAction || currentAction.enabled === false)
+            return
+
+        try {
+            if (typeof currentAction.onClick === "function")
+                currentAction.onClick()
+        } catch (error) {
+            console.warn("Toastify: Action callback failed: " + error)
+        }
+
+        if (currentAction.dismiss === undefined || currentAction.dismiss)
+            root.close()
+    }
+
     function close() {
         if(!exitAnim.running) {
             progressAnim.stop()
@@ -346,10 +507,8 @@ Control {
             duration: 300
         }
         onFinished: {
-            if (root.autoClose > 0) {
-                progressAnim.start()
-                root.updateProgressPauseState()
-            }
+            root._entered = true
+            root.restartAutoClose()
         }
     }
 
