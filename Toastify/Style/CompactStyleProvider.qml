@@ -38,7 +38,8 @@ ToastifyStyleProvider {
 
     // Minimal shadow for clean look
     shadow: ({
-        blur: 0.3,
+        blurRadius: 9.6,
+        spread: 0,
         color: "#000000",
         opacity: 0.05,
         horizontalOffset: 0,

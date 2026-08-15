@@ -46,7 +46,8 @@ ToastifyStyleProvider {
 
     // Material Design elevation shadow (4dp)
     shadow: ({
-        blur: 0.8,
+        blurRadius: 25.6,
+        spread: 0,
         color: "#000000",
         opacity: 0.14,
         horizontalOffset: 0,

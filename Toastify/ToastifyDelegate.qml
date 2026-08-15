@@ -52,6 +52,11 @@ Control {
                                                root.styleProvider.cornerRadius,
                                                root.styleProvider.progressBar.radius ?? 0)
     readonly property color accentColor: root.styleProvider.getColorForType(root.type)
+    readonly property real shadowBlurRadius: Math.max(
+                                                  0,
+                                                  root.styleProvider.shadow.blurRadius
+                                                  ?? ((root.styleProvider.shadow.blur
+                                                       ?? 0) * 32))
     readonly property bool closing: exitAnim.running
 
     Component {
@@ -226,74 +231,55 @@ Control {
     topPadding: root.containerPadding
     bottomPadding: root.containerPadding
 
-    background: Rectangle {
-        id: backgroundItem
+    background: Item {
+        id: backgroundContainer
 
-        color: root.styleProvider.backgroundColor
-        radius: root.styleProvider.cornerRadius
+        objectName: "toastBackgroundContainer"
+        clip: false
 
-        layer.enabled: root.styleProvider.shadow.opacity > 0
-        layer.effect: MultiEffect {
-            shadowEnabled: true
-            shadowColor: root.styleProvider.shadow.color
-            shadowBlur: root.styleProvider.shadow.blur
-            shadowOpacity: root.styleProvider.shadow.opacity
-            shadowHorizontalOffset: root.styleProvider.shadow.horizontalOffset
-            shadowVerticalOffset: root.styleProvider.shadow.verticalOffset
+        RectangularShadow {
+            id: backgroundShadow
+
+            objectName: "toastShadow"
+            anchors.fill: backgroundItem
+            z: 0
+            visible: opacity > 0
+            color: root.styleProvider.shadow.color
+            opacity: root.styleProvider.shadow.opacity
+            radius: backgroundItem.radius
+            blur: root.shadowBlurRadius
+            spread: root.styleProvider.shadow.spread ?? 0
+            offset: Qt.vector2d(
+                        root.styleProvider.shadow.horizontalOffset,
+                        root.styleProvider.shadow.verticalOffset)
+            cached: false
         }
 
-        Item {
-            id: progressViewport
+        Rectangle {
+            id: backgroundItem
 
-            objectName: "progressViewport"
-            visible: root.autoClose > 0 && !root.hideProgressBar
-                     && !root.stackCovered
+            objectName: "toastBackground"
             anchors.fill: parent
-            clip: true
-
-            Shape {
-                id: progressTrack
-
-                objectName: "progressTrack"
-                anchors.fill: parent
-                opacity: root.styleProvider.progressBar.backgroundOpacity ?? 0.2
-                preferredRendererType: Shape.CurveRenderer
-
-                ShapePath {
-                    strokeColor: "transparent"
-                    fillColor: root.accentColor
-
-                    PathSvg {
-                        path: root.progressPath(
-                                  backgroundItem.width,
-                                  backgroundItem.height,
-                                  root.styleProvider.progressBar.height,
-                                  root.progressRadius)
-                    }
-                }
-            }
+            z: 1
+            clip: false
+            color: root.styleProvider.backgroundColor
+            radius: root.styleProvider.cornerRadius
 
             Item {
-                id: progressFillClip
+                id: progressViewport
 
-                objectName: "progressFillClip"
-                anchors.left: parent.left
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                width: parent.width
-                       * Math.max(0, Math.min(1,
-                                              1.0 - root.progressValue))
+                objectName: "progressViewport"
+                visible: root.autoClose > 0 && !root.hideProgressBar
+                         && !root.stackCovered
+                anchors.fill: parent
                 clip: true
 
                 Shape {
-                    id: progressFill
+                    id: progressTrack
 
-                    objectName: "progressFill"
-                    anchors.left: parent.left
-                    anchors.top: parent.top
-                    width: backgroundItem.width
-                    height: backgroundItem.height
-                    opacity: root.styleProvider.progressBar.opacity ?? 0.7
+                    objectName: "progressTrack"
+                    anchors.fill: parent
+                    opacity: root.styleProvider.progressBar.backgroundOpacity ?? 0.2
                     preferredRendererType: Shape.CurveRenderer
 
                     ShapePath {
@@ -306,6 +292,44 @@ Control {
                                       backgroundItem.height,
                                       root.styleProvider.progressBar.height,
                                       root.progressRadius)
+                        }
+                    }
+                }
+
+                Item {
+                    id: progressFillClip
+
+                    objectName: "progressFillClip"
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    width: parent.width
+                           * Math.max(0, Math.min(1,
+                                                  1.0 - root.progressValue))
+                    clip: true
+
+                    Shape {
+                        id: progressFill
+
+                        objectName: "progressFill"
+                        anchors.left: parent.left
+                        anchors.top: parent.top
+                        width: backgroundItem.width
+                        height: backgroundItem.height
+                        opacity: root.styleProvider.progressBar.opacity ?? 0.7
+                        preferredRendererType: Shape.CurveRenderer
+
+                        ShapePath {
+                            strokeColor: "transparent"
+                            fillColor: root.accentColor
+
+                            PathSvg {
+                                path: root.progressPath(
+                                          backgroundItem.width,
+                                          backgroundItem.height,
+                                          root.styleProvider.progressBar.height,
+                                          root.progressRadius)
+                            }
                         }
                     }
                 }

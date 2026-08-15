@@ -191,7 +191,9 @@ QtObject {
 - `maximum`: Maximum genişlik
 
 ### Gölge (shadow)
-- `blur`: Bulanıklık miktarı
+- `blurRadius`: Piksel cinsinden bulanıklık yarıçapı
+- `spread`: Piksel cinsinden yayılma miktarı
+- `blur`: Eski stiller için normalize bulanıklık (0-1); `blurRadius` yoksa kullanılır
 - `color`: Gölge rengi
 - `opacity`: Opaklık
 - `horizontalOffset`: Yatay offset
@@ -233,7 +235,7 @@ property var accessibilityStyle: ({
         error: "#8B0000"      // Koyu kırmızı
     },
     fonts: { family: "Arial", size: 18, weight: Font.Bold },
-    shadow: { blur: 0, opacity: 0 }  // Gölge yok
+    shadow: { blurRadius: 0, spread: 0, opacity: 0 }  // Gölge yok
 })
 ```
 

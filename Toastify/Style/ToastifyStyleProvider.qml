@@ -63,7 +63,8 @@ QtObject {
     
     // Shadow configuration
     property var shadow: ({
-        blur: 0.5,
+        blurRadius: 16,
+        spread: 0,
         color: "#000000",
         opacity: 0.1,
         horizontalOffset: 0,

@@ -378,7 +378,8 @@ ToastifyStyleProvider {
     
     // Custom shadow
     shadow: ({
-        blur: 0.7,
+        blurRadius: 22.4,
+        spread: 0,
         color: "#000000",
         opacity: 0.15,
         horizontalOffset: 0,
@@ -467,7 +468,9 @@ All style providers support the following properties:
 - `stackTransitionDuration` (int): Stack expand/collapse duration in ms
 
 #### Shadow
-- `shadow.blur` (real): Shadow blur amount
+- `shadow.blurRadius` (real): Shadow blur radius in pixels
+- `shadow.spread` (real): Shadow spread in pixels
+- `shadow.blur` (real): Legacy normalized blur (0-1, used when `blurRadius` is omitted)
 - `shadow.color` (color): Shadow color
 - `shadow.opacity` (real): Shadow opacity (0-1)
 - `shadow.horizontalOffset` (real): Horizontal shadow offset
@@ -554,7 +557,7 @@ Add QtToastify as a subdirectory in your CMake project:
 cmake_minimum_required(VERSION 3.20)
 project(MyApp)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Quick Qml QuickControls2)
+find_package(Qt6 6.10 REQUIRED COMPONENTS Core Quick Qml QuickControls2)
 
 # Add QtToastify subdirectory
 add_subdirectory(path/to/QtToastify)

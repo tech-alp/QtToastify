@@ -43,7 +43,8 @@ Control {
             maximum: 500
         })
         property var shadow: ({
-            blur: 0.5,
+            blurRadius: 16,
+            spread: 0,
             color: "#000000",
             opacity: 0.1,
             horizontalOffset: 0,
@@ -66,6 +67,13 @@ Control {
 
     // Use custom style if provided, otherwise fall back to fallbackStyle
     readonly property var activeStyle: customStyle || fallbackStyle
+    readonly property real shadowBlurRadius: Math.max(
+                                                  0,
+                                                  activeStyle.shadow
+                                                  ? (activeStyle.shadow.blurRadius
+                                                     ?? ((activeStyle.shadow.blur
+                                                          ?? 0.5) * 32))
+                                                  : 16)
 
     // Container size constraints from active style
     property int minimumWidth: activeStyle.containerSizes ? activeStyle.containerSizes.minimum : 280
@@ -123,29 +131,47 @@ Control {
     topPadding: spacingConfig.containerPadding
     bottomPadding: spacingConfig.containerPadding
 
-    background: Rectangle {
-        color: root.accentColor
-        radius: activeStyle.cornerRadius || 12
-
-        layer.enabled: true
-        layer.effect: MultiEffect {
-            shadowEnabled: activeStyle.shadow ? activeStyle.shadow.opacity > 0 : true
-            shadowColor: activeStyle.shadow ? activeStyle.shadow.color : "#000000"
-            shadowBlur: activeStyle.shadow ? activeStyle.shadow.blur : 0.5
-            shadowOpacity: activeStyle.shadow ? activeStyle.shadow.opacity : 0.1
-            shadowVerticalOffset: activeStyle.shadow ? activeStyle.shadow.verticalOffset : 0
-            shadowHorizontalOffset: activeStyle.shadow ? activeStyle.shadow.horizontalOffset : 0
+    background: Item {
+        RectangularShadow {
+            anchors.fill: backgroundSurface
+            z: 0
+            visible: opacity > 0
+            color: root.activeStyle.shadow
+                   ? root.activeStyle.shadow.color : "#000000"
+            opacity: root.activeStyle.shadow
+                     ? root.activeStyle.shadow.opacity : 0.1
+            radius: backgroundSurface.radius
+            blur: root.shadowBlurRadius
+            spread: root.activeStyle.shadow
+                    ? (root.activeStyle.shadow.spread ?? 0) : 0
+            offset: Qt.vector2d(
+                        root.activeStyle.shadow
+                        ? root.activeStyle.shadow.horizontalOffset : 0,
+                        root.activeStyle.shadow
+                        ? root.activeStyle.shadow.verticalOffset : 0)
+            cached: false
         }
 
-        // Progress Bar
         Rectangle {
-            visible: root.autoClose > 0 && !root.hideProgressBar
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            height: activeStyle.progressBar ? activeStyle.progressBar.height : 4
-            width: parent.width * (1.0 - root.progressValue)
-            radius: activeStyle.progressBar ? activeStyle.progressBar.radius : 2
-            color: Qt.lighter(accentColor, 1.4)
+            id: backgroundSurface
+
+            anchors.fill: parent
+            z: 1
+            color: root.accentColor
+            radius: root.activeStyle.cornerRadius || 12
+
+            // Progress Bar
+            Rectangle {
+                visible: root.autoClose > 0 && !root.hideProgressBar
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                height: root.activeStyle.progressBar
+                        ? root.activeStyle.progressBar.height : 4
+                width: parent.width * (1.0 - root.progressValue)
+                radius: root.activeStyle.progressBar
+                        ? root.activeStyle.progressBar.radius : 2
+                color: Qt.lighter(root.accentColor, 1.4)
+            }
         }
     }
 

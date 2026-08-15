@@ -46,9 +46,10 @@ ToastifyStyle {
     })
 
     shadow: ({
-        blur: 1.0,
+        blurRadius: 19.2,
+        spread: 0,
         color: "#000000",
-        opacity: 0.3,
+        opacity: 0.4,
         horizontalOffset: 2,
         verticalOffset: 4
     })
