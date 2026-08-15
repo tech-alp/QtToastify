@@ -3,6 +3,7 @@ import QtTest
 import QtQuick.Controls
 import QtQuick.Layouts
 import Toastify 1.0
+import Toastify.Style 1.0
 
 TestCase {
     id: testCase
@@ -21,6 +22,10 @@ TestCase {
     ]
 
     property var testWidths: [280, 320, 350, 400, 500]
+
+    DarkStyleProvider {
+        id: darkStyleProvider
+    }
 
     function test_reactToastifyDefaults() {
         var toast = createTemporaryObject(toastComponent, testCase, {
@@ -43,6 +48,53 @@ TestCase {
         compare(toast.styleProvider.progressBar.height, 5)
         compare(toast.styleProvider.toastOffset, 16)
         compare(toast.styleProvider.toastSpacing, 16)
+    }
+
+    function test_progressBarStaysInsideBottomEdge() {
+        var toast = createTemporaryObject(toastComponent, testCase, {
+            message: "Progress geometry",
+            autoClose: 5000,
+            styleProvider: darkStyleProvider
+        })
+
+        verify(toast !== null, "Toast should be created successfully")
+        waitForRendering(toast)
+
+        var progressViewport = findChildByObjectName(toast,
+                                                      "progressViewport")
+        var progressTrack = findChildByObjectName(toast,
+                                                   "progressTrack")
+        var progressFillClip = findChildByObjectName(toast,
+                                                      "progressFillClip")
+        var progressFill = findChildByObjectName(toast,
+                                                  "progressFill")
+        verify(progressViewport !== null, "Progress viewport should exist")
+        verify(progressTrack !== null, "Progress track should exist")
+        verify(progressFillClip !== null, "Progress fill clip should exist")
+        verify(progressFill !== null, "Progress fill should exist")
+
+        compare(progressViewport.clip, true)
+        compare(progressFillClip.clip, true)
+        compare(toast.progressRadius, toast.styleProvider.cornerRadius)
+
+        fuzzyCompare(progressViewport.mapToItem(toast, 0, 0).x, 0, 0.5)
+        fuzzyCompare(progressViewport.mapToItem(toast, 0, 0).y, 0, 0.5)
+        fuzzyCompare(progressViewport.width, toast.width, 0.5)
+        fuzzyCompare(progressViewport.height, toast.height, 0.5)
+        fuzzyCompare(progressFillClip.height, progressViewport.height, 0.5)
+        fuzzyCompare(progressTrack.mapToItem(
+                         toast, 0, progressTrack.height).y,
+                     toast.height, 0.5)
+        fuzzyCompare(progressFill.mapToItem(
+                         toast, 0, progressFill.height).y,
+                     toast.height, 0.5)
+
+        toast.stackHeight = 48
+        tryCompare(toast, "height", 48)
+        tryCompare(progressViewport, "height", toast.height)
+        fuzzyCompare(progressViewport.mapToItem(
+                         toast, 0, progressViewport.height).y,
+                     toast.height, 0.5)
     }
 
     function test_containerBoundaryEnforcement_data() {

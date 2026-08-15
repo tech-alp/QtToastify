@@ -38,7 +38,9 @@ Control {
     readonly property int closeButtonWidth: root.styleProvider.spacing.closeButton.width ?? root.closeButtonSize
     readonly property int closeButtonHeight: root.styleProvider.spacing.closeButton.height ?? root.closeButtonSize
     readonly property int closeButtonTotalWidth: root.closeButtonWidth + root.closeButtonPadding * 2
-    readonly property real progressRadius: root.styleProvider.progressBar.radius ?? root.styleProvider.cornerRadius
+    readonly property real progressRadius: Math.max(
+                                               root.styleProvider.cornerRadius,
+                                               root.styleProvider.progressBar.radius ?? 0)
     readonly property color accentColor: root.styleProvider.getColorForType(root.type)
 
     Component {
@@ -122,41 +124,21 @@ Control {
             shadowVerticalOffset: root.styleProvider.shadow.verticalOffset
         }
 
-        Shape {
-            visible: root.autoClose > 0 && !root.hideProgressBar
-                     && !root.stackCovered
-            width: backgroundItem.width
-            height: backgroundItem.height
-            opacity: root.styleProvider.progressBar.backgroundOpacity ?? 0.2
-            preferredRendererType: Shape.CurveRenderer
-
-            ShapePath {
-                strokeColor: "transparent"
-                fillColor: root.accentColor
-
-                PathSvg {
-                    path: root.progressPath(
-                              backgroundItem.width,
-                              backgroundItem.height,
-                              root.styleProvider.progressBar.height,
-                              root.progressRadius)
-                }
-            }
-        }
-
         Item {
+            id: progressViewport
+
+            objectName: "progressViewport"
             visible: root.autoClose > 0 && !root.hideProgressBar
                      && !root.stackCovered
-            anchors.left: backgroundItem.left
-            anchors.top: backgroundItem.top
-            height: backgroundItem.height
-            width: parent.width * (1.0 - root.progressValue)
+            anchors.fill: parent
             clip: true
 
             Shape {
-                width: backgroundItem.width
-                height: backgroundItem.height
-                opacity: root.styleProvider.progressBar.opacity ?? 0.7
+                id: progressTrack
+
+                objectName: "progressTrack"
+                anchors.fill: parent
+                opacity: root.styleProvider.progressBar.backgroundOpacity ?? 0.2
                 preferredRendererType: Shape.CurveRenderer
 
                 ShapePath {
@@ -169,6 +151,44 @@ Control {
                                   backgroundItem.height,
                                   root.styleProvider.progressBar.height,
                                   root.progressRadius)
+                    }
+                }
+            }
+
+            Item {
+                id: progressFillClip
+
+                objectName: "progressFillClip"
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                width: parent.width
+                       * Math.max(0, Math.min(1,
+                                              1.0 - root.progressValue))
+                clip: true
+
+                Shape {
+                    id: progressFill
+
+                    objectName: "progressFill"
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    width: backgroundItem.width
+                    height: backgroundItem.height
+                    opacity: root.styleProvider.progressBar.opacity ?? 0.7
+                    preferredRendererType: Shape.CurveRenderer
+
+                    ShapePath {
+                        strokeColor: "transparent"
+                        fillColor: root.accentColor
+
+                        PathSvg {
+                            path: root.progressPath(
+                                      backgroundItem.width,
+                                      backgroundItem.height,
+                                      root.styleProvider.progressBar.height,
+                                      root.progressRadius)
+                        }
                     }
                 }
             }
