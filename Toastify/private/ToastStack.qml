@@ -14,7 +14,21 @@ Item {
     property int transitionDuration: 400
     property int visibleToasts: 3
 
-    readonly property bool hovered: stackHover.hovered
+    readonly property bool anyEntryHovered: {
+        const revision = layoutRevision
+        const currentEntries = entries()
+
+        for (let i = 0; i < currentEntries.length; ++i) {
+            if (currentEntries[i].visible
+                    && currentEntries[i].pointerHovered) {
+                return true
+            }
+        }
+
+        return false
+    }
+    readonly property bool hoverInputActive: stackHover.hovered || anyEntryHovered
+    readonly property bool hovered: _hovered
     readonly property bool expanded: expandByDefault
                                      || (entryCount > 1 && hovered)
     readonly property int entryCount: {
@@ -62,6 +76,7 @@ Item {
     }
 
     property int layoutRevision: 0
+    property bool _hovered: false
 
     implicitWidth: contentWidth
     implicitHeight: bottomAligned ? 0 : frontHeight
@@ -69,6 +84,14 @@ Item {
     height: implicitHeight
 
     onChildrenChanged: layoutRevision += 1
+    onHoverInputActiveChanged: {
+        if (hoverInputActive) {
+            hoverReleaseTimer.stop()
+            _hovered = true
+        } else if (_hovered) {
+            hoverReleaseTimer.restart()
+        }
+    }
 
     function entries() {
         const result = []
@@ -150,10 +173,22 @@ Item {
         width: stack.width
         height: stack.visualHeight
         visible: width > 0 && height > 0
-        z: 200000
+        z: -1
 
         HoverHandler {
             id: stackHover
+            blocking: false
+        }
+    }
+
+    Timer {
+        id: hoverReleaseTimer
+
+        interval: 0
+        repeat: false
+        onTriggered: {
+            if (!stack.hoverInputActive)
+                stack._hovered = false
         }
     }
 
@@ -168,6 +203,7 @@ Item {
             readonly property bool isToastStackEntry: true
             readonly property int depth: stack.depthFor(entry)
             readonly property bool covered: !stack.expanded && depth > 0
+            readonly property bool pointerHovered: entryHover.hovered
             property var toastObject: null
             property bool toastAttached: false
             property bool cleanupScheduled: false
@@ -205,6 +241,11 @@ Item {
                     duration: entry.stack.transitionDuration
                     easing.type: Easing.OutCubic
                 }
+            }
+
+            HoverHandler {
+                id: entryHover
+                blocking: false
             }
 
             onChildrenChanged: {

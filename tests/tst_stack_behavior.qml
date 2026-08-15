@@ -12,6 +12,11 @@ TestCase {
     property var createdToasts: []
     property var createdCustomToasts: []
 
+    SignalSpy {
+        id: stackHoverSpy
+        signalName: "hoveredChanged"
+    }
+
     Component {
         id: customToastComponent
 
@@ -76,6 +81,12 @@ TestCase {
     }
 
     function cleanup() {
+        stackHoverSpy.target = null
+        stackHoverSpy.clear()
+        mouseMove(hostWindow.contentItem,
+                  hostWindow.width / 2, hostWindow.height / 2)
+        wait(0)
+
         toastify.expand = false
         toastify.visibleToasts = 3
         toastify.newestOnTop = false
@@ -490,6 +501,65 @@ TestCase {
         tryCompare(stack, "hovered", false)
         wait(200)
         verify(toast.progressValue > pausedProgress + 0.02)
+    }
+
+    function test_closeIconHoverRemainsInteractive() {
+        const stack = toastify.getColumn(Toastify.TopLeftCorner)
+        const older = createToast("Older", Toastify.TopLeftCorner)
+        const front = toastify.info("Front", {
+            position: Toastify.TopLeftCorner,
+            autoClose: 3000,
+            closeOnClick: false
+        })
+        verify(front !== null)
+        createdToasts.push(front)
+        wait(toastify.style.animation.enterDuration + 50)
+
+        const frontEntry = stack.entriesByAge()[0]
+        const closeIcon = findChild(front, "closeButtonArea")
+        const hoverArea = findChild(stack, "toastStackHoverArea")
+        verify(closeIcon !== null)
+        verify(hoverArea !== null)
+        compare(closeIcon.opacity,
+                front.styleProvider.closeButtonStyle.opacity)
+        compare(stack.hovered, false)
+
+        mouseMove(closeIcon, closeIcon.width / 2,
+                  closeIcon.height / 2)
+        tryCompare(frontEntry, "pointerHovered", true)
+        tryCompare(stack, "hovered", true)
+        tryCompare(stack, "expanded", true)
+        tryCompare(front, "stackPaused", true)
+        tryCompare(older, "stackPaused", true)
+        tryCompare(closeIcon, "opacity",
+                   front.styleProvider.closeButtonStyle.hoveredOpacity,
+                   400)
+
+        stackHoverSpy.target = stack
+        stackHoverSpy.clear()
+        mouseMove(hoverArea, hoverArea.width / 2,
+                  frontEntry.naturalHeight
+                  + toastify.style.toastSpacing / 2)
+        tryCompare(frontEntry, "pointerHovered", false)
+        tryCompare(stack, "hovered", true)
+        tryCompare(stack, "expanded", true)
+        tryCompare(front, "stackPaused", true)
+        tryCompare(closeIcon, "opacity",
+                   front.styleProvider.closeButtonStyle.opacity,
+                   400)
+        compare(stackHoverSpy.count, 0)
+
+        mouseMove(closeIcon, closeIcon.width / 2,
+                  closeIcon.height / 2)
+        tryCompare(closeIcon, "opacity",
+                   front.styleProvider.closeButtonStyle.hoveredOpacity,
+                   400)
+        mouseClick(closeIcon, closeIcon.width / 2,
+                   closeIcon.height / 2)
+        tryCompare(stack, "entryCount", 1,
+                   toastify.style.animation.exitDuration + 1000)
+        compare(stack.frontEntry.toastObject, older)
+        createdToasts = [older]
     }
 
     function test_hoverAreaDoesNotBlockFrontClick() {
