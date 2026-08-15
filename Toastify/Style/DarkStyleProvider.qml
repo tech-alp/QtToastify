@@ -48,10 +48,10 @@ ToastifyStyleProvider {
 
     // Enhanced shadow for dark theme
     shadow: ({
-        blurRadius: 32,
-        spread: 0,
+        blurRadius: 16,
+        spread: 0.2,
         color: "#000000",
-        opacity: 0.3,
+        opacity: 0.4,
         horizontalOffset: 2,
         verticalOffset: 4
     })

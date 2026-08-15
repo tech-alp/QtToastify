@@ -1,94 +1,58 @@
-# QtToastify Playground Examples
+# QtToastify Playground
 
-Bu dizin QtToastify'ın farklı stil konfigürasyonları ile nasıl kullanılabileceğini gösteren playground uygulaması içerir.
+`PlaygroundApp.qml`, QtToastify'in güncel `ToastifyStyleProvider` tabanlı
+stillerini ve toast seçeneklerini tek uygulamada test eder.
 
-## Playground Uygulaması
+## Stiller
 
-### Tek Target ile Tüm Örnekler
-- **Executable**: `QtToastifyPlayground`
-- **Ana Dosya**: `PlaygroundApp.qml`
-- **Açıklama**: Tüm stil örneklerini tek bir uygulamada radio button'lar ile seçebileceğiniz interaktif playground
+Playground doğrudan `Toastify/Style/` altındaki provider'ları kullanır:
 
-### Özellikler
-- **4 Farklı Stil**: Default, Custom Dark, Light Theme, Compact
-- **Canlı Stil Değiştirme**: Radio button'lar ile anında stil değişimi
-- **Toast Konfigürasyonu**: Message, type, position, options ayarları
-- **Test Butonları**: 
-  - Normal toast gösterimi
-  - Uzun mesaj testi
-  - Tüm tipleri aynı anda test etme
-- **Stil Bilgileri**: Aktif stilin detaylarını görüntüleme
+- `ToastifyStyleProvider`: varsayılan açık tema
+- `DarkStyleProvider`: koyu tema
+- `CompactStyleProvider`: dar alanlar için kompakt tema
+- `MaterialStyleProvider`: Material tabanlı tema
 
-## Mevcut Stiller
-
-### 1. Default Style
-- QtToastify'ın varsayılan stil ayarları
-- Font: Sistem fontu, 16px
-- Container: 280-500px
-- Spacing: 12px
-
-### 2. Custom Dark Style  
-- Koyu tema, büyük fontlar ve artırılmış spacing
-- Font: Montserrat 16px Medium
-- Container: 320-600px
-- Spacing: 16px
-- Gelişmiş gölge efektleri
-
-### 3. Compact Style
-- Kompakt layout
-- Font: Roboto 12px
-- Container: 200-350px
-
-### 4. Material Style
-- Material Design 3 stil rehberi
-- Font: Roboto 14px Medium
-- Container: 288-568px
+Stil seçimi, stack davranışı, toast tipi, konum, progress bar ve
+auto-close ayarları arayüzden canlı değiştirilebilir.
 
 ## Fontlar
 
-Playground, demo stillerinde kullandığı `Montserrat`, `Roboto` ve
-`Roboto Condensed` fontlarını `fonts/` dizininden `FontLoader` ile yükler.
-Fontlar SIL Open Font License 1.1 ile dağıtılır; lisans metinleri aynı dizindedir.
-
-QtToastify kütüphanesi font dosyası yüklemez veya paketlemez. Uygulamanız özel
-bir `fonts.family` adı kullanıyorsa ilgili fontu uygulama katmanında yüklemelidir.
-Style provider içinde fontun gerçek family adını yazmak yeterlidir.
+Playground, demo provider'larında kullanılan `Montserrat`, `Roboto` ve
+`Roboto Condensed` fontlarını `fonts/` dizininden yükler. QtToastify
+kütüphanesi uygulama fontlarını yüklemez.
 
 ## Build ve Çalıştırma
 
-### CMake ile Build
+Komutlar proje kökünden çalıştırılır:
+
 ```bash
-# Playground'u aktif et
-cmake -B build -S . -DBUILD_PLAYGROUND=ON -DCMAKE_INSTALL_PREFIX=/Users/techalp/Qt/6.10.1/macos/lib/cmake
-
-# Build
+cmake -S . -B build \
+  -DBUILD_PLAYGROUND=ON \
+  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.10.x/<kit>
 cmake --build build
-
-# Çalıştır
 ./build/playground/QtToastifyPlayground
 ```
 
-### Alternatif Build (Sadece Playground)
-```bash
-cd playground
-cmake -B build -S . 
-cmake --build build
-./build/QtToastifyPlayground
+## Özel Stil
+
+Uygulama stilleri `ToastifyStyleProvider` tabanından türetilir:
+
+```qml
+import QtQuick
+import Toastify.Style 1.0
+
+ToastifyStyleProvider {
+    backgroundColor: "#ffffff"
+    shadow: ({
+        blurRadius: 12,
+        spread: 1,
+        color: "#000000",
+        opacity: 0.18,
+        horizontalOffset: 0,
+        verticalOffset: 4
+    })
+}
 ```
 
-## Kullanım
-
-1. **Stil Seçimi**: Sol üstteki radio button'lar ile istediğiniz stili seçin
-2. **Mesaj Ayarlama**: Toast mesajını, tipini ve pozisyonunu ayarlayın  
-3. **Seçenekler**: Close on click, progress bar ve auto close ayarlarını yapın
-4. **Test**: Farklı butonlar ile toast'ları test edin
-
-## Özelleştirme Rehberi
-
-Yeni stil eklemek için:
-
-1. `styles/` dizininde yeni stil dosyası oluşturun
-2. `PlaygroundApp.qml`'de `availableStyles` array'ine ekleyin
-3. CMakeLists.txt'de QML_FILES listesine ekleyin
-
-Detaylı özelleştirme rehberi için `StyleCustomizationGuide.md` dosyasına bakın.
+Provider'ların tam API'si ve kullanımı ana [README](../README.md#custom-styling)
+içinde belgelenir.

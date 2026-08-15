@@ -520,12 +520,10 @@ The playground features:
 ```
 QtToastify/
 ├── CMakeLists.txt              # Main CMake configuration
-├── main.cpp                    # Application entry point
 ├── Toastify/                   # Main library
 │   ├── CMakeLists.txt
 │   ├── Toastify.qml           # Main Toastify component
 │   ├── ToastifyDelegate.qml   # Toast delegate component
-│   ├── ToastifyStyle.qml      # Style definitions
 │   └── Style/                 # Style providers
 │       ├── CMakeLists.txt
 │       ├── ToastifyStyleProvider.qml
@@ -537,12 +535,7 @@ QtToastify/
 │   ├── PlaygroundApp.qml      # Main playground UI
 │   ├── PlaygroundFonts.qml    # Demo-only FontLoader collection
 │   ├── fonts/                 # Demo fonts and OFL licenses
-│   ├── main.cpp
-│   └── styles/                # Additional style examples
-├── qml/                       # Showcase examples
-│   ├── Main.qml
-│   ├── ShowcaseSimple.qml
-│   └── ShowcaseAdvanced.qml
+│   └── main.cpp
 └── tests/                     # Unit tests
     ├── CMakeLists.txt
     ├── main.cpp

@@ -12,11 +12,6 @@ qt_add_qml_module(QtToastifyPlayground
     QML_FILES
         PlaygroundApp.qml
         PlaygroundFonts.qml
-        StyledToastDelegate.qml
-        styles/CustomStyle.qml
-        styles/LightStyle.qml
-        styles/CompactStyle.qml
-        styles/DefaultStyle.qml
     RESOURCES
         fonts/Montserrat.ttf
         fonts/Roboto.ttf
@@ -52,7 +47,6 @@ if(CMAKE_INSTALL_PREFIX)
 
     install(FILES
         README.md
-        StyleCustomizationGuide.md
         DESTINATION share/QtToastify/playground
     )
 

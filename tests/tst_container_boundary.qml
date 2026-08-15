@@ -67,8 +67,11 @@ TestCase {
         compare(toast.styleProvider.progressBar.height, 5)
         compare(toast.styleProvider.toastOffset, 16)
         compare(toast.styleProvider.toastSpacing, 16)
-        compare(toast.styleProvider.shadow.blurRadius, 16)
-        compare(toast.styleProvider.shadow.spread, 0)
+        compare(toast.styleProvider.shadow.blurRadius, 12)
+        compare(toast.styleProvider.shadow.spread, 1)
+        fuzzyCompare(toast.styleProvider.shadow.opacity, 0.18, 0.001)
+        compare(toast.styleProvider.shadow.horizontalOffset, 0)
+        compare(toast.styleProvider.shadow.verticalOffset, 4)
     }
 
     function test_builtinStylesUseApplicationFont() {
