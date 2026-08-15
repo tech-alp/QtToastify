@@ -27,6 +27,18 @@ TestCase {
         id: darkStyleProvider
     }
 
+    ToastifyStyleProvider {
+        id: legacyShadowStyleProvider
+
+        shadow: ({
+            blur: 0.25,
+            color: "#123456",
+            opacity: 0.2,
+            horizontalOffset: 3,
+            verticalOffset: 5
+        })
+    }
+
     function test_reactToastifyDefaults() {
         var toast = createTemporaryObject(toastComponent, testCase, {
             message: "Wow so easy !"
@@ -48,6 +60,78 @@ TestCase {
         compare(toast.styleProvider.progressBar.height, 5)
         compare(toast.styleProvider.toastOffset, 16)
         compare(toast.styleProvider.toastSpacing, 16)
+        compare(toast.styleProvider.shadow.blurRadius, 16)
+        compare(toast.styleProvider.shadow.spread, 0)
+    }
+
+    function test_rectangularShadowUsesStyleTokens() {
+        var toast = createTemporaryObject(toastComponent, testCase, {
+            message: "Rectangular shadow",
+            styleProvider: darkStyleProvider
+        })
+
+        verify(toast !== null, "Toast should be created successfully")
+        waitForRendering(toast)
+
+        var backgroundContainer = findChildByObjectName(
+                    toast, "toastBackgroundContainer")
+        var backgroundShadow = findChildByObjectName(toast, "toastShadow")
+        var backgroundSurface = findChildByObjectName(toast,
+                                                       "toastBackground")
+
+        verify(backgroundContainer !== null,
+               "Background wrapper should exist")
+        verify(backgroundShadow !== null,
+               "Rectangular shadow should exist")
+        verify(backgroundSurface !== null,
+               "Background surface should exist")
+
+        compare(backgroundContainer.clip, false)
+        compare(backgroundSurface.clip, false)
+        compare(backgroundShadow.cached, false)
+        fuzzyCompare(backgroundShadow.blur,
+                     darkStyleProvider.shadow.blurRadius, 0.01)
+        fuzzyCompare(backgroundShadow.spread,
+                     darkStyleProvider.shadow.spread, 0.01)
+        fuzzyCompare(backgroundShadow.radius,
+                     darkStyleProvider.cornerRadius, 0.01)
+        fuzzyCompare(backgroundShadow.opacity,
+                     darkStyleProvider.shadow.opacity, 0.01)
+        fuzzyCompare(backgroundShadow.offset.x,
+                     darkStyleProvider.shadow.horizontalOffset, 0.01)
+        fuzzyCompare(backgroundShadow.offset.y,
+                     darkStyleProvider.shadow.verticalOffset, 0.01)
+        compare(backgroundShadow.color.toString(),
+                darkStyleProvider.shadow.color)
+
+        fuzzyCompare(backgroundSurface.width, toast.width, 0.5)
+        fuzzyCompare(backgroundSurface.height, toast.height, 0.5)
+        fuzzyCompare(backgroundShadow.width, backgroundSurface.width, 0.5)
+        fuzzyCompare(backgroundShadow.height, backgroundSurface.height, 0.5)
+
+        toast.stackHeight = 48
+        tryCompare(toast, "height", 48)
+        tryCompare(backgroundSurface, "height", 48)
+        tryCompare(backgroundShadow, "height", 48)
+    }
+
+    function test_legacyNormalizedShadowBlurFallback() {
+        var toast = createTemporaryObject(toastComponent, testCase, {
+            message: "Legacy shadow",
+            styleProvider: legacyShadowStyleProvider
+        })
+
+        verify(toast !== null, "Toast should be created successfully")
+        waitForRendering(toast)
+
+        var backgroundShadow = findChildByObjectName(toast, "toastShadow")
+        verify(backgroundShadow !== null,
+               "Rectangular shadow should exist")
+        fuzzyCompare(toast.shadowBlurRadius, 8, 0.01)
+        fuzzyCompare(backgroundShadow.blur, 8, 0.01)
+        fuzzyCompare(backgroundShadow.spread, 0, 0.01)
+        fuzzyCompare(backgroundShadow.offset.x, 3, 0.01)
+        fuzzyCompare(backgroundShadow.offset.y, 5, 0.01)
     }
 
     function test_progressBarStaysInsideBottomEdge() {
@@ -547,4 +631,5 @@ TestCase {
             autoClose: 0  // Disable auto-close for testing
         }
     }
+
 }
