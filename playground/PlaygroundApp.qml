@@ -26,7 +26,8 @@ ApplicationWindow {
     
     // Current selected style
     property int selectedStyleIndex: 0
-    property var currentStyle: availableStyles[selectedStyleIndex].provider
+    readonly property ToastifyStyleProvider currentStyle:
+        availableStyles[selectedStyleIndex].provider
     
     // Style providers
     property ToastifyStyleProvider defaultStyleProvider: ToastifyStyleProvider {}
@@ -41,6 +42,7 @@ ApplicationWindow {
     property bool selectedHideProgressBar: false
     property bool selectedNewestOnTop: false
     property bool selectedExpand: false
+    property int selectedVisibleToasts: 3
     property int selectedAutoClose: 5000
     
     // Background
@@ -185,7 +187,7 @@ ApplicationWindow {
                     // Current style info
                     Rectangle {
                         Layout.fillWidth: true
-                        height: styleInfoColumn.height + 16
+                        implicitHeight: styleInfoColumn.implicitHeight + 16
                         color: selectedStyleIndex === 1 ? "#333333" : "#F8F9FA"
                         radius: 6
                         border.color: selectedStyleIndex === 1 ? "#555555" : "#E9ECEF"
@@ -199,7 +201,8 @@ ApplicationWindow {
                             spacing: 4
                             
                             Text {
-                                text: "Aktif Stil: " + currentStyle.name
+                                text: "Aktif Stil: "
+                                      + availableStyles[selectedStyleIndex].name
                                 font.bold: true
                                 color: selectedStyleIndex === 1 ? "#FFFFFF" : "#333333"
                             }
@@ -220,6 +223,87 @@ ApplicationWindow {
                                 text: "Spacing: " + currentStyle.spacing.main + "px (main), " + currentStyle.spacing.container + "px (padding)"
                                 font.pixelSize: 11
                                 color: selectedStyleIndex === 1 ? "#CCCCCC" : "#666666"
+                            }
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                Layout.topMargin: 4
+                                Layout.bottomMargin: 4
+                                implicitHeight: 1
+                                color: selectedStyleIndex === 1
+                                       ? "#555555" : "#DEE2E6"
+                            }
+
+                            Text {
+                                text: "Stack Style"
+                                font.bold: true
+                                color: selectedStyleIndex === 1
+                                       ? "#FFFFFF" : "#333333"
+                            }
+
+                            GridLayout {
+                                Layout.fillWidth: true
+                                columns: 4
+                                columnSpacing: 12
+                                rowSpacing: 8
+                                Material.theme:
+                                    window.selectedStyleIndex === 1
+                                    ? Material.Dark : Material.Light
+
+                                Text {
+                                    text: "Expanded Gap (px):"
+                                    color: selectedStyleIndex === 1
+                                           ? "#CCCCCC" : "#666666"
+                                }
+
+                                SpinBox {
+                                    objectName: "expandedSpacingSpinBox"
+                                    from: 0
+                                    to: 64
+                                    editable: true
+                                    value: Math.round(
+                                               window.currentStyle.toastSpacing)
+                                    onValueModified:
+                                        window.currentStyle.toastSpacing = value
+                                }
+
+                                Text {
+                                    text: "Compact Offset (px):"
+                                    color: selectedStyleIndex === 1
+                                           ? "#CCCCCC" : "#666666"
+                                }
+
+                                SpinBox {
+                                    objectName: "collapsedOffsetSpinBox"
+                                    from: 0
+                                    to: 48
+                                    editable: true
+                                    value: Math.round(
+                                               window.currentStyle
+                                               .collapsedToastOffset)
+                                    onValueModified:
+                                        window.currentStyle
+                                        .collapsedToastOffset = value
+                                }
+
+                                Text {
+                                    text: "Compact Scale Step (%):"
+                                    color: selectedStyleIndex === 1
+                                           ? "#CCCCCC" : "#666666"
+                                }
+
+                                SpinBox {
+                                    objectName: "collapsedScaleSpinBox"
+                                    from: 0
+                                    to: 10
+                                    editable: true
+                                    value: Math.round(
+                                               window.currentStyle
+                                               .collapsedToastScaleStep * 100)
+                                    onValueModified:
+                                        window.currentStyle
+                                        .collapsedToastScaleStep = value / 100.0
+                                }
                             }
                         }
                     }
@@ -444,6 +528,29 @@ ApplicationWindow {
                                 }
                             }
                         }
+
+                        RowLayout {
+                            spacing: 12
+
+                            Text {
+                                text: "Visible Toasts:"
+                                color: window.selectedStyleIndex === 1
+                                       ? "#FFFFFF" : "#333333"
+                            }
+
+                            SpinBox {
+                                objectName: "visibleToastsSpinBox"
+                                from: 1
+                                to: 8
+                                editable: true
+                                Material.theme:
+                                    window.selectedStyleIndex === 1
+                                    ? Material.Dark : Material.Light
+                                value: window.selectedVisibleToasts
+                                onValueModified:
+                                    window.selectedVisibleToasts = value
+                            }
+                        }
                         
                         RowLayout {
                             Text {
@@ -531,11 +638,13 @@ ApplicationWindow {
                         text: "⚡ Test All Types"
                         onClicked: {
                             var types = ["info", "success", "warning", "error"]
+                            var styleName = availableStyles[
+                                                selectedStyleIndex].name
                             var messages = [
-                                        "Bilgi mesajı - " + currentStyle.name,
-                                        "Başarılı işlem - " + currentStyle.name,
-                                        "Uyarı mesajı - " + currentStyle.name,
-                                        "Hata mesajı - " + currentStyle.name
+                                        "Bilgi mesajı - " + styleName,
+                                        "Başarılı işlem - " + styleName,
+                                        "Uyarı mesajı - " + styleName,
+                                        "Hata mesajı - " + styleName
                                     ]
                             
                             for (var i = 0; i < types.length; i++) {
@@ -584,5 +693,6 @@ ApplicationWindow {
         style: window.currentStyle
         newestOnTop: window.selectedNewestOnTop
         expand: window.selectedExpand
+        visibleToasts: window.selectedVisibleToasts
     }
 }
