@@ -39,11 +39,13 @@ ApplicationWindow {
     property string selectedType: "info"
     property int selectedPosition: Toastify.TopRightCorner
     property bool selectedCloseOnClick: true
+    property bool selectedCloseButton: true
     property bool selectedHideProgressBar: false
     property bool selectedNewestOnTop: false
     property bool selectedExpand: false
     property int selectedVisibleToasts: 3
     property int selectedAutoClose: 5000
+    property var pendingPromiseJobs: []
     
     // Background
     Rectangle {
@@ -455,6 +457,23 @@ ApplicationWindow {
                                 leftPadding: parent.indicator.width + parent.spacing
                             }
                         }
+
+                        CheckBox {
+                            id: closeButtonCheckBox
+
+                            text: "Show Close Button"
+                            checked: window.selectedCloseButton
+                            onCheckedChanged:
+                                window.selectedCloseButton = checked
+
+                            contentItem: Text {
+                                text: closeButtonCheckBox.text
+                                color: window.selectedStyleIndex === 1
+                                       ? "#FFFFFF" : "#333333"
+                                leftPadding: closeButtonCheckBox.indicator.width
+                                             + closeButtonCheckBox.spacing
+                            }
+                        }
                         
                         CheckBox {
                             text: "Hide Progress Bar"
@@ -656,6 +675,59 @@ ApplicationWindow {
                             }
                         }
                     }
+
+                    Button {
+                        text: "🎯 Action Toast"
+                        onClicked: {
+                            toastify.info("Dosya silindi", {
+                                              position: window.selectedPosition,
+                                              autoClose: 0,
+                                              closeOnClick: false,
+                                              closeButton: window.selectedCloseButton,
+                                              action: {
+                                                  label: "Geri al",
+                                                  dismiss: true,
+                                                  onClick: function() {
+                                                      console.log("Silme işlemi geri alındı")
+                                                  }
+                                              }
+                                          })
+                        }
+                    }
+
+                    Button {
+                        text: "⏳ Promise Success"
+                        onClicked: {
+                            toastify.promise(window.delayedPromise(false), {
+                                                 loading: "İşlem sürüyor...",
+                                                 success: function(result) {
+                                                     return result
+                                                 },
+                                                 error: function(reason) {
+                                                     return "Hata: " + reason
+                                                 },
+                                                 position: window.selectedPosition,
+                                                 autoClose: window.selectedAutoClose,
+                                                 closeButton: window.selectedCloseButton
+                                             })
+                        }
+                    }
+
+                    Button {
+                        text: "⚠ Promise Error"
+                        onClicked: {
+                            toastify.promise(window.delayedPromise(true), {
+                                                 loading: "Sunucuya bağlanıyor...",
+                                                 success: "Bağlantı kuruldu",
+                                                 error: function(reason) {
+                                                     return "Bağlantı hatası: " + reason
+                                                 },
+                                                 position: window.selectedPosition,
+                                                 autoClose: window.selectedAutoClose,
+                                                 closeButton: window.selectedCloseButton
+                                             })
+                        }
+                    }
                 }
             }
             
@@ -683,8 +755,40 @@ ApplicationWindow {
                                           position: selectedPosition,
                                           autoClose: selectedAutoClose,
                                           hideProgressBar: selectedHideProgressBar,
-                                          closeOnClick: selectedCloseOnClick
+                                          closeOnClick: selectedCloseOnClick,
+                                          closeButton: window.selectedCloseButton
                                       })
+    }
+
+    function delayedPromise(shouldReject) {
+        return new Promise(function(resolve, reject) {
+            window.pendingPromiseJobs = window.pendingPromiseJobs.concat([
+                function() {
+                    if (shouldReject)
+                        reject("Sunucu yanıt vermedi")
+                    else
+                        resolve("İşlem başarıyla tamamlandı")
+                }
+            ])
+            if (!promiseTimer.running)
+                promiseTimer.start()
+        })
+    }
+
+    Timer {
+        id: promiseTimer
+
+        interval: 1500
+        repeat: false
+        onTriggered: {
+            var jobs = window.pendingPromiseJobs.slice()
+            var pendingCallback = jobs.shift()
+            window.pendingPromiseJobs = jobs
+            if (pendingCallback)
+                pendingCallback()
+            if (jobs.length > 0)
+                promiseTimer.start()
+        }
     }
     
     // Toastify instance with current style

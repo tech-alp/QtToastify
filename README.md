@@ -15,6 +15,7 @@ A modern, customizable toast notification library for Qt/QML applications, inspi
 - ✨ **Smooth Animations**: Enter and exit animations for polished user experience
 - 🗂️ **Sonner-Style Stacks**: Compact by default, expanded on hover or permanently with `expand`
 - 🖱️ **Interactive**: Click-to-close and custom action buttons
+- 🔄 **Async Lifecycle**: Keep one toast alive while a JavaScript Promise resolves or rejects
 - 🎯 **Style Provider System**: Easy theming with pluggable style providers
 - 📱 **Responsive**: Automatic text wrapping and container sizing
 - 🔤 **Vector Icons**: SVG paths compiled to native QML Shapes with `svgtoqml`
@@ -128,11 +129,32 @@ toastify.createMessage("Custom message", {
     autoClose: 8000,           // 8 seconds
     closeOnClick: true,
     hideProgressBar: false,
+    closeButton: true,
+    action: {
+        label: "Undo",
+        onClick: function() { console.log("Undo requested") },
+        dismiss: true
+    },
     clickAction: function() {
         console.log("Toast clicked!")
     }
 })
 ```
+
+### Promise Lifecycle
+
+```qml
+toastify.promise(saveOperation(), {
+    loading: "Saving...", // `pending` is also accepted
+    success: function(result) { return "Saved: " + result.name },
+    error: function(reason) { return "Save failed: " + reason },
+    autoClose: 5000
+})
+```
+
+The same toast object is updated from loading to success or error. Version 1
+accepts QML JavaScript `Promise` objects and thenables; it does not adapt
+`QFuture` directly.
 
 ## API Reference
 
@@ -164,6 +186,11 @@ property bool stackCovered: false // Hide content/actions when true
 property bool stackPaused: false  // Pause the auto-close timer when true
 property real stackHeight: -1     // Use as the explicit height when >= 0
 
+// Optional interactive hooks
+property bool closeButton: true
+property var action: null
+property bool isLoading: false
+
 height: stackHeight >= 0 ? stackHeight : implicitHeight
 ```
 
@@ -189,9 +216,32 @@ Creates a new toast notification.
 | `autoClose` | int | `5000` | Auto-close duration in milliseconds (0 = no auto-close) |
 | `closeOnClick` | bool | `true` | Close toast on click |
 | `hideProgressBar` | bool | `false` | Hide the progress bar |
+| `closeButton` | bool | `true` | Show the close icon |
+| `action` | object | `null` | Action with `label`, `onClick`, optional `dismiss` and `enabled` |
 | `clickAction` | function | `null` | Custom click handler |
 
 **Returns:** Toast object or `null` on error
+
+##### `loading(message, options)`
+
+Creates a persistent loading toast. It defaults to no close button, no body
+click dismissal, and no progress bar.
+
+##### `promise(promiseOrFunction, options)`
+
+Creates one loading toast and updates that same object when the Promise settles.
+Use `loading` (or `pending`), `success`, `error`, and optional `finally` callbacks.
+If the success or error message is omitted, the toast is dismissed.
+
+##### `update(toast, patch)`
+
+Updates a live toast. Supported fields are `message`, `type`, `autoClose`,
+`closeOnClick`, `hideProgressBar`, `clickAction`, `closeButton`, `action`, and
+`isLoading`.
+
+##### `dismiss(toast)`
+
+Closes a toast returned by any creation method.
 
 ##### `success(message, options)`
 
