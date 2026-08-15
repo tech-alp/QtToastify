@@ -9,7 +9,7 @@ Item {
     property bool bottomAligned: false
     property bool newestOnTop: false
     property real expandedSpacing: 0
-    property real collapsedOffset: 8
+    property real collapsedOffset: 14
     property real collapsedScaleStep: 0.05
     property int transitionDuration: 400
     property int visibleToasts: 3
@@ -227,7 +227,7 @@ Item {
                    : Math.max(0.8,
                               1 - Math.max(0, depth)
                               * stack.collapsedScaleStep)
-            transformOrigin: stack.bottomAligned ? Item.Bottom : Item.Top
+            transformOrigin: Item.Center
 
             Behavior on layoutOffset {
                 NumberAnimation {

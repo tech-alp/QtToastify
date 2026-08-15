@@ -131,6 +131,7 @@ TestCase {
 
         compare(toastify.expand, false)
         compare(toastify.visibleToasts, 3)
+        compare(compactOffset, 14)
 
         createToast("First", Toastify.TopLeftCorner)
         createToast("Second", Toastify.TopLeftCorner)
@@ -158,6 +159,19 @@ TestCase {
         compare(byAge[1].y, compactOffset)
         compare(byAge[2].y, 2 * compactOffset)
         verify(byAge[1].scale < byAge[0].scale)
+        compare(byAge[1].transformOrigin, Item.Center)
+
+        const frontVisualBottom = byAge[0].mapToItem(
+                                    hostWindow.contentItem,
+                                    0, byAge[0].height).y
+        const rearVisualBottom = byAge[1].mapToItem(
+                                   hostWindow.contentItem,
+                                   0, byAge[1].height).y
+        fuzzyCompare(rearVisualBottom - frontVisualBottom,
+                     compactOffset
+                     - stack.frontHeight
+                     * toastify.style.collapsedToastScaleStep / 2,
+                     1)
 
         toastify.expand = true
         compare(stack.expanded, true)
@@ -290,7 +304,9 @@ TestCase {
                      stack.y, 1)
         fuzzyCompare(byAge[1].mapToItem(hostWindow.contentItem,
                                         0, byAge[1].height).y,
-                     olderSceneBottom, 2)
+                     olderSceneBottom,
+                     stack.frontHeight
+                     * toastify.style.collapsedToastScaleStep / 2 + 1)
 
         wait(toastify.style.stackTransitionDuration + 20)
         compare(byAge[0].y, -stack.frontHeight)
@@ -359,6 +375,16 @@ TestCase {
                 -bottomStack.frontHeight - compactOffset)
         compare(bottomEntries[2].y,
                 -bottomStack.frontHeight - 2 * compactOffset)
+
+        const bottomFrontVisualTop = bottomEntries[0].mapToItem(
+                                         hostWindow.contentItem, 0, 0).y
+        const bottomRearVisualTop = bottomEntries[1].mapToItem(
+                                        hostWindow.contentItem, 0, 0).y
+        fuzzyCompare(bottomFrontVisualTop - bottomRearVisualTop,
+                     compactOffset
+                     - bottomStack.frontHeight
+                     * toastify.style.collapsedToastScaleStep / 2,
+                     1)
 
         const topFrontSceneY = topEntries[0].mapToItem(
                                    hostWindow.contentItem, 0, 0).y
