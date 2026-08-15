@@ -25,6 +25,14 @@ TestCase {
         id: darkStyleProvider
     }
 
+    CompactStyleProvider {
+        id: compactStyleProvider
+    }
+
+    MaterialStyleProvider {
+        id: materialStyleProvider
+    }
+
     ToastifyStyleProvider {
         id: legacyShadowStyleProvider
 
@@ -61,6 +69,12 @@ TestCase {
         compare(toast.styleProvider.toastSpacing, 16)
         compare(toast.styleProvider.shadow.blurRadius, 16)
         compare(toast.styleProvider.shadow.spread, 0)
+    }
+
+    function test_builtinStylesUseApplicationFont() {
+        compare(darkStyleProvider.fonts.family, "")
+        compare(compactStyleProvider.fonts.family, "")
+        compare(materialStyleProvider.fonts.family, "")
     }
 
     function test_rectangularShadowUsesStyleTokens() {

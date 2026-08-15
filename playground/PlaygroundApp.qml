@@ -12,7 +12,6 @@ ApplicationWindow {
     height: 700
     visible: true
     title: "QtToastify Playground - Style Showcase"
-    font.family: playgroundFonts.robotoFamily
     
     Material.theme: Material.Light
     Material.accent: Material.Indigo
@@ -36,9 +35,27 @@ ApplicationWindow {
     
     // Style providers
     property ToastifyStyleProvider defaultStyleProvider: ToastifyStyleProvider {}
-    property DarkStyleProvider darkStyleProvider: DarkStyleProvider {}
-    property CompactStyleProvider compactStyleProvider: CompactStyleProvider {}
-    property MaterialStyleProvider materialStyleProvider: MaterialStyleProvider {}
+    property DarkStyleProvider darkStyleProvider: DarkStyleProvider {
+        fonts: ({
+            family: playgroundFonts.montserratFamily,
+            size: 16,
+            weight: Font.Medium
+        })
+    }
+    property CompactStyleProvider compactStyleProvider: CompactStyleProvider {
+        fonts: ({
+            family: playgroundFonts.robotoFamily,
+            size: 12,
+            weight: Font.Normal
+        })
+    }
+    property MaterialStyleProvider materialStyleProvider: MaterialStyleProvider {
+        fonts: ({
+            family: playgroundFonts.robotoFamily,
+            size: 14,
+            weight: Font.Medium
+        })
+    }
     
     // Toast settings
     property string selectedType: "info"

@@ -11,7 +11,7 @@ ToastifyStyleProvider {
 
     // Material Design typography
     fonts: ({
-        family: "Roboto",     // Material Design font
+        family: "",           // Host application controls the font family
         size: 14,
         weight: Font.Medium   // Material uses medium weight
     })

@@ -441,6 +441,9 @@ All style providers support the following properties:
 - `fonts.size` (int): Font size in pixels
 - `fonts.weight` (enum): Font weight (Normal, Bold, etc.)
 
+Built-in style providers leave `fonts.family` empty. Applications may override
+it after loading their own font; the Playground demonstrates this separation.
+
 #### Spacing
 - `spacing.main` (int): Space between content and close button
 - `spacing.content` (int): Space between icon and text

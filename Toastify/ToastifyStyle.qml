@@ -12,7 +12,7 @@ QtObject {
 
     // Font settings
     property var fonts: ({
-        family: "Roboto",
+        family: "",
         size: 14,
         weight: Font.Normal
     })

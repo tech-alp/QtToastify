@@ -19,13 +19,13 @@ Item {
 
     readonly property string montserratFamily:
         montserratLoader.status === FontLoader.Ready
-        ? montserratLoader.name : "Montserrat"
+        ? montserratLoader.name : ""
     readonly property string robotoFamily:
         robotoLoader.status === FontLoader.Ready
-        ? robotoLoader.name : "Roboto"
+        ? robotoLoader.name : ""
     readonly property string robotoCondensedFamily:
         robotoCondensedLoader.status === FontLoader.Ready
-        ? robotoCondensedLoader.name : "Roboto Condensed"
+        ? robotoCondensedLoader.name : ""
 
     function verify(loader, expectedFamily) {
         if (loader.status === FontLoader.Error) {

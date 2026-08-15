@@ -3,7 +3,7 @@ import QtQuick
 ToastifyStyleProvider {
     // Compact theme - smaller fonts and spacing
     fonts: ({
-        family: "Roboto",
+        family: "",
         size: 12,             // Smaller font
         weight: Font.Normal
     })
