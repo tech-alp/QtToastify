@@ -23,30 +23,36 @@ Bu dizin QtToastify'ın farklı stil konfigürasyonları ile nasıl kullanılabi
 
 ### 1. Default Style
 - QtToastify'ın varsayılan stil ayarları
-- Font: Roboto 14px
+- Font: Sistem fontu, 16px
 - Container: 280-500px
 - Spacing: 12px
 
 ### 2. Custom Dark Style  
 - Koyu tema, büyük fontlar ve artırılmış spacing
-- Font: Arial 16px Medium
+- Font: Montserrat 16px Medium
 - Container: 320-600px
 - Spacing: 16px
 - Gelişmiş gölge efektleri
 
-### 3. Light Theme Style
-- Açık tema, pastel renkler ve minimal spacing
-- Font: Segoe UI 12px
-- Container: 240-400px  
-- Spacing: 8px
-- Hafif gölge efektleri
+### 3. Compact Style
+- Kompakt layout
+- Font: Roboto 12px
+- Container: 200-350px
 
-### 4. Compact Style
-- Ultra-kompakt layout, minimal alan kullanımı
-- Font: Roboto Condensed 10px
-- Container: 180-280px
-- Spacing: 4px
-- Gölge yok
+### 4. Material Style
+- Material Design 3 stil rehberi
+- Font: Roboto 14px Medium
+- Container: 288-568px
+
+## Fontlar
+
+Playground, demo stillerinde kullandığı `Montserrat`, `Roboto` ve
+`Roboto Condensed` fontlarını `fonts/` dizininden `FontLoader` ile yükler.
+Fontlar SIL Open Font License 1.1 ile dağıtılır; lisans metinleri aynı dizindedir.
+
+QtToastify kütüphanesi font dosyası yüklemez veya paketlemez. Uygulamanız özel
+bir `fonts.family` adı kullanıyorsa ilgili fontu uygulama katmanında yüklemelidir.
+Style provider içinde fontun gerçek family adını yazmak yeterlidir.
 
 ## Build ve Çalıştırma
 

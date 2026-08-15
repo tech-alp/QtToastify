@@ -412,6 +412,10 @@ ToastifyStyleProvider {
 }
 ```
 
+QtToastify font dosyası yüklemez. `fonts.family` yalnız family adıdır; özel
+fontları uygulama katmanında `FontLoader` veya
+`QFontDatabase::addApplicationFont()` ile yükleyin.
+
 Then use it in your application:
 
 ```qml
@@ -511,7 +515,6 @@ The playground features:
 QtToastify/
 ├── CMakeLists.txt              # Main CMake configuration
 ├── main.cpp                    # Application entry point
-├── resources.qrc               # Qt resource file
 ├── Toastify/                   # Main library
 │   ├── CMakeLists.txt
 │   ├── Toastify.qml           # Main Toastify component
@@ -526,19 +529,18 @@ QtToastify/
 ├── playground/                 # Example application
 │   ├── CMakeLists.txt
 │   ├── PlaygroundApp.qml      # Main playground UI
-│   ├── playground_main.cpp
+│   ├── PlaygroundFonts.qml    # Demo-only FontLoader collection
+│   ├── fonts/                 # Demo fonts and OFL licenses
+│   ├── main.cpp
 │   └── styles/                # Additional style examples
 ├── qml/                       # Showcase examples
 │   ├── Main.qml
 │   ├── ShowcaseSimple.qml
 │   └── ShowcaseAdvanced.qml
-├── tests/                     # Unit tests
-│   ├── CMakeLists.txt
-│   ├── main.cpp
-│   └── tst_container_boundary.qml
-└── resources/                 # Resources
-    ├── fonts/                # Montserrat fonts
-    └── icons/                # Icon resources
+└── tests/                     # Unit tests
+    ├── CMakeLists.txt
+    ├── main.cpp
+    └── tst_container_boundary.qml
 ```
 
 ## Integration in Your Project
@@ -599,7 +601,10 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 - Original design and idea inspired by [react-toastify](https://fkhadra.github.io/react-toastify/introduction/)
 - Icons provided by [FontAwesome](https://fontawesome.com/) via [QtAwesome](https://github.com/gamecreature/QtAwesome)
-- Font: [Montserrat](https://fonts.google.com/specimen/Montserrat) by Julieta Ulanovsky
+- Playground fonts: [Montserrat](https://fonts.google.com/specimen/Montserrat),
+  [Roboto](https://fonts.google.com/specimen/Roboto) and
+  [Roboto Condensed](https://fonts.google.com/specimen/Roboto+Condensed)
+  (SIL Open Font License 1.1)
 
 ## Support
 

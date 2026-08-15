@@ -12,9 +12,14 @@ ApplicationWindow {
     height: 700
     visible: true
     title: "QtToastify Playground - Style Showcase"
+    font.family: playgroundFonts.robotoFamily
     
     Material.theme: Material.Light
     Material.accent: Material.Indigo
+
+    PlaygroundFonts {
+        id: playgroundFonts
+    }
     
     // Available styles using new StyleProvider system
     property var availableStyles: [

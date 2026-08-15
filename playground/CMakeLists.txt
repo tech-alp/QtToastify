@@ -11,11 +11,16 @@ qt_add_qml_module(QtToastifyPlayground
     VERSION 1.0
     QML_FILES
         PlaygroundApp.qml
+        PlaygroundFonts.qml
         StyledToastDelegate.qml
         styles/CustomStyle.qml
         styles/LightStyle.qml
         styles/CompactStyle.qml
         styles/DefaultStyle.qml
+    RESOURCES
+        fonts/Montserrat.ttf
+        fonts/Roboto.ttf
+        fonts/RobotoCondensed.ttf
     SOURCES
         PlaygroundFutureFactory.cpp
         PlaygroundFutureFactory.h
@@ -49,5 +54,13 @@ if(CMAKE_INSTALL_PREFIX)
         README.md
         StyleCustomizationGuide.md
         DESTINATION share/QtToastify/playground
+    )
+
+    install(FILES
+        fonts/README.md
+        fonts/OFL-Montserrat.txt
+        fonts/OFL-Roboto.txt
+        fonts/OFL-RobotoCondensed.txt
+        DESTINATION share/QtToastify/playground/fonts
     )
 endif()

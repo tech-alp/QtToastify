@@ -26,7 +26,7 @@ ApplicationWindow {
 
         // Custom font settings - Larger fonts
         property var fonts: ({
-            family: "Arial",
+            family: "Montserrat",
             size: 16,             // Larger font
             weight: Font.Medium
         })

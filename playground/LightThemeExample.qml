@@ -26,7 +26,7 @@ ApplicationWindow {
 
         // Smaller, clean fonts
         property var fonts: ({
-            family: "Segoe UI",
+            family: "Montserrat",
             size: 12,             // Smaller font
             weight: Font.Normal
         })

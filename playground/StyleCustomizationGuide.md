@@ -2,6 +2,16 @@
 
 Bu rehber QtToastify'ın stil sistemini nasıl özelleştireceğinizi gösterir.
 
+> QtToastify font dosyası yüklemez. Özel bir `fonts.family` kullanıyorsanız fontu
+> uygulamanızda `FontLoader` veya `QFontDatabase::addApplicationFont()` ile
+> yükleyin. Style provider'a font dosyası yolunu değil, gerçek family adını yazın.
+
+```qml
+FontLoader {
+    source: Qt.resolvedUrl("fonts/MyFont.ttf")
+}
+```
+
 ## ToastifyStyle Yapısı
 
 ToastifyStyle singleton bir QML objesidir ve tüm görsel özellikleri kontrol eder:

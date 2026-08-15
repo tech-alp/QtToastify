@@ -13,7 +13,7 @@ ToastifyStyleProvider {
 
     // Larger fonts for better readability in dark theme
     fonts: ({
-        family: "Arial",
+        family: "Montserrat",
         size: 16,             // Larger font
         weight: Font.Medium
     })
