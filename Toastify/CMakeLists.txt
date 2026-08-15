@@ -30,4 +30,11 @@ qt_add_qml_module(Toastify
         QtQuick.Shapes
     DEPENDENCIES TARGET
         ToastifyStyle
+    SOURCES
+        ToastFuture.cpp
+        ToastFuture.h
+)
+
+target_include_directories(Toastify PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )

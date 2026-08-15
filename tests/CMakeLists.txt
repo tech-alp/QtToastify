@@ -14,6 +14,9 @@ qt_add_qml_module(tst_toast_layout
         tst_container_boundary.qml
         tst_interactions.qml
         tst_stack_behavior.qml
+    SOURCES
+        FutureTestFactory.cpp
+        FutureTestFactory.h
     DEPENDENCIES TARGET Toastify
 )
 
@@ -22,6 +25,7 @@ target_link_libraries(tst_toast_layout PRIVATE
     Qt6::Quick
     Qt6::Qml
     Qt6::QuickTest
+    Toastify
     Toastifyplugin
     ToastifyStyleplugin
 )

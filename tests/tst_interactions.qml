@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Controls
 import QtTest
 import Toastify 1.0
+import ToastTests 1.0
 
 TestCase {
     id: testCase
@@ -251,6 +252,71 @@ TestCase {
         compare(toast.type, Toastify.Error)
         compare(toast.isLoading, false)
         compare(toast.autoClose, 0)
+    }
+
+    function test_qFutureResolvesAndRejects() {
+        const resolvedToast = track(toastify.promise(
+            FutureTestFactory.resolveAfter("QFuture ready", 20), {
+                loading: "Waiting for QFuture...",
+                success: function(result) { return result },
+                error: "QFuture failed",
+                position: Toastify.TopLeftCorner,
+                autoClose: 0
+            }))
+
+        compare(resolvedToast.isLoading, true)
+        tryCompare(resolvedToast, "message", "QFuture ready")
+        compare(resolvedToast.type, Toastify.Success)
+        compare(resolvedToast.isLoading, false)
+
+        const rejectedToast = track(toastify.promise(
+            FutureTestFactory.rejectAfter("device offline", 20), {
+                loading: "Connecting device...",
+                success: "Connected",
+                error: function(reason) { return "Offline: " + reason },
+                position: Toastify.TopRightCorner,
+                autoClose: 0
+            }))
+
+        tryCompare(rejectedToast, "message", "Offline: device offline")
+        compare(rejectedToast.type, Toastify.Error)
+        compare(rejectedToast.isLoading, false)
+        wait(0)
+        compare(FutureTestFactory.activeBridgeCount(), 0)
+    }
+
+    function test_qFutureVoidResolves() {
+        const toast = track(toastify.promise(
+            FutureTestFactory.resolveVoidAfter(20), {
+                loading: "Applying...",
+                success: "Applied",
+                error: "Apply failed",
+                position: Toastify.BottomLeftCorner,
+                autoClose: 0
+            }))
+
+        tryCompare(toast, "message", "Applied")
+        compare(toast.type, Toastify.Success)
+        compare(toast.isLoading, false)
+        wait(0)
+        compare(FutureTestFactory.activeBridgeCount(), 0)
+    }
+
+    function test_qFutureCancellationRejects() {
+        const toast = track(toastify.promise(
+            FutureTestFactory.cancelAfter(20), {
+                loading: "Cancelable operation...",
+                success: "Unexpected success",
+                error: function(reason) { return "Canceled: " + reason },
+                position: Toastify.BottomRightCorner,
+                autoClose: 0
+            }))
+
+        tryCompare(toast, "message", "Canceled: Operation canceled")
+        compare(toast.type, Toastify.Error)
+        compare(toast.isLoading, false)
+        wait(0)
+        compare(FutureTestFactory.activeBridgeCount(), 0)
     }
 
     function test_promiseTimerRespectsHoveredStack() {

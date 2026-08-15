@@ -338,7 +338,11 @@ Item {
             targetPromise = Promise.reject(error);
         }
 
-        Promise.resolve(targetPromise).then(function(result) {
+        const normalizedPromise = isFutureBridge(targetPromise)
+                                  ? futureBridgePromise(targetPromise)
+                                  : Promise.resolve(targetPromise);
+
+        normalizedPromise.then(function(result) {
             try {
                 root.settlePromiseToast(state, Toastify.Success,
                                         options.success, result, options);
@@ -355,6 +359,65 @@ Item {
         });
 
         return pendingToast;
+    }
+
+    function isFutureBridge(candidate) {
+        if (!candidate || typeof candidate !== "object")
+            return false;
+
+        try {
+            return typeof candidate["settled"] !== "undefined"
+                    && typeof candidate["succeeded"] !== "undefined"
+                    && candidate.resolved
+                    && typeof candidate.resolved.connect === "function"
+                    && candidate.rejected
+                    && typeof candidate.rejected.connect === "function";
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function futureBridgePromise(bridge) {
+        return new Promise(function(resolve, reject) {
+            let completed = false;
+
+            function cleanup() {
+                try {
+                    bridge.resolved.disconnect(onResolved);
+                    bridge.rejected.disconnect(onRejected);
+                    if (typeof bridge["release"] === "function")
+                        bridge.release();
+                } catch (error) {
+                    // The bridge owner may have been destroyed while pending.
+                }
+            }
+
+            function onResolved(result) {
+                if (completed)
+                    return;
+                completed = true;
+                cleanup();
+                resolve(result);
+            }
+
+            function onRejected(error) {
+                if (completed)
+                    return;
+                completed = true;
+                cleanup();
+                reject(error);
+            }
+
+            bridge.resolved.connect(onResolved);
+            bridge.rejected.connect(onRejected);
+
+            if (bridge.settled) {
+                if (bridge.succeeded)
+                    onResolved(bridge.result);
+                else
+                    onRejected(bridge.error);
+            }
+        });
     }
 
     function settlePromiseToast(state, type, messageSpec, value, options) {

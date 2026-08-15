@@ -153,8 +153,37 @@ toastify.promise(saveOperation(), {
 ```
 
 The same toast object is updated from loading to success or error. Version 1
-accepts QML JavaScript `Promise` objects and thenables; it does not adapt
-`QFuture` directly.
+accepts QML JavaScript `Promise` objects, thenables, and `QFuture` values wrapped
+with `ToastFuture::watch()`.
+
+### QFuture Integration
+
+```cpp
+#include <ToastFuture.h>
+
+QFuture<QString> future = startSaveOperation();
+auto *toastFuture = ToastFuture::watch(future, &engine);
+engine.rootContext()->setContextProperty("saveFuture", toastFuture);
+```
+
+Link the backing library when using the C++ adapter:
+
+```cmake
+target_link_libraries(your_app PRIVATE Toastify)
+```
+
+```qml
+toastify.promise(saveFuture, {
+    loading: "Saving...",
+    success: function(result) { return "Saved: " + result },
+    error: function(reason) { return "Save failed: " + reason }
+})
+```
+
+The explicit `owner` controls the adapter lifetime and must outlive the future.
+`QFuture<void>`, cancellation, and propagated C++ exceptions are supported.
+Custom result types must be registered with Qt's meta-type system so they can
+be converted to `QVariant`.
 
 ## API Reference
 

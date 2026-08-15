@@ -725,7 +725,41 @@ ApplicationWindow {
                                                  position: window.selectedPosition,
                                                  autoClose: window.selectedAutoClose,
                                                  closeButton: window.selectedCloseButton
-                                             })
+                            })
+                        }
+                    }
+
+                    Button {
+                        text: "C++ QFuture Success"
+                        onClicked: {
+                            toastify.promise(
+                                PlaygroundFutureFactory.start(false), {
+                                    loading: "C++ işlemi bekleniyor...",
+                                    success: function(result) { return result },
+                                    error: function(reason) {
+                                        return "QFuture hatası: " + reason
+                                    },
+                                    position: window.selectedPosition,
+                                    autoClose: window.selectedAutoClose,
+                                    closeButton: window.selectedCloseButton
+                                })
+                        }
+                    }
+
+                    Button {
+                        text: "C++ QFuture Error"
+                        onClicked: {
+                            toastify.promise(
+                                PlaygroundFutureFactory.start(true), {
+                                    loading: "C++ işlemi bekleniyor...",
+                                    success: function(result) { return result },
+                                    error: function(reason) {
+                                        return "QFuture hatası: " + reason
+                                    },
+                                    position: window.selectedPosition,
+                                    autoClose: window.selectedAutoClose,
+                                    closeButton: window.selectedCloseButton
+                                })
                         }
                     }
                 }
