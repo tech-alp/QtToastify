@@ -29,6 +29,7 @@ qt_add_qml_module(Toastify
         QtQuick.Effects
         QtQuick.Shapes
         QtQuick.VectorImage
+        QtQuick.VectorImage.Helpers
     DEPENDENCIES TARGET
         ToastifyStyle
     SOURCES
@@ -38,6 +39,7 @@ qt_add_qml_module(Toastify
 
 target_link_libraries(Toastify PUBLIC
     Qt6::QuickVectorImage
+    Qt6::QuickVectorImageHelpers
 )
 
 target_include_directories(Toastify PUBLIC

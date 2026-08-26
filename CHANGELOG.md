@@ -13,8 +13,10 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Static WebAssembly builds now link the `QtQuick.VectorImage` QML plugin used
-  by `svgtoqml`-generated icon components.
+- Static WebAssembly builds now link the `QtQuick.VectorImage` and helper QML
+  plugins used by `svgtoqml`-generated icon components.
+- WebAssembly packaging now fails before deployment when a required static QML
+  plugin is missing from the binary.
 
 ### Removed
 

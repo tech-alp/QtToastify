@@ -48,6 +48,7 @@ QtToastify comes with 4 pre-configured style providers:
   - Qml
   - QuickControls2
   - QuickVectorImage
+  - QuickVectorImageHelpers
 - **CMake 3.20+**
 - **C++17** compatible compiler
 
@@ -569,6 +570,7 @@ find_package(Qt6 6.10 REQUIRED COMPONENTS
     Qml
     QuickControls2
     QuickVectorImage
+    QuickVectorImageHelpers
 )
 
 # Add QtToastify subdirectory

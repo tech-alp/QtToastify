@@ -85,6 +85,8 @@ wasm_output="${target_dir}/QtToastifyPlayground.wasm"
 qml_plugins=(
     ToastifyPlugin
     Toastify_StylePlugin
+    QtQuickVectorImagePlugin
+    QtQuickVectorImageHelpersPlugin
 )
 
 for qml_plugin in "${qml_plugins[@]}"; do

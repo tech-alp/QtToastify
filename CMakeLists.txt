@@ -11,6 +11,7 @@ find_package(Qt6 6.10 REQUIRED COMPONENTS
     Qml
     QuickControls2
     QuickVectorImage
+    QuickVectorImageHelpers
 )
 
 qt_standard_project_setup()
