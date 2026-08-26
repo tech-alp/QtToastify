@@ -5,6 +5,7 @@ A modern, customizable toast notification library for Qt/QML applications, inspi
 ![QtToastify](https://img.shields.io/badge/Qt-6.10+-41CD52?style=for-the-badge&logo=qt)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
+[![CI](https://github.com/tech-alp/QtToastify/actions/workflows/ci.yml/badge.svg)](https://github.com/tech-alp/QtToastify/actions/workflows/ci.yml)
 
 ## Features
 
@@ -46,7 +47,7 @@ QtToastify comes with 4 pre-configured style providers:
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/QtToastify.git
+git clone https://github.com/tech-alp/QtToastify.git
 cd QtToastify
 ```
 
@@ -54,7 +55,7 @@ cd QtToastify
 
 ```bash
 # Configure
-cmake -B build -S . -DCMAKE_INSTALL_PREFIX=/path/to/qt/lib/cmake
+cmake -B build -S . -DCMAKE_PREFIX_PATH=/path/to/Qt/6.10.x/platform
 
 # Build
 cmake --build build
@@ -584,17 +585,13 @@ import Toastify.Style 1.0
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+See the repository-level [contribution guide](CONTRIBUTING.md) for the build,
+test, and pull request workflow.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License. See the repository-level
+[LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
@@ -607,15 +604,11 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Support
 
-For issues, questions, or contributions, please visit the [GitHub repository](https://github.com/yourusername/QtToastify).
+For usage questions and issue reporting, see the repository-level
+[support guide](SUPPORT.md). Report vulnerabilities through
+[SECURITY.md](SECURITY.md), not through a public issue.
 
-## Changelog
+## Release History
 
-### Version 1.0.0
-- Initial release
-- 4 built-in style providers
-- 6 toast positions
-- 4 toast types
-- Custom style provider support
-- Playground application
-- Unit tests
+See the repository-level [CHANGELOG.md](CHANGELOG.md) for release history and
+breaking changes.
