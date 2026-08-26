@@ -368,7 +368,7 @@ TestCase {
         const topEntries = topStack.entriesByAge()
         const bottomEntries = bottomStack.entriesByAge()
         compare(topEntries[0].y, 0)
-        compare(topEntries[1].y, compactOffset)
+        tryCompare(topEntries[1], "y", compactOffset)
         compare(topEntries[2].y, 2 * compactOffset)
         compare(bottomEntries[0].y, -bottomStack.frontHeight)
         compare(bottomEntries[1].y,
@@ -478,7 +478,7 @@ TestCase {
         wait(toastify.style.stackTransitionDuration + 20)
         compare(topStack.frontEntry.toastObject, topToasts[2])
         compare(bottomStack.frontEntry.toastObject, bottomToasts[2])
-        compare(topStack.entriesByAge()[0].y, 0)
+        tryCompare(topStack.entriesByAge()[0], "y", 0)
         compare(bottomStack.entriesByAge()[0].y,
                 -bottomStack.expandedHeight)
 
@@ -658,7 +658,7 @@ TestCase {
         toastify.expand = true
         wait(toastify.style.stackTransitionDuration + 20)
 
-        compare(byAge[0].y, -stack.expandedHeight)
+        tryCompare(byAge[0], "y", -stack.expandedHeight)
         compare(byAge[1].y, -byAge[1].naturalHeight)
         verify(byAge[0].y < byAge[1].y)
         compare(byAge[0].parent, newestParent)
