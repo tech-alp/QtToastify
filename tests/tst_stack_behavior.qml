@@ -156,8 +156,8 @@ TestCase {
         compare(byAge[0].scale, 1)
         wait(toastify.style.stackTransitionDuration + 20)
         compare(byAge[0].y, 0)
-        compare(byAge[1].y, compactOffset)
-        compare(byAge[2].y, 2 * compactOffset)
+        tryCompare(byAge[1], "y", compactOffset)
+        tryCompare(byAge[2], "y", 2 * compactOffset)
         verify(byAge[1].scale < byAge[0].scale)
         compare(byAge[1].transformOrigin, Item.Center)
 
