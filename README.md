@@ -47,6 +47,7 @@ QtToastify comes with 4 pre-configured style providers:
   - Quick
   - Qml
   - QuickControls2
+  - QuickVectorImage
 - **CMake 3.20+**
 - **C++17** compatible compiler
 
@@ -562,7 +563,13 @@ Add QtToastify as a subdirectory in your CMake project:
 cmake_minimum_required(VERSION 3.20)
 project(MyApp)
 
-find_package(Qt6 6.10 REQUIRED COMPONENTS Core Quick Qml QuickControls2)
+find_package(Qt6 6.10 REQUIRED COMPONENTS
+    Core
+    Quick
+    Qml
+    QuickControls2
+    QuickVectorImage
+)
 
 # Add QtToastify subdirectory
 add_subdirectory(path/to/QtToastify)

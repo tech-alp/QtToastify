@@ -28,11 +28,16 @@ qt_add_qml_module(Toastify
     IMPORTS
         QtQuick.Effects
         QtQuick.Shapes
+        QtQuick.VectorImage
     DEPENDENCIES TARGET
         ToastifyStyle
     SOURCES
         ToastFuture.cpp
         ToastFuture.h
+)
+
+target_link_libraries(Toastify PUBLIC
+    Qt6::QuickVectorImage
 )
 
 target_include_directories(Toastify PUBLIC

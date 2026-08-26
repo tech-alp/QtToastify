@@ -11,6 +11,11 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - WebAssembly playground builds and GitHub Pages live-demo deployment.
 
+### Fixed
+
+- Static WebAssembly builds now link the `QtQuick.VectorImage` QML plugin used
+  by `svgtoqml`-generated icon components.
+
 ### Removed
 
 - The singleton-based `ToastifyStyle` API.
