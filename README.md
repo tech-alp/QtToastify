@@ -6,6 +6,14 @@ A modern, customizable toast notification library for Qt/QML applications, inspi
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 [![CI](https://github.com/tech-alp/QtToastify/actions/workflows/ci.yml/badge.svg)](https://github.com/tech-alp/QtToastify/actions/workflows/ci.yml)
+[![Live Demo](https://img.shields.io/badge/live_demo-WebAssembly-654FF0?style=for-the-badge&logo=webassembly)](https://tech-alp.github.io/QtToastify/wasm/)
+
+## Live Demo
+
+Run the complete playground in your browser: [QtToastify WebAssembly demo](https://tech-alp.github.io/QtToastify/wasm/).
+
+The demo is built from the `QtToastifyPlayground` target and deployed to GitHub
+Pages after successful builds on `main`.
 
 ## Features
 

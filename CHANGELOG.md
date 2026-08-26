@@ -7,6 +7,10 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- WebAssembly playground builds and GitHub Pages live-demo deployment.
+
 ### Removed
 
 - The singleton-based `ToastifyStyle` API.
