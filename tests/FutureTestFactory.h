@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QtQml/qqmlregistration.h>
 
-class FutureTestFactory final : public QObject
+class FutureTestFactory : public QObject
 {
     Q_OBJECT
     QML_ELEMENT

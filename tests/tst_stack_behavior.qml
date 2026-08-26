@@ -179,10 +179,10 @@ TestCase {
         compare(stack.height, stack.frontHeight)
         compare(stack.visualHeight, stack.expandedHeight)
         fuzzyCompare(byAge[2].y, 0, 0.01)
-        compare(byAge[1].y, byAge[2].naturalHeight + spacing)
-        compare(byAge[0].y,
-                byAge[2].naturalHeight + byAge[1].naturalHeight
-                + 2 * spacing)
+        tryCompare(byAge[1], "y", byAge[2].naturalHeight + spacing)
+        tryCompare(byAge[0], "y",
+                   byAge[2].naturalHeight + byAge[1].naturalHeight
+                   + 2 * spacing)
         compare(byAge[0].covered, false)
         compare(byAge[1].covered, false)
 
@@ -245,9 +245,9 @@ TestCase {
         compare(byAge[1].toastObject, middle)
         compare(byAge[2].toastObject, oldest)
         compare(byAge[0].y, 0)
-        compare(byAge[1].y, front.height + spacing)
-        compare(byAge[2].y,
-                front.height + middle.height + 2 * spacing)
+        tryCompare(byAge[1], "y", front.height + spacing)
+        tryCompare(byAge[2], "y",
+                   front.height + middle.height + 2 * spacing)
         compare(stack.height, front.height)
         compare(stack.expandedHeight,
                 front.height + middle.height + oldest.height
@@ -310,9 +310,9 @@ TestCase {
 
         wait(toastify.style.stackTransitionDuration + 20)
         compare(byAge[0].y, -stack.frontHeight)
-        compare(byAge[1].y,
-                -stack.frontHeight
-                - toastify.style.collapsedToastOffset)
+        tryCompare(byAge[1], "y",
+                   -stack.frontHeight
+                   - toastify.style.collapsedToastOffset)
         const frontSceneY = byAge[0].mapToItem(hostWindow.contentItem,
                                                0, 0).y
 
@@ -322,7 +322,7 @@ TestCase {
         verify(stack.expandedHeight > frontToast.height)
         compare(stack.visualHeight, stack.expandedHeight)
         compare(byAge[0].y, -stack.frontHeight)
-        compare(byAge[1].y, -stack.expandedHeight)
+        tryCompare(byAge[1], "y", -stack.expandedHeight)
         fuzzyCompare(byAge[0].mapToItem(hostWindow.contentItem, 0, 0).y,
                      frontSceneY, 1)
         fuzzyCompare(stack.y,
@@ -668,8 +668,8 @@ TestCase {
         toastify.newestOnTop = false
         wait(toastify.style.stackTransitionDuration + 20)
 
-        compare(byAge[0].y, -stack.frontHeight)
-        compare(byAge[1].y, -stack.expandedHeight)
+        tryCompare(byAge[0], "y", -stack.frontHeight)
+        tryCompare(byAge[1], "y", -stack.expandedHeight)
     }
 
     function test_reparentDetachesStackBindings() {

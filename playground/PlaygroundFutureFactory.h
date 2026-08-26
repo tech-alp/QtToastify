@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QtQml/qqmlregistration.h>
 
-class PlaygroundFutureFactory final : public QObject
+class PlaygroundFutureFactory : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
