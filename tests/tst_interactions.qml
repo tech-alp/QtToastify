@@ -63,6 +63,11 @@ TestCase {
         return toast
     }
 
+    function waitForToastEntered(toast) {
+        tryCompare(toast, "_entered", true,
+                   toast.styleProvider.animation.enterDuration + 1000)
+    }
+
     function cleanup() {
         mouseMove(hostWindow.contentItem,
                   hostWindow.width / 2, hostWindow.height / 2)
@@ -227,8 +232,10 @@ TestCase {
         compare(stack.frontEntry.toastObject, toast)
         compare(finallyCount, 1)
 
-        wait(toastify.style.animation.enterDuration + 100)
-        verify(toast.progressValue > 0)
+        waitForToastEntered(toast)
+        tryVerify(function() {
+            return toast.progressValue > 0
+        }, 1000)
     }
 
     function test_promiseRejectsAndSupportsPendingAlias() {
@@ -333,7 +340,7 @@ TestCase {
             autoClose: 3000
         }))
 
-        wait(toastify.style.animation.enterDuration + 20)
+        waitForToastEntered(toast)
         mouseMove(stack, stack.width / 2, stack.height / 2)
         tryCompare(stack, "hovered", true)
         tryCompare(toast, "stackPaused", true)
@@ -347,8 +354,9 @@ TestCase {
         mouseMove(hostWindow.contentItem,
                   hostWindow.width / 2, hostWindow.height / 2)
         tryCompare(stack, "hovered", false)
-        wait(200)
-        verify(toast.progressValue > pausedProgress + 0.02)
+        tryVerify(function() {
+            return toast.progressValue > pausedProgress + 0.02
+        }, 1000)
     }
 
     function test_closedPromiseDoesNotResurrectToast() {

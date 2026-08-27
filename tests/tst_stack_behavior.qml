@@ -80,6 +80,27 @@ TestCase {
         return toast
     }
 
+    function waitForToastEntered(toast) {
+        tryCompare(toast, "_entered", true,
+                   toast.styleProvider.animation.enterDuration + 1000)
+    }
+
+    function waitForStackLayout(stack) {
+        const entries = stack.entriesByAge()
+        const timeout = stack.transitionDuration + 1000
+
+        for (let i = 0; i < entries.length; ++i) {
+            const entry = entries[i]
+            const expectedScale = stack.expanded
+                    ? 1
+                    : Math.max(0.8,
+                               1 - Math.max(0, entry.depth)
+                               * stack.collapsedScaleStep)
+            tryCompare(entry, "layoutOffset", stack.offsetFor(entry), timeout)
+            tryCompare(entry, "scale", expectedScale, timeout)
+        }
+    }
+
     function cleanup() {
         stackHoverSpy.target = null
         stackHoverSpy.clear()
@@ -154,7 +175,7 @@ TestCase {
         compare(byAge[3].visible, false)
         compare(byAge[0].depth, 0)
         compare(byAge[0].scale, 1)
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(stack)
         compare(byAge[0].y, 0)
         tryCompare(byAge[1], "y", compactOffset)
         tryCompare(byAge[2], "y", 2 * compactOffset)
@@ -175,7 +196,7 @@ TestCase {
 
         toastify.expand = true
         compare(stack.expanded, true)
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(stack)
         compare(stack.height, stack.frontHeight)
         compare(stack.visualHeight, stack.expandedHeight)
         fuzzyCompare(byAge[2].y, 0, 0.01)
@@ -240,7 +261,7 @@ TestCase {
 
         const byAge = stack.entriesByAge()
         const spacing = customToastify.style.toastSpacing
-        wait(customToastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(stack)
         compare(byAge[0].toastObject, front)
         compare(byAge[1].toastObject, middle)
         compare(byAge[2].toastObject, oldest)
@@ -274,7 +295,7 @@ TestCase {
         const stack = toastify.getColumn(Toastify.BottomRightCorner)
 
         const olderToast = createToast("Short", Toastify.BottomRightCorner)
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(stack)
 
         const olderEntry = stack.entriesByAge()[0]
         const baselineY = stack.y
@@ -302,13 +323,15 @@ TestCase {
         fuzzyCompare(byAge[0].mapToItem(hostWindow.contentItem,
                                         0, byAge[0].height).y,
                      stack.y, 1)
-        fuzzyCompare(byAge[1].mapToItem(hostWindow.contentItem,
-                                        0, byAge[1].height).y,
-                     olderSceneBottom,
-                     stack.frontHeight
-                     * toastify.style.collapsedToastScaleStep / 2 + 1)
+        tryVerify(function() {
+            const currentBottom = byAge[1].mapToItem(
+                        hostWindow.contentItem, 0, byAge[1].height).y
+            const tolerance = stack.frontHeight
+                    * toastify.style.collapsedToastScaleStep / 2 + 1
+            return Math.abs(currentBottom - olderSceneBottom) <= tolerance
+        }, stack.transitionDuration + 1000)
 
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(stack)
         compare(byAge[0].y, -stack.frontHeight)
         tryCompare(byAge[1], "y",
                    -stack.frontHeight
@@ -317,7 +340,7 @@ TestCase {
                                                0, 0).y
 
         toastify.expand = true
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(stack)
         compare(stack.height, 0)
         verify(stack.expandedHeight > frontToast.height)
         compare(stack.visualHeight, stack.expandedHeight)
@@ -330,14 +353,14 @@ TestCase {
                      1)
 
         toastify.expand = false
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(stack)
         const olderBottomBeforeClose = byAge[1].mapToItem(
                                            hostWindow.contentItem,
                                            0, byAge[1].height).y
 
         frontToast.close()
-        wait(toastify.style.animation.exitDuration + 50)
-        compare(stack.entryCount, 1)
+        tryCompare(stack, "entryCount", 1,
+                   toastify.style.animation.exitDuration + 1000)
 
         const promotedEntry = stack.entriesByAge()[0]
         const promotedBottomDuringMove = promotedEntry.mapToItem(
@@ -345,10 +368,12 @@ TestCase {
                                              0, promotedEntry.height).y
         verify(promotedBottomDuringMove >= olderBottomBeforeClose)
         verify(promotedBottomDuringMove <= stack.y)
-        wait(toastify.style.stackTransitionDuration + 20)
-        fuzzyCompare(promotedEntry.mapToItem(hostWindow.contentItem,
-                                             0, promotedEntry.height).y,
-                     stack.y, 1)
+        waitForStackLayout(stack)
+        tryVerify(function() {
+            const promotedBottom = promotedEntry.mapToItem(
+                        hostWindow.contentItem, 0, promotedEntry.height).y
+            return Math.abs(promotedBottom - stack.y) <= 1
+        }, stack.transitionDuration + 1000)
         createdToasts = [olderToast]
     }
 
@@ -363,7 +388,8 @@ TestCase {
         createToast("Bottom oldest", Toastify.BottomRightCorner)
         createToast("Bottom older", Toastify.BottomRightCorner)
         createToast("Bottom front", Toastify.BottomRightCorner)
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(topStack)
+        waitForStackLayout(bottomStack)
 
         const topEntries = topStack.entriesByAge()
         const bottomEntries = bottomStack.entriesByAge()
@@ -394,7 +420,7 @@ TestCase {
         mouseMove(topStack, topStack.width / 2, topStack.frontHeight / 2)
         tryCompare(topStack, "hovered", true)
         tryCompare(topStack, "expanded", true)
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(topStack)
         compare(topEntries[0].y, 0)
         fuzzyCompare(topEntries[0].mapToItem(
                          hostWindow.contentItem, 0, 0).y,
@@ -407,7 +433,7 @@ TestCase {
 
         mouseMove(toastify, toastify.width / 2, toastify.height / 2)
         tryCompare(topStack, "hovered", false)
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(topStack)
         compare(topEntries[0].y, 0)
         fuzzyCompare(topEntries[0].mapToItem(
                          hostWindow.contentItem, 0, 0).y,
@@ -418,7 +444,7 @@ TestCase {
                   bottomEntries[0].height / 2)
         tryCompare(bottomStack, "hovered", true)
         tryCompare(bottomStack, "expanded", true)
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(bottomStack)
         compare(bottomEntries[0].y, -bottomStack.frontHeight)
         fuzzyCompare(bottomEntries[0].mapToItem(
                          hostWindow.contentItem, 0, 0).y,
@@ -454,7 +480,8 @@ TestCase {
             bottomToasts.push(createToast("Bottom " + i,
                                            Toastify.BottomRightCorner))
         }
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(topStack)
+        waitForStackLayout(bottomStack)
 
         const topEntries = topStack.entriesByAge()
         const bottomEntries = bottomStack.entriesByAge()
@@ -469,13 +496,14 @@ TestCase {
 
         topToasts[3].close()
         bottomToasts[3].close()
-        wait(toastify.style.animation.exitDuration + 50)
-
-        compare(topStack.entryCount, 3)
-        compare(bottomStack.entryCount, 3)
+        tryCompare(topStack, "entryCount", 3,
+                   toastify.style.animation.exitDuration + 1000)
+        tryCompare(bottomStack, "entryCount", 3,
+                   toastify.style.animation.exitDuration + 1000)
         compare(topEntries[3].visible, true)
         compare(bottomEntries[3].visible, true)
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(topStack)
+        waitForStackLayout(bottomStack)
         compare(topStack.frontEntry.toastObject, topToasts[2])
         compare(bottomStack.frontEntry.toastObject, bottomToasts[2])
         tryCompare(topStack.entriesByAge()[0], "y", 0)
@@ -493,7 +521,7 @@ TestCase {
 
         createToast("First", Toastify.TopLeftCorner)
         createToast("Second", Toastify.TopLeftCorner)
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(stack)
 
         compare(stack.expanded, false)
         mouseMove(stack, stack.width / 2, stack.height / 2)
@@ -515,7 +543,7 @@ TestCase {
         verify(toast !== null)
         createdToasts.push(toast)
 
-        wait(toastify.style.animation.enterDuration + 100)
+        waitForToastEntered(toast)
         mouseMove(stack, stack.width / 2, stack.height / 2)
         tryCompare(stack, "hovered", true)
 
@@ -525,8 +553,9 @@ TestCase {
 
         mouseMove(toastify, toastify.width / 2, toastify.height / 2)
         tryCompare(stack, "hovered", false)
-        wait(200)
-        verify(toast.progressValue > pausedProgress + 0.02)
+        tryVerify(function() {
+            return toast.progressValue > pausedProgress + 0.02
+        }, 1000)
     }
 
     function test_closeIconHoverRemainsInteractive() {
@@ -539,7 +568,7 @@ TestCase {
         })
         verify(front !== null)
         createdToasts.push(front)
-        wait(toastify.style.animation.enterDuration + 50)
+        waitForToastEntered(front)
 
         const frontEntry = stack.entriesByAge()[0]
         const closeIcon = findChild(front, "closeButtonArea")
@@ -597,7 +626,7 @@ TestCase {
         })
         verify(toast !== null)
         createdToasts.push(toast)
-        wait(toastify.style.animation.enterDuration + 20)
+        waitForToastEntered(toast)
 
         mouseClick(toast, toast.width / 2, toast.height / 2)
         tryCompare(stack, "entryCount", 0,
@@ -625,7 +654,7 @@ TestCase {
         createToast("An older notification with enough content to wrap "
                     + "onto multiple lines.", Toastify.BottomRightCorner)
         const newest = createToast("New", Toastify.BottomRightCorner)
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(stack)
 
         const byAge = stack.entriesByAge()
         verify(byAge[1].naturalHeight > byAge[0].naturalHeight)
@@ -646,17 +675,17 @@ TestCase {
         mouseMove(byAge[0].toastObject,
                   byAge[0].width / 2, byAge[0].height / 2)
         tryCompare(stack, "hovered", true)
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(stack)
         compare(byAge[0].y, -stack.frontHeight)
         fuzzyCompare(byAge[1].y, -stack.expandedHeight, 0.01)
 
         mouseMove(toastify, toastify.width / 2, toastify.height / 2)
         tryCompare(stack, "hovered", false)
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(stack)
         compare(byAge[0].y, -stack.frontHeight)
 
         toastify.expand = true
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(stack)
 
         tryCompare(byAge[0], "y", -stack.expandedHeight)
         compare(byAge[1].y, -byAge[1].naturalHeight)
@@ -666,7 +695,7 @@ TestCase {
         compare(stack.entryCount, 2)
 
         toastify.newestOnTop = false
-        wait(toastify.style.stackTransitionDuration + 20)
+        waitForStackLayout(stack)
 
         tryCompare(byAge[0], "y", -stack.frontHeight)
         tryCompare(byAge[1], "y", -stack.expandedHeight)
