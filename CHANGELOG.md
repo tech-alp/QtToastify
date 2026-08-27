@@ -21,6 +21,9 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   recognition.
 - Segmented playground selectors now use checkable Merce buttons with
   exclusive button groups.
+- The optional playground now requires CMake 3.30 and fetches Merce with
+  `EXCLUDE_FROM_ALL`, so only linked Merce targets participate in QtToastify
+  builds and installs.
 
 ### Fixed
 

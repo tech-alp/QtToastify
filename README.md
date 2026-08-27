@@ -87,9 +87,9 @@ cmake -B build-playground -S . \
 ```
 
 `BUILD_PLAYGROUND` defaults to `OFF`, so the QtToastify library keeps its Qt
-6.10 and C++17 baseline. The playground requires Qt 6.11 and resolves the
-pinned public [Merce](https://github.com/tech-alp/Merce) revision. For local
-Merce development, add
+6.10, CMake 3.20, and C++17 baseline. The playground requires Qt 6.11 and CMake
+3.30, and resolves the pinned public [Merce](https://github.com/tech-alp/Merce)
+revision. For local Merce development, add
 `-DQTTOASTIFY_MERCE_SOURCE_DIR=/absolute/path/to/Merce`.
 
 ## Quick Start

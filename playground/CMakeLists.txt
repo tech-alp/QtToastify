@@ -1,5 +1,5 @@
 # QtToastify Playground Examples
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.30)
 
 find_package(Qt6 6.11 REQUIRED COMPONENTS LabsStyleKit)
 

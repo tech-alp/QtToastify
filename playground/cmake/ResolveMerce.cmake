@@ -11,7 +11,7 @@ function(qttoastify_resolve_merce)
         "Use a local Merce checkout for the QtToastify playground"
     )
     set(QTTOASTIFY_MERCE_GIT_TAG
-        "5debe228d5d85f5bf5d07e6ed0580b8534ea74b4"
+        "980cef48d1f8a07a6fb1de80646b7550a02cf362"
         CACHE STRING
         "Pinned Merce revision used by the QtToastify playground"
     )
@@ -19,10 +19,6 @@ function(qttoastify_resolve_merce)
     block(SCOPE_FOR VARIABLES)
         set(MERCE_BUILD_NOTIFICATIONS OFF)
         set(MERCE_ENABLE_FONTAWESOME OFF)
-        set(MERCE_BUILD_TESTS OFF)
-        set(MERCE_ENABLE_TOKEN_BUILD OFF)
-        set(MERCE_INSTALL OFF)
-        set(BUILD_MERCE_PLAYGROUND OFF)
 
         if(QTTOASTIFY_MERCE_SOURCE_DIR)
             get_filename_component(merce_source_dir
@@ -36,11 +32,15 @@ function(qttoastify_resolve_merce)
                 )
             endif()
 
-            FetchContent_Declare(Merce SOURCE_DIR "${merce_source_dir}")
+            FetchContent_Declare(Merce
+                SOURCE_DIR "${merce_source_dir}"
+                EXCLUDE_FROM_ALL
+            )
         else()
             FetchContent_Declare(Merce
                 GIT_REPOSITORY https://github.com/tech-alp/Merce.git
                 GIT_TAG "${QTTOASTIFY_MERCE_GIT_TAG}"
+                EXCLUDE_FROM_ALL
             )
         endif()
 
