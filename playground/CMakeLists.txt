@@ -29,13 +29,13 @@ qt_add_qml_module(QtToastifyPlayground
     SOURCES
         PlaygroundFutureFactory.cpp
         PlaygroundFutureFactory.h
-    DEPENDENCIES TARGET
-        Toastify
-        ToastifyStyle
-        MerceTheme
-        MerceFoundation
-        MerceStyle
-        MerceControls
+    DEPENDENCIES
+        TARGET Toastify
+        TARGET ToastifyStyle
+        TARGET MerceTheme
+        TARGET MerceFoundation
+        TARGET MerceStyle
+        TARGET MerceControls
 )
 
 target_link_libraries(QtToastifyPlayground PRIVATE
