@@ -53,6 +53,23 @@ target_link_libraries(QtToastifyPlayground PRIVATE
     ToastifyStyleplugin
 )
 
+# Dynamic QML plugins are runtime artifacts rather than link dependencies.
+# Keep the imported Merce plugins reachable when Merce is excluded from ALL.
+foreach(merce_module_target IN ITEMS
+    MerceTheme
+    MerceFoundation
+    MerceStyle
+    MerceControls
+)
+    unset(merce_plugin_target)
+    qt_query_qml_module(${merce_module_target}
+        PLUGIN_TARGET merce_plugin_target
+    )
+    if(merce_plugin_target)
+        add_dependencies(QtToastifyPlayground ${merce_plugin_target})
+    endif()
+endforeach()
+
 # Set properties
 set_target_properties(QtToastifyPlayground PROPERTIES
     QT_QML_ROOT_PATH ${CMAKE_CURRENT_SOURCE_DIR}
