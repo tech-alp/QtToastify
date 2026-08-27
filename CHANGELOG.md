@@ -7,11 +7,14 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-08-27
+
 ### Added
 
 - WebAssembly playground builds and GitHub Pages live-demo deployment.
 - Responsive Merce-based playground with real toast previews, compact layout,
   Promise/QFuture scenarios, and runtime interaction probes.
+- Tag-driven GitHub Releases with a FetchContent consumer verification step.
 
 ### Changed
 
@@ -24,6 +27,8 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The optional playground now requires CMake 3.30 and fetches Merce with
   `EXCLUDE_FROM_ALL`, so only linked Merce targets participate in QtToastify
   builds and installs.
+- Project integration documentation now uses an exact QtToastify release tag
+  through CMake FetchContent.
 
 ### Fixed
 
@@ -57,6 +62,7 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   plugins used by `svgtoqml`-generated icon components.
 - WebAssembly packaging now fails before deployment when a required static QML
   plugin is missing from the binary.
+- The WebAssembly page now declares its existing Qt logo as the browser favicon.
 
 ### Removed
 
