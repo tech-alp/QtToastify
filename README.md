@@ -54,24 +54,32 @@ QtToastify comes with 4 pre-configured style providers:
 
 ## Installation
 
-### Clone the Repository
+### FetchContent
+
+Use an exact release tag so application builds stay reproducible:
+
+```cmake
+include(FetchContent)
+
+FetchContent_Declare(QtToastify
+    GIT_REPOSITORY https://github.com/tech-alp/QtToastify.git
+    GIT_TAG v2.0.0
+    GIT_SHALLOW TRUE
+)
+
+FetchContent_MakeAvailable(QtToastify)
+```
+
+`BUILD_TESTS` and `BUILD_PLAYGROUND` both default to `OFF`, so FetchContent
+adds only the QtToastify library modules unless the application opts in.
+
+### Build the Repository
 
 ```bash
 git clone https://github.com/tech-alp/QtToastify.git
 cd QtToastify
-```
-
-### Build with CMake
-
-```bash
-# Configure
 cmake -B build -S . -DCMAKE_PREFIX_PATH=/path/to/Qt/6.10.x/platform
-
-# Build
 cmake --build build
-
-# Install (optional)
-cmake --install build
 ```
 
 ### Build Options
@@ -558,6 +566,7 @@ QtToastify/
 │   └── main.cpp
 └── tests/                     # Unit tests
     ├── CMakeLists.txt
+    ├── fetchcontent-consumer/ # Release integration verification
     ├── main.cpp
     └── tst_container_boundary.qml
 ```
@@ -566,12 +575,12 @@ QtToastify/
 
 ### CMake Integration
 
-Add QtToastify as a subdirectory in your CMake project:
+Fetch QtToastify and link its static QML modules into the application:
 
 ```cmake
 # Your CMakeLists.txt
 cmake_minimum_required(VERSION 3.20)
-project(MyApp)
+project(MyApp LANGUAGES CXX)
 
 find_package(Qt6 6.10 REQUIRED COMPONENTS
     Core
@@ -582,27 +591,40 @@ find_package(Qt6 6.10 REQUIRED COMPONENTS
     QuickVectorImageHelpers
 )
 
-# Add QtToastify subdirectory
-add_subdirectory(path/to/QtToastify)
+qt_standard_project_setup(REQUIRES 6.10)
 
-# Link against Toastify library
-add_executable(MyApp main.cpp)
-target_link_libraries(MyApp PRIVATE Qt6::Core Qt6::Quick Toastify)
+include(FetchContent)
+
+FetchContent_Declare(QtToastify
+    GIT_REPOSITORY https://github.com/tech-alp/QtToastify.git
+    GIT_TAG v2.0.0
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(QtToastify)
+
+qt_add_executable(MyApp main.cpp)
+
+qt_add_qml_module(MyApp
+    URI MyApp
+    VERSION 1.0
+    QML_FILES
+        Main.qml
+    DEPENDENCIES
+        TARGET Toastify
+        TARGET ToastifyStyle
+)
+
+target_link_libraries(MyApp PRIVATE
+    Qt6::Quick
+    Toastify
+    Toastifyplugin
+    ToastifyStyleplugin
+)
 ```
 
 ### QML Integration
 
-Add the import path to your QML engine:
-
-```cpp
-// main.cpp
-QQmlApplicationEngine engine;
-engine.addImportPath("qrc:/");  // If using resources
-// or
-engine.addImportPath("path/to/QtToastify");  // If using file system
-```
-
-Then import in QML:
+No manual QML import path is required. Import the linked modules directly:
 
 ```qml
 import Toastify
