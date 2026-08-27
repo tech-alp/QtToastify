@@ -11,7 +11,7 @@ function(qttoastify_resolve_merce)
         "Use a local Merce checkout for the QtToastify playground"
     )
     set(QTTOASTIFY_MERCE_GIT_TAG
-        "d71639b2dc24332759c2493f042b56b5f841afcc"
+        "8729979c1dba012dede33199148c7786c471cf79"
         CACHE STRING
         "Pinned Merce revision used by the QtToastify playground"
     )
@@ -21,6 +21,7 @@ function(qttoastify_resolve_merce)
         set(MERCE_ENABLE_FONTAWESOME OFF)
         set(MERCE_BUILD_TESTS OFF)
         set(MERCE_ENABLE_TOKEN_BUILD OFF)
+        set(MERCE_INSTALL OFF)
         set(BUILD_MERCE_PLAYGROUND OFF)
 
         if(QTTOASTIFY_MERCE_SOURCE_DIR)

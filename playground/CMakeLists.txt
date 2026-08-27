@@ -56,6 +56,12 @@ target_link_libraries(QtToastifyPlayground PRIVATE
     ToastifyStyleplugin
 )
 
+if(NOT EMSCRIPTEN)
+    target_compile_definitions(QtToastifyPlayground PRIVATE
+        QTTOASTIFY_MERCE_QML_IMPORT_PATH="${QTTOASTIFY_MERCE_QML_IMPORT_PATH}"
+    )
+endif()
+
 # Set properties
 set_target_properties(QtToastifyPlayground PROPERTIES
     QT_QML_ROOT_PATH ${CMAKE_CURRENT_SOURCE_DIR}

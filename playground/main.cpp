@@ -63,6 +63,13 @@ int main(int argc, char *argv[])
     app.setOrganizationName("QtToastify");
 
     QQmlApplicationEngine engine;
+#if defined(QTTOASTIFY_MERCE_QML_IMPORT_PATH)
+    engine.addImportPath(QString::fromUtf8(QTTOASTIFY_MERCE_QML_IMPORT_PATH));
+#endif
+    engine.addImportPath("qrc:/qt/qml");
+    engine.addImportPath("qrc:/");
+    engine.addImportPath(":/");
+
     auto *theme = engine.singletonInstance<MerceTheme *>("Merce.Theme", "Theme");
     if (!theme
         || !theme->setContext(QStringLiteral("algit"),
@@ -80,9 +87,6 @@ int main(int argc, char *argv[])
             app.exit(EXIT_FAILURE);
         },
         Qt::QueuedConnection);
-    engine.addImportPath("qrc:/qt/qml");
-    engine.addImportPath("qrc:/");
-    engine.addImportPath(":/");
     engine.loadFromModule("PlaygroundExamples", "PlaygroundApp");
 
 #if defined(QTTOASTIFY_PLAYGROUND_PROBES)
