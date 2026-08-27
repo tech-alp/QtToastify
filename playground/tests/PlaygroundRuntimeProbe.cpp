@@ -175,9 +175,15 @@ bool hasExclusiveTabStop(QObject *root,
             root,
             groupObjectName + QStringLiteral(".option.")
                 + QString::number(index));
+        const bool expectedTabStop = index == selectedIndex;
+        const int focusPolicy = option
+            ? option->property("focusPolicy").toInt()
+            : Qt::NoFocus;
         if (!option
             || option->property("keyboardTabStop").toBool()
-                   != (index == selectedIndex)) {
+                   != expectedTabStop
+            || static_cast<bool>(focusPolicy & Qt::TabFocus)
+                   != expectedTabStop) {
             return false;
         }
     }

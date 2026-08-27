@@ -67,7 +67,7 @@ Item {
 
                 onClicked: root.selectIndex(index)
 
-                activeFocusOnTab: keyboardTabStop
+                focusPolicy: keyboardTabStop ? Qt.TabFocus : Qt.NoFocus
                 Accessible.role: Accessible.RadioButton
                 Accessible.name: qsTr("%1: %2")
                     .arg(root.accessibleName)
