@@ -63,9 +63,6 @@ int main(int argc, char *argv[])
     app.setOrganizationName("QtToastify");
 
     QQmlApplicationEngine engine;
-#if defined(QTTOASTIFY_MERCE_QML_IMPORT_PATH)
-    engine.addImportPath(QString::fromUtf8(QTTOASTIFY_MERCE_QML_IMPORT_PATH));
-#endif
     engine.addImportPath("qrc:/qt/qml");
     engine.addImportPath("qrc:/");
     engine.addImportPath(":/");

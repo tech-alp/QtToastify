@@ -47,12 +47,6 @@ function(qttoastify_resolve_merce)
         FetchContent_MakeAvailable(Merce)
     endblock()
 
-    FetchContent_GetProperties(Merce)
-    set(QTTOASTIFY_MERCE_QML_IMPORT_PATH
-        "${merce_BINARY_DIR}/qml"
-        PARENT_SCOPE
-    )
-
     foreach(merce_target IN ITEMS Theme Foundation Style Controls)
         if(NOT TARGET Merce::${merce_target})
             message(FATAL_ERROR

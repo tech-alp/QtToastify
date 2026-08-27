@@ -14,9 +14,6 @@ qt_add_executable(QtToastifyPlayground
 qt_add_qml_module(QtToastifyPlayground
     URI PlaygroundExamples
     VERSION 1.0
-    IMPORT_PATH
-        ${CMAKE_BINARY_DIR}
-        ${QTTOASTIFY_MERCE_QML_IMPORT_PATH}
     QML_FILES
         PlaygroundApp.qml
         PlaygroundState.qml
@@ -55,12 +52,6 @@ target_link_libraries(QtToastifyPlayground PRIVATE
     Toastifyplugin
     ToastifyStyleplugin
 )
-
-if(NOT EMSCRIPTEN)
-    target_compile_definitions(QtToastifyPlayground PRIVATE
-        QTTOASTIFY_MERCE_QML_IMPORT_PATH="${QTTOASTIFY_MERCE_QML_IMPORT_PATH}"
-    )
-endif()
 
 # Set properties
 set_target_properties(QtToastifyPlayground PROPERTIES
