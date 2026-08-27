@@ -85,11 +85,8 @@ wasm_output="${target_dir}/QtToastifyPlayground.wasm"
 qml_plugins=(
     ToastifyPlugin
     Toastify_StylePlugin
-    Merce_CorePlugin
-    Merce_PlatformPlugin
     Merce_ThemePlugin
     Merce_FoundationPlugin
-    Merce_EffectsPlugin
     Merce_StylePlugin
     Merce_ControlsPlugin
     Qt_labs_StyleKitPlugin
