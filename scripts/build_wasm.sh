@@ -107,6 +107,19 @@ cmake -E copy_if_different \
     "${target_dir}/QtToastifyPlayground.html" \
     "${site_dir}/index.html"
 
+site_index="${site_dir}/index.html"
+site_index_tmp="${site_index}.tmp"
+awk '
+    /<\/head>/ && !inserted {
+        print "    <link rel=\"icon\" href=\"qtlogo.svg\" type=\"image/svg+xml\">"
+        inserted = 1
+    }
+    { print }
+    END { if (!inserted) exit 1 }
+' "${site_index}" > "${site_index_tmp}"
+cmake -E rename "${site_index_tmp}" "${site_index}"
+grep -Fq 'rel="icon" href="qtlogo.svg"' "${site_index}"
+
 for output in QtToastifyPlayground.js QtToastifyPlayground.wasm qtloader.js qtlogo.svg; do
     cmake -E copy_if_different \
         "${target_dir}/${output}" \
