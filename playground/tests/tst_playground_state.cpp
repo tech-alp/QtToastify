@@ -46,6 +46,15 @@ void tst_playground_state::defaultsProduceToastifyOptions()
     QCOMPARE(state->property("collapsedScaleStep").toReal(), 0.05);
     QVERIFY(state->property("currentStyle").value<QObject *>());
 
+    state->setProperty("toastFontFamily", QStringLiteral("Lexend"));
+    for (int styleIndex = 0; styleIndex < 4; ++styleIndex) {
+        state->setProperty("styleIndex", styleIndex);
+        QObject *style = state->property("currentStyle").value<QObject *>();
+        QVERIFY(style);
+        QCOMPARE(style->property("fonts").toMap().value(QStringLiteral("family")).toString(),
+                 QStringLiteral("Lexend"));
+    }
+
     QVariant result;
     QVERIFY(QMetaObject::invokeMethod(state.get(),
                                       "toastOptions",

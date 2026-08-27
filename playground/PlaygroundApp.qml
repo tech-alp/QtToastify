@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Qt.labs.StyleKit as SK
 import Merce.Style
+import Merce.Theme
 
 SK.ApplicationWindow {
     id: root
@@ -19,6 +20,8 @@ SK.ApplicationWindow {
 
     PlaygroundState {
         id: playgroundState
+
+        toastFontFamily: Theme.typography.fontBody
     }
 
     PlaygroundWorkspace {

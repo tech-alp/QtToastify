@@ -1,4 +1,4 @@
-import QtQml
+import QtQuick
 import Toastify
 import Toastify.Style
 
@@ -20,26 +20,47 @@ QtObject {
     property bool closeOnClick: true
     property bool showProgressBar: true
     property bool newestOnTop: false
+    property string toastFontFamily: ""
     property real toastSpacing: 16
     property real collapsedOffset: 14
     property real collapsedScaleStep: 0.05
 
     property ToastifyStyleProvider defaultStyle: ToastifyStyleProvider {
+        fonts: ({
+            family: root.toastFontFamily,
+            size: 16,
+            weight: Font.Normal
+        })
         toastSpacing: root.toastSpacing
         collapsedToastOffset: root.collapsedOffset
         collapsedToastScaleStep: root.collapsedScaleStep
     }
     property DarkStyleProvider darkStyle: DarkStyleProvider {
+        fonts: ({
+            family: root.toastFontFamily,
+            size: 16,
+            weight: Font.Medium
+        })
         toastSpacing: root.toastSpacing
         collapsedToastOffset: root.collapsedOffset
         collapsedToastScaleStep: root.collapsedScaleStep
     }
     property CompactStyleProvider compactStyle: CompactStyleProvider {
+        fonts: ({
+            family: root.toastFontFamily,
+            size: 12,
+            weight: Font.Normal
+        })
         toastSpacing: root.toastSpacing
         collapsedToastOffset: root.collapsedOffset
         collapsedToastScaleStep: root.collapsedScaleStep
     }
     property MaterialStyleProvider materialStyle: MaterialStyleProvider {
+        fonts: ({
+            family: root.toastFontFamily,
+            size: 14,
+            weight: Font.Medium
+        })
         toastSpacing: root.toastSpacing
         collapsedToastOffset: root.collapsedOffset
         collapsedToastScaleStep: root.collapsedScaleStep
