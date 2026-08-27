@@ -80,20 +80,26 @@ cmake --install build
 # Build with tests
 cmake -B build -S . -DBUILD_TESTS=ON
 
-# Build with playground examples
-cmake -B build -S . -DBUILD_PLAYGROUND=ON
-
-# Build both
-cmake -B build -S . -DBUILD_TESTS=ON -DBUILD_PLAYGROUND=ON
+# Build the Qt 6.11+ Merce-based playground
+cmake -B build-playground -S . \
+  -DBUILD_PLAYGROUND=ON \
+  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.11.x/platform
 ```
+
+`BUILD_PLAYGROUND` defaults to `OFF`, so the QtToastify library keeps its Qt
+6.10 and C++17 baseline. The playground requires Qt 6.11 and resolves the
+pinned public [Merce](https://github.com/tech-alp/Merce) revision. For local
+Merce development, add
+`-DQTTOASTIFY_MERCE_SOURCE_DIR=/absolute/path/to/Merce`.
 
 ## Quick Start
 
 ### Basic Usage
 
 ```qml
-import QtQuick 2.15
-import Toastify 1.0
+import QtQuick
+import QtQuick.Controls
+import Toastify
 
 ApplicationWindow {
     id: window
@@ -324,8 +330,8 @@ Toastify.Error    // Error toast
 ### Using Built-in Style Providers
 
 ```qml
-import Toastify 1.0
-import Toastify.Style 1.0
+import Toastify
+import Toastify.Style
 
 Toastify {
     id: toastify
@@ -342,7 +348,7 @@ Create a new QML file extending `ToastifyStyleProvider`:
 ```qml
 // MyCustomStyle.qml
 import QtQuick
-import Toastify.Style 1.0
+import Toastify.Style
 
 ToastifyStyleProvider {
     backgroundColor: "#ffffff"
@@ -424,9 +430,9 @@ ToastifyStyleProvider {
 }
 ```
 
-QtToastify font dosyası yüklemez. `fonts.family` yalnız family adıdır; özel
-fontları uygulama katmanında `FontLoader` veya
-`QFontDatabase::addApplicationFont()` ile yükleyin.
+QtToastify does not load font files. `fonts.family` only selects a registered
+family name; load custom fonts in the application with `FontLoader` or
+`QFontDatabase::addApplicationFont()`.
 
 Then use it in your application:
 
@@ -453,7 +459,7 @@ All style providers support the following properties:
 - `fonts.weight` (enum): Font weight (Normal, Bold, etc.)
 
 Built-in style providers leave `fonts.family` empty. Applications may override
-it after loading their own font; the Playground demonstrates this separation.
+it after loading their own font.
 
 #### Spacing
 - `spacing.main` (int): Space between content and close button
@@ -514,9 +520,11 @@ The project includes a comprehensive playground application to explore different
 
 ```bash
 # Build and run playground
-cmake -B build -S . -DBUILD_PLAYGROUND=ON
-cmake --build build
-./build/playground/QtToastifyPlayground
+cmake -B build-playground -S . \
+  -DBUILD_PLAYGROUND=ON \
+  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.11.x/platform
+cmake --build build-playground
+./build-playground/playground/QtToastifyPlayground
 ```
 
 The playground features:
@@ -544,8 +552,9 @@ QtToastify/
 ├── playground/                 # Example application
 │   ├── CMakeLists.txt
 │   ├── PlaygroundApp.qml      # Main playground UI
-│   ├── PlaygroundFonts.qml    # Demo-only FontLoader collection
-│   ├── fonts/                 # Demo fonts and OFL licenses
+│   ├── PlaygroundState.qml    # Playground configuration state
+│   ├── PlaygroundWorkspace.qml # Responsive Merce workspace
+│   ├── components/            # Focused playground UI components
 │   └── main.cpp
 └── tests/                     # Unit tests
     ├── CMakeLists.txt
@@ -596,8 +605,8 @@ engine.addImportPath("path/to/QtToastify");  // If using file system
 Then import in QML:
 
 ```qml
-import Toastify 1.0
-import Toastify.Style 1.0
+import Toastify
+import Toastify.Style
 ```
 
 ## Contributing
@@ -613,11 +622,8 @@ This project is licensed under the MIT License. See the repository-level
 ## Acknowledgments
 
 - Original design and idea inspired by [react-toastify](https://fkhadra.github.io/react-toastify/introduction/)
-- Icons provided by [FontAwesome](https://fontawesome.com/) via [QtAwesome](https://github.com/gamecreature/QtAwesome)
-- Playground fonts: [Montserrat](https://fonts.google.com/specimen/Montserrat),
-  [Roboto](https://fonts.google.com/specimen/Roboto) and
-  [Roboto Condensed](https://fonts.google.com/specimen/Roboto+Condensed)
-  (SIL Open Font License 1.1)
+- Toast icon source assets follow [React-Toastify](https://fkhadra.github.io/react-toastify/introduction/)
+  and are compiled to QML with Qt's `svgtoqml` tool.
 
 ## Support
 

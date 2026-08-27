@@ -1,10 +1,18 @@
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
-#include <QDir>
 #include <QDebug>
 #include <QFontDatabase>
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
 #include <QQmlEngineExtensionPlugin>
+
+#include "Theme/MerceTheme.h"
+
+#include <cstdlib>
+
+#if defined(QTTOASTIFY_PLAYGROUND_PROBES)
+#include "tests/PlaygroundRuntimeProbe.h"
+
+#include <QTimer>
+#endif
 
 Q_IMPORT_QML_PLUGIN(ToastifyPlugin)
 Q_IMPORT_QML_PLUGIN(Toastify_StylePlugin)
@@ -37,28 +45,55 @@ void useConcreteApplicationFont(QGuiApplication &app)
         return;
     }
 }
-}
+} // namespace
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
     useConcreteApplicationFont(app);
-    
-    // Set application properties
+
+#if defined(QTTOASTIFY_PLAYGROUND_PROBES)
+    const bool runProbe = playgroundProbeRequested();
+    if (runProbe)
+        configurePlaygroundProbeApplication(app);
+#endif
+
     app.setApplicationName("QtToastify Playground");
     app.setApplicationVersion("1.0.0");
     app.setOrganizationName("QtToastify");
 
     QQmlApplicationEngine engine;
-    
-    // Add import paths
+    auto *theme = engine.singletonInstance<MerceTheme *>("Merce.Theme", "Theme");
+    if (!theme
+        || !theme->setContext(QStringLiteral("algit"),
+                              QStringLiteral("light"),
+                              QStringLiteral("ops"))) {
+        qWarning() << "QtToastify Playground: Merce theme context could not be activated";
+    }
+    QObject::connect(
+        &engine,
+        &QQmlApplicationEngine::objectCreationFailed,
+        &app,
+        [&app](const QUrl &url) {
+            qCritical() << "QtToastify Playground: root QML creation failed"
+                        << url;
+            app.exit(EXIT_FAILURE);
+        },
+        Qt::QueuedConnection);
     engine.addImportPath("qrc:/qt/qml");
     engine.addImportPath("qrc:/");
     engine.addImportPath(":/");
-
     engine.loadFromModule("PlaygroundExamples", "PlaygroundApp");
-    
+
+#if defined(QTTOASTIFY_PLAYGROUND_PROBES)
+    if (runProbe) {
+        QTimer::singleShot(100, &app, [&app, &engine]() {
+            app.exit(runPlaygroundProbe(engine));
+        });
+        return app.exec();
+    }
+#endif
+
     qDebug() << "Loading QtToastify Playground";
-    
     return app.exec();
 }

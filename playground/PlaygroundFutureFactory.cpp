@@ -23,10 +23,14 @@ QObject *PlaygroundFutureFactory::start(bool shouldFail)
             future.cancel();
 #else
             promise->setException(std::make_exception_ptr(
-                std::runtime_error("device request failed")));
+                std::runtime_error(
+                    PlaygroundFutureFactory::tr("Device request failed")
+                        .toStdString())));
 #endif
         } else {
-            promise->addResult(QStringLiteral("C++ QFuture tamamlandı"));
+            promise->addResult(
+                PlaygroundFutureFactory::tr(
+                    "C++ QFuture completed successfully."));
         }
         promise->finish();
     });

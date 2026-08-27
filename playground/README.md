@@ -1,45 +1,49 @@
 # QtToastify Playground
 
-`PlaygroundApp.qml`, QtToastify'in güncel `ToastifyStyleProvider` tabanlı
-stillerini ve toast seçeneklerini tek uygulamada test eder.
+The playground is a responsive Qt 6.11 application for configuring and testing
+real QtToastify notifications. Its application shell uses Merce tokens,
+StyleKit controls, and Merce components; the preview still renders the local
+QtToastify target.
 
-## Stiller
+## Built-in toast styles
 
-Playground doğrudan `Toastify/Style/` altındaki provider'ları kullanır:
+The playground uses the providers from `Toastify/Style/` directly:
 
-- `ToastifyStyleProvider`: varsayılan açık tema
-- `DarkStyleProvider`: koyu tema
-- `CompactStyleProvider`: dar alanlar için kompakt tema
-- `MaterialStyleProvider`: Material tabanlı tema
+- `ToastifyStyleProvider`: default light style
+- `DarkStyleProvider`: dark style
+- `CompactStyleProvider`: compact layout
+- `MaterialStyleProvider`: Material-inspired style
 
-Stil seçimi, stack davranışı, toast tipi, konum, progress bar ve
-auto-close ayarları arayüzden canlı değiştirilebilir.
+Style, type, position, stack behavior, auto-close duration, progress, and
+interaction options can be changed at runtime. The shell remains light and the
+preview remains dark; selecting a style changes only the toasts. `Clear Preview`
+in the overflow menu dismisses every active notification. A blank message shows
+inline validation and disables `Show Toast` until valid text is entered.
 
-## Fontlar
+## Build and run
 
-Playground, demo provider'larında kullanılan `Montserrat`, `Roboto` ve
-`Roboto Condensed` fontlarını `fonts/` dizininden yükler. QtToastify
-kütüphanesi uygulama fontlarını yüklemez.
-
-## Build ve Çalıştırma
-
-Komutlar proje kökünden çalıştırılır:
+Run from the repository root with Qt 6.11 or newer:
 
 ```bash
 cmake -S . -B build \
   -DBUILD_PLAYGROUND=ON \
-  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.10.x/<kit>
+  -DQTTOASTIFY_MERCE_SOURCE_DIR=/path/to/Merce \
+  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.11.x/<kit>
 cmake --build build
 ./build/playground/QtToastifyPlayground
 ```
 
-## Özel Stil
+When `QTTOASTIFY_MERCE_SOURCE_DIR` is omitted, CMake downloads the pinned public
+Merce revision. `Merce.Notifications`, Font Awesome, Merce tests, token tooling,
+and the Merce playground are disabled for this consumer.
 
-Uygulama stilleri `ToastifyStyleProvider` tabanından türetilir:
+## Custom toast style
+
+Application styles derive from `ToastifyStyleProvider`:
 
 ```qml
 import QtQuick
-import Toastify.Style 1.0
+import Toastify.Style
 
 ToastifyStyleProvider {
     backgroundColor: "#ffffff"
@@ -54,5 +58,5 @@ ToastifyStyleProvider {
 }
 ```
 
-Provider'ların tam API'si ve kullanımı ana [README](../README.md#custom-styling)
-içinde belgelenir.
+The complete provider API is documented in the main
+[README](../README.md#custom-styling).

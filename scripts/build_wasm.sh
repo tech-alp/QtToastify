@@ -3,7 +3,7 @@
 set -euo pipefail
 
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-qt_version="${QT_VERSION:-6.10.1}"
+qt_version="${QT_VERSION:-6.11.1}"
 emsdk_root="${EMSDK_ROOT:-${EMSDK:-${HOME}/.local/share/emsdk}}"
 qt_wasm_path="${QT_WASM_PATH:-${QT_ROOT_DIR:-${HOME}/Qt/${qt_version}/wasm_singlethread}}"
 qt_host_path="${QT_HOST_PATH:-}"
@@ -85,6 +85,14 @@ wasm_output="${target_dir}/QtToastifyPlayground.wasm"
 qml_plugins=(
     ToastifyPlugin
     Toastify_StylePlugin
+    Merce_CorePlugin
+    Merce_PlatformPlugin
+    Merce_ThemePlugin
+    Merce_FoundationPlugin
+    Merce_EffectsPlugin
+    Merce_StylePlugin
+    Merce_ControlsPlugin
+    Qt_labs_StyleKitPlugin
     QtQuickVectorImagePlugin
     QtQuickVectorImageHelpersPlugin
 )

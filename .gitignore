@@ -10,6 +10,7 @@ cmake_install.cmake
 Makefile
 *.cmake
 !CMakeLists.txt
+!playground/cmake/*.cmake
 
 # Qt
 *.autosave
