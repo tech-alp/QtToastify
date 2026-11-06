@@ -221,6 +221,8 @@ be converted to `QVariant`.
 | `expand` | bool | `false` | Keep stacks permanently expanded; default stacks expand on hover |
 | `visibleToasts` | int | `3` | Maximum visible toasts per position stack |
 | `newestOnTop` | bool | `false` | Put newest first in permanently expanded stacks; compact/hover mode keeps newest at the edge anchor |
+| `paused` | bool | `false` | Pause auto-close timers, e.g. while a dialog is open |
+| `autoCloseByType` | object | `{}` | Default `autoClose` per `Toastify.Type` when the option is not given, e.g. `({ [Toastify.Success]: 4500, [Toastify.Error]: 0 })`; missing types use `5000` |
 
 ```qml
 Toastify {
@@ -264,6 +266,7 @@ Creates a new toast notification.
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `type` | int | `Toastify.Info` | Toast type (Info, Success, Warning, Error) |
+| `detail` | string | `""` | Optional second line under the message |
 | `position` | int | `Toastify.TopLeftCorner` | Toast position |
 | `autoClose` | int | `5000` | Auto-close duration in milliseconds (0 = no auto-close) |
 | `closeOnClick` | bool | `true` | Close toast on click |
@@ -487,6 +490,7 @@ it after loading their own font.
 - `cornerRadius` (real): Corner radius in pixels
 - `iconSize` (real): Icon size in pixels
 - `backgroundColor` (color): Toast surface color
+- `backgroundColors` (object): Optional per-type surfaces keyed `info`, `success`, `warning`, `error`; missing keys use `backgroundColor`
 - `toastOffset` (real): Distance from screen edges
 - `toastSpacing` (real): Distance between stacked toasts
 - `collapsedToastOffset` (real): Visible offset between compact stacked cards
@@ -513,6 +517,12 @@ it after loading their own font.
 - `closeButtonStyle.color` (color): Close icon color
 - `closeButtonStyle.opacity` (real): Default opacity
 - `closeButtonStyle.hoveredOpacity` (real): Hover opacity
+
+#### Action Button
+- `actionButton.minimumHeight` (int): Minimum button height (default `28`)
+- `actionButton.backgroundColor` (color): Button fill (default `textColors.color`)
+- `actionButton.textColor` (color): Label color (default `backgroundColor`)
+- `actionButton.pressedColor` (color): Fill while pressed (default: 0.75 opacity)
 
 #### Progress Bar
 - `progressBar.height` (int): Progress bar height in pixels

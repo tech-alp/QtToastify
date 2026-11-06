@@ -7,6 +7,11 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `paused` pauses auto-close timers (e.g. while a dialog is open); `autoCloseByType` sets per-type default durations.
+- `detail` option for a second text line, per-type `backgroundColors` and `actionButton` colors/height in `ToastifyStyleProvider`.
+
 ### Changed
 
 - Lowered the library baseline to Qt 6.8 and replaced shader shadows with three flat translucent layers for the software backend. Blur is approximated.

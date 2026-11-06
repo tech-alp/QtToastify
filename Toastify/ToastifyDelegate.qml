@@ -12,6 +12,7 @@ Control {
     id: root
 
     property string message: ""
+    property string detail: ""
     property int type: Toastify.Info
     property int position: Toastify.TopLeftCorner
     property int autoClose: 5000
@@ -138,10 +139,16 @@ Control {
             implicitWidth: Math.min(root.maximumWidth * 0.4,
                                     Math.max(48, actionLabel.implicitWidth
                                              + horizontalPadding * 2))
-            implicitHeight: Math.max(28, actionLabel.implicitHeight + 12)
-            color: root.styleProvider.textColors.color
+            readonly property var buttonStyle: root.styleProvider.actionButton ?? ({})
+            readonly property bool hasPressedColor: buttonStyle.pressedColor !== undefined
+
+            implicitHeight: Math.max(buttonStyle.minimumHeight ?? 28,
+                                     actionLabel.implicitHeight + 12)
+            color: actionTap.pressed && hasPressedColor
+                   ? buttonStyle.pressedColor
+                   : buttonStyle.backgroundColor ?? root.styleProvider.textColors.color
             opacity: !enabled ? 0.5
-                     : actionTap.pressed ? 0.75
+                     : actionTap.pressed && !hasPressedColor ? 0.75
                      : actionHover.hovered ? 0.9 : 1
             radius: Math.max(3, root.styleProvider.cornerRadius / 2)
             activeFocusOnTab: true
@@ -157,7 +164,8 @@ Control {
                 anchors.leftMargin: actionButtonItem.horizontalPadding
                 anchors.rightMargin: actionButtonItem.horizontalPadding
                 text: root.hasAction ? String(root.action.label) : ""
-                color: root.styleProvider.backgroundColor
+                color: actionButtonItem.buttonStyle.textColor
+                       ?? root.styleProvider.backgroundColor
                 font.family: root.styleProvider.fonts.family
                 font.pixelSize: Math.max(11,
                                          root.styleProvider.fonts.size - 2)
@@ -268,7 +276,7 @@ Control {
             anchors.fill: parent
             z: 1
             clip: false
-            color: root.styleProvider.backgroundColor
+            color: root.styleProvider.getBackgroundColorForType(root.type)
             radius: root.styleProvider.cornerRadius
 
             Item {
@@ -401,6 +409,19 @@ Control {
                     Layout.fillWidth: true
                     Layout.maximumWidth: textContentArea.Layout.maximumWidth
 
+                }
+
+                Label {
+                    objectName: "detailLabel"
+                    visible: root.detail.length > 0
+                    text: root.detail
+                    color: root.styleProvider.textColors.color
+                    font.family: root.styleProvider.fonts.family
+                    font.pixelSize: root.styleProvider.fonts.size
+                    font.weight: Font.Normal
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: textContentArea.Layout.maximumWidth
                 }
             }
         }

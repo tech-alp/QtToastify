@@ -13,6 +13,10 @@ QtObject {
     
     property color backgroundColor: "#ffffff"
 
+    // Optional per-type backgrounds keyed by type name (info, success,
+    // warning, error); missing keys fall back to backgroundColor.
+    property var backgroundColors: ({})
+
     // Empty family inherits Qt's platform font without resolving a generic
     // family alias such as "Sans Serif" on every process start.
     property var fonts: ({
@@ -88,6 +92,12 @@ QtObject {
         hoveredOpacity: 1.0
     })
     
+    // Action button styling; unset colors fall back to textColors.color
+    // (background) and backgroundColor (label).
+    property var actionButton: ({
+        minimumHeight: 28
+    })
+
     // Progress bar styling
     property var progressBar: ({
         height: 5,
@@ -105,5 +115,10 @@ QtObject {
             case 3: return colors.error
             default: return colors.info
         }
+    }
+
+    function getBackgroundColorForType(type) {
+        const key = ["info", "success", "warning", "error"][type] ?? "info"
+        return backgroundColors[key] ?? backgroundColor
     }
 }

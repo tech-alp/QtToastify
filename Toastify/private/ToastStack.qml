@@ -13,6 +13,7 @@ Item {
     property real collapsedScaleStep: 0.05
     property int transitionDuration: 400
     property int visibleToasts: 3
+    property bool paused: false
 
     readonly property bool anyEntryHovered: {
         const revision = layoutRevision
@@ -324,7 +325,7 @@ Item {
 
                 if (typeof toast["stackPaused"] !== "undefined") {
                     toast["stackPaused"] = Qt.binding(function() {
-                        return entry.stack.hovered
+                        return entry.stack.hovered || entry.stack.paused
                     })
                 }
 
