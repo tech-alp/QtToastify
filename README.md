@@ -2,7 +2,7 @@
 
 A modern, customizable toast notification library for Qt/QML applications, inspired by [react-toastify](https://fkhadra.github.io/react-toastify/introduction/).
 
-![QtToastify](https://img.shields.io/badge/Qt-6.10+-41CD52?style=for-the-badge&logo=qt)
+![QtToastify](https://img.shields.io/badge/Qt-6.8+-41CD52?style=for-the-badge&logo=qt)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 [![CI](https://github.com/tech-alp/QtToastify/actions/workflows/ci.yml/badge.svg)](https://github.com/tech-alp/QtToastify/actions/workflows/ci.yml)
@@ -42,13 +42,11 @@ QtToastify comes with 4 pre-configured style providers:
 
 ## Requirements
 
-- **Qt 6.10+** with modules:
+- **Qt 6.8+** with modules:
   - Core
   - Quick
   - Qml
   - QuickControls2
-  - QuickVectorImage
-  - QuickVectorImageHelpers
 - **CMake 3.20+**
 - **C++17** compatible compiler
 
@@ -78,7 +76,7 @@ adds only the QtToastify library modules unless the application opts in.
 ```bash
 git clone https://github.com/tech-alp/QtToastify.git
 cd QtToastify
-cmake -B build -S . -DCMAKE_PREFIX_PATH=/path/to/Qt/6.10.x/platform
+cmake -B build -S . -DCMAKE_PREFIX_PATH=/path/to/Qt/6.8.x/platform
 cmake --build build
 ```
 
@@ -95,7 +93,7 @@ cmake -B build-playground -S . \
 ```
 
 `BUILD_PLAYGROUND` defaults to `OFF`, so the QtToastify library keeps its Qt
-6.10, CMake 3.20, and C++17 baseline. The playground requires Qt 6.11 and CMake
+6.8, CMake 3.20, and C++17 baseline. The playground requires Qt 6.11 and CMake
 3.30, and resolves the pinned public [Merce](https://github.com/tech-alp/Merce)
 revision. For local Merce development, add
 `-DQTTOASTIFY_MERCE_SOURCE_DIR=/absolute/path/to/Merce`.
@@ -496,9 +494,9 @@ it after loading their own font.
 - `stackTransitionDuration` (int): Stack expand/collapse duration in ms
 
 #### Shadow
-- `shadow.blurRadius` (real): Shadow blur radius in pixels
+- `shadow.blurRadius` (real): Approximate shadow softness in pixels; rendered as three flat translucent layers (no true blur)
 - `shadow.spread` (real): Shadow spread in pixels
-- `shadow.blur` (real): Legacy normalized blur (0-1, used when `blurRadius` is omitted)
+- `shadow.blur` (real): Legacy normalized softness (0-1, used when `blurRadius` is omitted)
 - `shadow.color` (color): Shadow color
 - `shadow.opacity` (real): Shadow opacity (0-1)
 - `shadow.horizontalOffset` (real): Horizontal shadow offset
@@ -582,16 +580,14 @@ Fetch QtToastify and link its static QML modules into the application:
 cmake_minimum_required(VERSION 3.20)
 project(MyApp LANGUAGES CXX)
 
-find_package(Qt6 6.10 REQUIRED COMPONENTS
+find_package(Qt6 6.8 REQUIRED COMPONENTS
     Core
     Quick
     Qml
     QuickControls2
-    QuickVectorImage
-    QuickVectorImageHelpers
 )
 
-qt_standard_project_setup(REQUIRES 6.10)
+qt_standard_project_setup(REQUIRES 6.8)
 
 include(FetchContent)
 

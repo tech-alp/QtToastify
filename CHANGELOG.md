@@ -7,6 +7,10 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Lowered the library baseline to Qt 6.8 and replaced shader shadows with three flat translucent layers for the software backend. Blur is approximated.
+
 ## [2.0.0] - 2026-08-27
 
 ### Added
