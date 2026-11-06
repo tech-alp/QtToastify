@@ -104,21 +104,14 @@ TestCase {
 
         compare(backgroundContainer.clip, false)
         compare(backgroundSurface.clip, false)
-        compare(backgroundShadow.cached, false)
-        fuzzyCompare(backgroundShadow.blur,
-                     darkStyleProvider.shadow.blurRadius, 0.01)
-        fuzzyCompare(backgroundShadow.spread,
-                     darkStyleProvider.shadow.spread, 0.01)
-        fuzzyCompare(backgroundShadow.radius,
-                     darkStyleProvider.cornerRadius, 0.01)
-        fuzzyCompare(backgroundShadow.opacity,
-                     darkStyleProvider.shadow.opacity, 0.01)
-        fuzzyCompare(backgroundShadow.offset.x,
-                     darkStyleProvider.shadow.horizontalOffset, 0.01)
-        fuzzyCompare(backgroundShadow.offset.y,
-                     darkStyleProvider.shadow.verticalOffset, 0.01)
-        compare(backgroundShadow.color.toString(),
-                darkStyleProvider.shadow.color)
+        compare(findChildByObjectName(backgroundShadow, "shadowLayers").count, 3)
+        fuzzyCompare(backgroundShadow.opacity, darkStyleProvider.shadow.opacity, 0.01)
+        var layer = findChildByObjectName(backgroundShadow, "shadowLayers").itemAt(0)
+        compare(layer.color.toString(), darkStyleProvider.shadow.color)
+        fuzzyCompare(layer.expansion, darkStyleProvider.shadow.spread
+                     + darkStyleProvider.shadow.blurRadius / 2, 0.01)
+        fuzzyCompare(layer.x, -layer.expansion + darkStyleProvider.shadow.horizontalOffset, 0.01)
+        fuzzyCompare(layer.y, -layer.expansion + darkStyleProvider.shadow.verticalOffset, 0.01)
 
         fuzzyCompare(backgroundSurface.width, toast.width, 0.5)
         fuzzyCompare(backgroundSurface.height, toast.height, 0.5)
@@ -144,10 +137,10 @@ TestCase {
         verify(backgroundShadow !== null,
                "Rectangular shadow should exist")
         fuzzyCompare(toast.shadowBlurRadius, 8, 0.01)
-        fuzzyCompare(backgroundShadow.blur, 8, 0.01)
-        fuzzyCompare(backgroundShadow.spread, 0, 0.01)
-        fuzzyCompare(backgroundShadow.offset.x, 3, 0.01)
-        fuzzyCompare(backgroundShadow.offset.y, 5, 0.01)
+        compare(findChildByObjectName(backgroundShadow, "shadowLayers").count, 3)
+        fuzzyCompare(findChildByObjectName(backgroundShadow, "shadowLayers").itemAt(0).expansion, 4, 0.01)
+        fuzzyCompare(findChildByObjectName(backgroundShadow, "shadowLayers").itemAt(0).x, -1, 0.01)
+        fuzzyCompare(findChildByObjectName(backgroundShadow, "shadowLayers").itemAt(0).y, 1, 0.01)
     }
 
     function test_progressBarStaysInsideBottomEdge() {
