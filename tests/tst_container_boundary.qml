@@ -248,6 +248,34 @@ TestCase {
 
     // Feature: toast-layout-fix, Property 2: Close Button Positioning
     // Validates: Requirements 2.1, 2.2, 2.3
+    ToastifyStyleProvider {
+        id: touchCloseStyleProvider
+        spacing: Object.assign({}, defaultsForTouch.spacing, {
+            closeButton: Object.assign({}, defaultsForTouch.spacing.closeButton, { touchSize: 48 })
+        })
+        readonly property ToastifyStyleProvider defaultsForTouch: ToastifyStyleProvider {}
+    }
+
+    function test_closeButtonTouchSizeKeepsVisualPadding() {
+        var toast = createTemporaryObject(toastComponent, testCase, {
+            message: "Retry failed",
+            styleProvider: touchCloseStyleProvider,
+            action: { label: "Retry", onClick: function() {} }
+        })
+        verify(toast !== null)
+        waitForRendering(toast)
+        var close = findChildByObjectName(toast, "closeButtonArea")
+        var padding = toast.closeButtonPadding
+        // Icon stays at its visual padding from the right edge and centres vertically.
+        fuzzyCompare(toast.width - close.x - close.width, padding, 0.5)
+        fuzzyCompare(close.y + close.height / 2, toast.height / 2, 0.5)
+        // Tap margin reaches the requested target size.
+        compare(toast.closeButtonHitMargin, (48 - close.width) / 2)
+        // The action ends one main spacing before the tap target.
+        var targetLeft = toast.width - padding - close.width - toast.closeButtonHitMargin
+        verify(toast.width - toast.rightPadding <= targetLeft - toast.mainSpacing + 1)
+    }
+
     function test_closeButtonPositioning_data() {
         return test_containerBoundaryEnforcement_data()
     }

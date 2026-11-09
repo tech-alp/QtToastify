@@ -387,7 +387,8 @@ ToastifyStyleProvider {
             padding: 7,
             size: 20,
             width: 20,
-            height: 20
+            height: 20,
+            touchSize: 48   // optional: minimum tap target; the icon keeps its padding
         }
     })
     

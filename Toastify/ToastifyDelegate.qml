@@ -43,9 +43,26 @@ Control {
     readonly property int closeButtonWidth: root.styleProvider.spacing.closeButton.width ?? root.closeButtonSize
     readonly property int closeButtonHeight: root.styleProvider.spacing.closeButton.height ?? root.closeButtonSize
     readonly property int closeButtonTotalWidth: root.closeButtonWidth + root.closeButtonPadding * 2
-    readonly property int closeButtonReservedWidth: root.closeButton
-                                                    ? root.closeButtonTotalWidth
-                                                    : 0
+    // Optional minimum tap target. The icon keeps its visual padding; the tap margin grows
+    // around it, and the content reserves room so the target does not overlap an action.
+    readonly property int closeButtonTouchSize: root.styleProvider.spacing.closeButton.touchSize ?? 0
+    readonly property bool closeButtonHasTouchSize: root.closeButtonTouchSize > 0
+    readonly property real closeButtonHitMargin: root.closeButtonHasTouchSize
+                                                 ? Math.max(root.closeButtonPadding,
+                                                            (root.closeButtonTouchSize
+                                                             - Math.min(root.closeButtonWidth,
+                                                                        root.closeButtonHeight)) / 2)
+                                                 : root.closeButtonPadding
+    readonly property int closeButtonReservedWidth: !root.closeButton
+                                                    ? 0
+                                                    : root.closeButtonHasTouchSize
+                                                      ? Math.max(root.closeButtonTotalWidth,
+                                                                 Math.ceil(root.closeButtonPadding
+                                                                           + root.closeButtonWidth
+                                                                           + root.closeButtonHitMargin
+                                                                           + root.mainSpacing
+                                                                           - root.containerPadding))
+                                                      : root.closeButtonTotalWidth
     readonly property bool hasAction: root.action !== null
                                       && typeof root.action === "object"
                                       && root.action.label !== undefined
@@ -453,7 +470,8 @@ Control {
         visible: root.closeButton && !root.stackCovered
         width: root.closeButtonWidth
         height: root.closeButtonHeight
-        anchors.top: parent.top
+        anchors.top: root.closeButtonHasTouchSize ? undefined : parent.top
+        anchors.verticalCenter: root.closeButtonHasTouchSize ? parent.verticalCenter : undefined
         anchors.right: parent.right
         anchors.topMargin: root.closeButtonPadding
         anchors.rightMargin: root.closeButtonPadding
@@ -469,14 +487,14 @@ Control {
 
         HoverHandler {
             id: closeButtonHover
-            margin: root.closeButtonPadding
+            margin: root.closeButtonHitMargin
             cursorShape: Qt.PointingHandCursor
         }
 
         TapHandler {
             acceptedButtons: Qt.LeftButton
             gesturePolicy: TapHandler.WithinBounds
-            margin: root.closeButtonPadding
+            margin: root.closeButtonHitMargin
             onTapped: root.close()
         }
     }
