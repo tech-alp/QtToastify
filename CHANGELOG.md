@@ -11,10 +11,19 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - `paused` pauses auto-close timers (e.g. while a dialog is open); `autoCloseByType` sets per-type default durations.
 - `detail` option for a second text line, per-type `backgroundColors` and `actionButton` colors/height in `ToastifyStyleProvider`.
+- `withTimeout(promiseOrFuture, ms, message?)` for Promises, thenables, and
+  `ToastFuture` bridges. It rejects with `TimeoutError`, cleans up its timer,
+  and ignores late results without canceling the underlying work.
+- Promise `success` and `error` message objects (also returned by functions)
+  with `message`, `detail`, and `action`, including Retry or Undo callbacks.
 
 ### Changed
 
 - Lowered the library baseline to Qt 6.8 and replaced shader shadows with three flat translucent layers for the software backend. Blur is approximated.
+
+### Fixed
+
+- Action callbacks no longer run again while the toast is closing.
 
 ## [2.0.0] - 2026-08-27
 

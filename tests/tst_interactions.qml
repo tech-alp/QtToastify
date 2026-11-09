@@ -104,6 +104,9 @@ TestCase {
         actionCount = 0
         bodyActionCount = 0
         finallyCount = 0
+        tryVerify(function() {
+            return findChild(toastify, "timeoutTimer") === null
+        })
     }
 
     function test_closeButtonIsOptionalAndLazyContentStaysInactive() {
@@ -383,5 +386,339 @@ TestCase {
         resolveTask(true)
         tryCompare(testCase, "finallyCount", 1)
         compare(stack.entryCount, 0)
+    }
+
+    function test_withTimeoutRejects_data() {
+        return [
+            { tag: "default-message", message: undefined,
+              expected: "Operation timed out" },
+            { tag: "custom-message", message: "Save took too long",
+              expected: "Save took too long" }
+        ]
+    }
+
+    function test_withTimeoutRejects(data) {
+        const observed = { error: null, count: 0 }
+        const started = Date.now()
+        const task = toastify.withTimeout(new Promise(function() {}),
+                                         60, data.message)
+        verify(task instanceof Promise)
+        task.then(function() {
+            observed.count += 1
+        }, function(error) {
+            observed.error = error
+            observed.count += 1
+        })
+
+        compare(observed.count, 0)
+        tryVerify(function() { return observed.error !== null })
+        verify(Date.now() - started >= 60)
+        verify(observed.error instanceof Error)
+        compare(observed.error.name, "TimeoutError")
+        compare(observed.error.timeout, 60)
+        compare(observed.error.message, data.expected)
+        compare(observed.count, 1)
+        tryVerify(function() {
+            return findChild(toastify, "timeoutTimer") === null
+        })
+        compare(toastify.getColumn(Toastify.TopLeftCorner).entryCount, 0)
+    }
+
+    function test_withTimeoutIgnoresLateResult_data() {
+        return [{ tag: "resolve", rejected: false },
+                { tag: "reject", rejected: true }]
+    }
+
+    function test_withTimeoutIgnoresLateResult(data) {
+        let settleTask = null
+        const task = new Promise(function(resolve, reject) {
+            settleTask = data.rejected ? reject : resolve
+        })
+        const observed = { count: 0, error: null, workFinished: false }
+        task.then(function() { observed.workFinished = true },
+                  function() { observed.workFinished = true })
+        toastify.withTimeout(task, 40).then(function() {
+            observed.count += 1
+        }, function(error) {
+            observed.error = error
+            observed.count += 1
+        })
+
+        tryVerify(function() { return observed.error !== null })
+        compare(observed.error.name, "TimeoutError")
+        compare(observed.workFinished, false)
+        const timeoutError = observed.error
+        settleTask("late result")
+        tryVerify(function() { return observed.workFinished })
+        wait(50)
+        compare(observed.count, 1)
+        compare(observed.error, timeoutError)
+    }
+
+    function test_withTimeoutDisabled_data() {
+        return [
+            { tag: "zero-resolve", ms: 0, rejected: false },
+            { tag: "negative-resolve", ms: -20, rejected: false },
+            { tag: "zero-reject", ms: 0, rejected: true },
+            { tag: "negative-reject", ms: -20, rejected: true }
+        ]
+    }
+
+    function test_withTimeoutDisabled(data) {
+        let settleTask = null
+        const value = { result: "unchanged" }
+        const observed = { count: 0, value: null, rejected: false }
+        const task = new Promise(function(resolve, reject) {
+            settleTask = data.rejected ? reject : resolve
+        })
+        const adapted = toastify.withTimeout(task, data.ms)
+        compare(adapted, task)
+        adapted.then(function(result) {
+            observed.value = result
+            observed.count += 1
+        }, function(error) {
+            observed.value = error
+            observed.rejected = true
+            observed.count += 1
+        })
+
+        wait(60)
+        compare(observed.count, 0)
+        compare(findChild(toastify, "timeoutTimer"), null)
+        settleTask(value)
+        tryVerify(function() { return observed.count === 1 })
+        compare(observed.value, value)
+        compare(observed.rejected, data.rejected)
+    }
+
+    function test_withTimeoutSettlesBeforeExpiry_data() {
+        return [
+            { tag: "promise-resolve", thenable: false, rejected: false, ms: 1000 },
+            { tag: "promise-reject", thenable: false, rejected: true, ms: 1000 },
+            { tag: "thenable-resolve", thenable: true, rejected: false, ms: 1000 },
+            { tag: "thenable-reject", thenable: true, rejected: true, ms: 1000 },
+            { tag: "thenable-disabled", thenable: true, rejected: false, ms: 0 }
+        ]
+    }
+
+    function test_withTimeoutSettlesBeforeExpiry(data) {
+        const value = data.rejected ? new Error("Original failure")
+                                    : { result: "ready" }
+        const observed = { count: 0, value: null, rejected: false }
+        const input = data.thenable ? {
+            then: function(resolve, reject) {
+                if (data.rejected)
+                    reject(value)
+                else
+                    resolve(value)
+            }
+        } : data.rejected ? Promise.reject(value) : Promise.resolve(value)
+        const task = toastify.withTimeout(input, data.ms)
+        verify(task instanceof Promise)
+        if (data.ms > 0) {
+            const timer = findChild(toastify, "timeoutTimer")
+            verify(timer !== null)
+            compare(timer.running, true)
+        }
+        task.then(function(result) {
+            observed.value = result
+            observed.count += 1
+        }, function(error) {
+            observed.value = error
+            observed.rejected = true
+            observed.count += 1
+        })
+
+        tryVerify(function() { return observed.count === 1 })
+        compare(observed.value, value)
+        compare(observed.rejected, data.rejected)
+        tryVerify(function() {
+            return findChild(toastify, "timeoutTimer") === null
+        })
+    }
+
+    function test_withTimeoutQFuture_data() {
+        return [
+            { tag: "resolve", rejected: false, delay: 20, ms: 1000 },
+            { tag: "reject", rejected: true, delay: 20, ms: 1000 },
+            { tag: "timeout", rejected: false, delay: 200, ms: 40 },
+            { tag: "disabled", rejected: false, delay: 20, ms: 0 }
+        ]
+    }
+
+    function test_withTimeoutQFuture(data) {
+        const observed = { count: 0, value: null, rejected: false,
+                           workFinished: false }
+        const bridge = data.rejected
+                       ? FutureTestFactory.rejectAfter("device offline", data.delay)
+                       : FutureTestFactory.resolveAfter("QFuture ready", data.delay)
+        bridge.resolved.connect(function() { observed.workFinished = true })
+        bridge.rejected.connect(function() { observed.workFinished = true })
+        const task = toastify.withTimeout(bridge, data.ms)
+        verify(task instanceof Promise)
+        task.then(function(result) {
+            observed.value = result
+            observed.count += 1
+        }, function(error) {
+            observed.value = error
+            observed.rejected = true
+            observed.count += 1
+        })
+
+        tryVerify(function() { return observed.count === 1 })
+        if (data.ms > 0 && data.ms < data.delay) {
+            compare(observed.rejected, true)
+            compare(observed.value.name, "TimeoutError")
+            compare(observed.value.timeout, data.ms)
+        } else {
+            compare(observed.rejected, data.rejected)
+            compare(observed.value, data.rejected ? "device offline" : "QFuture ready")
+        }
+        tryVerify(function() { return observed.workFinished })
+        tryVerify(function() { return FutureTestFactory.activeBridgeCount() === 0 })
+        compare(observed.count, 1)
+    }
+
+    function test_promiseWithTimeoutFinally_data() {
+        return [{ tag: "visible", dismissed: false },
+                { tag: "dismissed", dismissed: true }]
+    }
+
+    function test_promiseWithTimeoutFinally(data) {
+        let resolveTask = null
+        const task = new Promise(function(resolve) { resolveTask = resolve })
+        const observed = { errorCount: 0, error: null }
+        const stack = toastify.getColumn(Toastify.TopLeftCorner)
+        const toast = track(toastify.promise(toastify.withTimeout(task, 80), {
+            loading: "Working...",
+            success: "Unexpected success",
+            error: function(error) {
+                observed.error = error
+                observed.errorCount += 1
+                return "Timed out"
+            },
+            autoClose: 0,
+            finally: function() { testCase.finallyCount += 1 }
+        }))
+        if (data.dismissed)
+            verify(toastify.dismiss(toast))
+
+        tryCompare(testCase, "finallyCount", 1)
+        if (data.dismissed) {
+            compare(observed.errorCount, 0)
+            tryCompare(stack, "entryCount", 0)
+            createdToasts = []
+        } else {
+            compare(observed.errorCount, 1)
+            compare(observed.error.name, "TimeoutError")
+            compare(toast.message, "Timed out")
+            compare(toast.type, Toastify.Error)
+            compare(toast.isLoading, false)
+        }
+
+        resolveTask("late success")
+        wait(50)
+        compare(finallyCount, 1)
+        compare(observed.errorCount, data.dismissed ? 0 : 1)
+        if (!data.dismissed)
+            compare(toast.message, "Timed out")
+    }
+
+    function test_withTimeoutDoesNotPauseOnHover() {
+        const stack = toastify.getColumn(Toastify.TopLeftCorner)
+        const toast = track(toastify.promise(
+            toastify.withTimeout(new Promise(function() {}), 1000), {
+                loading: "Waiting...",
+                error: "Timed out",
+                autoClose: 0
+            }))
+        waitForToastEntered(toast)
+        mouseMove(stack, stack.width / 2, stack.height / 2)
+        tryCompare(stack, "hovered", true)
+        compare(toast.stackPaused, true)
+        tryCompare(toast, "message", "Timed out", 1500)
+        compare(stack.hovered, true)
+        compare(toast.type, Toastify.Error)
+    }
+
+    function test_promiseMessageObjects_data() {
+        return [
+            { tag: "success-object", rejected: false, factory: false },
+            { tag: "success-function", rejected: false, factory: true },
+            { tag: "error-object", rejected: true, factory: false },
+            { tag: "error-function", rejected: true, factory: true }
+        ]
+    }
+
+    function test_promiseMessageObjects(data) {
+        const value = data.rejected ? "device offline" : "saved result"
+        const spec = {
+            message: data.rejected ? "Failed" : "Saved",
+            detail: "Operation detail: " + value,
+            action: {
+                label: data.rejected ? "Retry" : "Undo",
+                onClick: function() { testCase.actionCount += 1 }
+            }
+        }
+        const messageSpec = data.factory ? function(result) {
+            compare(result, value)
+            return spec
+        } : spec
+        const toast = track(toastify.promise(
+            data.rejected ? Promise.reject(value) : Promise.resolve(value), {
+                loading: "Working...",
+                success: messageSpec,
+                error: messageSpec,
+                autoClose: 0
+            }))
+
+        tryCompare(toast, "isLoading", false)
+        compare(toast.type, data.rejected ? Toastify.Error : Toastify.Success)
+        compare(toast.message, spec.message)
+        compare(toast.detail, spec.detail)
+        compare(toast.action.label, spec.action.label)
+        const detailLabel = findChild(toast, "detailLabel")
+        verify(detailLabel !== null)
+        compare(detailLabel.text, spec.detail)
+        compare(detailLabel.visible, true)
+        waitForToastEntered(toast)
+
+        const actionButton = findChild(toast, "actionButton")
+        verify(actionButton !== null)
+        mouseClick(actionButton, actionButton.width / 2, actionButton.height / 2)
+        compare(actionCount, 1)
+        compare(toast.closing, true)
+        toast.triggerAction()
+        compare(actionCount, 1)
+        tryCompare(toastify.getColumn(Toastify.TopLeftCorner), "entryCount", 0)
+        createdToasts = []
+    }
+
+    function test_promiseLegacyMessageSpecs_data() {
+        return test_promiseMessageObjects_data()
+    }
+
+    function test_promiseLegacyMessageSpecs(data) {
+        const value = data.rejected ? "failure" : "result"
+        const messageSpec = data.factory ? function(result) {
+            return "Settled: " + result
+        } : "Settled"
+        const toast = track(toastify.promise(
+            data.rejected ? Promise.reject(value) : Promise.resolve(value), {
+                loading: "Working...",
+                success: messageSpec,
+                error: messageSpec,
+                detail: "Existing detail",
+                action: { label: "Existing action" },
+                autoClose: 0,
+                finally: function() { testCase.finallyCount += 1 }
+            }))
+
+        tryCompare(toast, "isLoading", false)
+        compare(toast.message, data.factory ? "Settled: " + value : "Settled")
+        compare(toast.type, data.rejected ? Toastify.Error : Toastify.Success)
+        compare(toast.detail, "Existing detail")
+        compare(toast.action.label, "Existing action")
+        compare(finallyCount, 1)
     }
 }

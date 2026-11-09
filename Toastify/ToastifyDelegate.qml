@@ -528,7 +528,7 @@ Control {
 
     function triggerAction() {
         const currentAction = root.action
-        if (!currentAction || currentAction.enabled === false)
+        if (root.closing || !currentAction || currentAction.enabled === false)
             return
 
         try {
