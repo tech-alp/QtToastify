@@ -80,6 +80,18 @@ TestCase {
         compare(materialStyleProvider.fonts.family, "")
     }
 
+    function test_shadowWaitsForWindow() {
+        // Without a window GraphicsInfo is Unknown, not a supported backend.
+        var toast = toastComponent.createObject(null, { message: "No window" })
+        verify(toast !== null)
+        try {
+            compare(toast.GraphicsInfo.api, GraphicsInfo.Unknown)
+            compare(findChildByObjectName(toast, "nativeToastShadow"), null)
+        } finally {
+            toast.destroy()
+        }
+    }
+
     function test_rectangularShadowUsesStyleTokens() {
         var toast = createTemporaryObject(toastComponent, testCase, {
             message: "Rectangular shadow",
@@ -104,14 +116,23 @@ TestCase {
 
         compare(backgroundContainer.clip, false)
         compare(backgroundSurface.clip, false)
-        compare(findChildByObjectName(backgroundShadow, "shadowLayers").count, 3)
-        fuzzyCompare(backgroundShadow.opacity, darkStyleProvider.shadow.opacity, 0.01)
-        var layer = findChildByObjectName(backgroundShadow, "shadowLayers").itemAt(0)
-        compare(layer.color.toString(), darkStyleProvider.shadow.color)
-        fuzzyCompare(layer.expansion, darkStyleProvider.shadow.spread
-                     + darkStyleProvider.shadow.blurRadius / 2, 0.01)
-        fuzzyCompare(layer.x, -layer.expansion + darkStyleProvider.shadow.horizontalOffset, 0.01)
-        fuzzyCompare(layer.y, -layer.expansion + darkStyleProvider.shadow.verticalOffset, 0.01)
+        compare(findChildByObjectName(backgroundShadow, "shadowLayers"), null)
+        var nativeShadow = findChildByObjectName(backgroundShadow, "nativeToastShadow")
+        if (testCase.GraphicsInfo.api === GraphicsInfo.Software) {
+            compare(nativeShadow, null, "Software rendering must have no shadow")
+        } else if (nativeShadowAvailable) {
+            verify(nativeShadow !== null, "GPU rendering must use RectangularShadow")
+            compare(nativeShadow.color.toString(), darkStyleProvider.shadow.color)
+            fuzzyCompare(nativeShadow.opacity, darkStyleProvider.shadow.opacity, 0.01)
+            compare(nativeShadow.blur, darkStyleProvider.shadow.blurRadius)
+            compare(nativeShadow.spread, darkStyleProvider.shadow.spread)
+            compare(nativeShadow.radius, darkStyleProvider.cornerRadius)
+            compare(nativeShadow.offset.x, darkStyleProvider.shadow.horizontalOffset)
+            compare(nativeShadow.offset.y, darkStyleProvider.shadow.verticalOffset)
+            compare(nativeShadow.cached, false)
+        } else {
+            compare(nativeShadow, null, "Qt 6.8 must have no shadow")
+        }
 
         fuzzyCompare(backgroundSurface.width, toast.width, 0.5)
         fuzzyCompare(backgroundSurface.height, toast.height, 0.5)
@@ -137,10 +158,15 @@ TestCase {
         verify(backgroundShadow !== null,
                "Rectangular shadow should exist")
         fuzzyCompare(toast.shadowBlurRadius, 8, 0.01)
-        compare(findChildByObjectName(backgroundShadow, "shadowLayers").count, 3)
-        fuzzyCompare(findChildByObjectName(backgroundShadow, "shadowLayers").itemAt(0).expansion, 4, 0.01)
-        fuzzyCompare(findChildByObjectName(backgroundShadow, "shadowLayers").itemAt(0).x, -1, 0.01)
-        fuzzyCompare(findChildByObjectName(backgroundShadow, "shadowLayers").itemAt(0).y, 1, 0.01)
+        compare(findChildByObjectName(backgroundShadow, "shadowLayers"), null)
+        var nativeShadow = findChildByObjectName(backgroundShadow, "nativeToastShadow")
+        if (nativeShadow !== null) {
+            compare(nativeShadow.blur, 8)
+            compare(nativeShadow.spread, 0)
+            compare(nativeShadow.offset.x, 3)
+            compare(nativeShadow.offset.y, 5)
+        }
+
     }
 
     function test_progressBarStaysInsideBottomEdge() {

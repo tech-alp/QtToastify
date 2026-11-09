@@ -14,7 +14,12 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- Lowered the library baseline to Qt 6.8 and replaced shader shadows with three flat translucent layers for the software backend. Blur is approximated.
+- Lowered the library baseline to Qt 6.8. Qt 6.9+ uses the original `RectangularShadow` on supported graphics backends; Qt 6.8 and software rendering use no shadow.
+
+### Fixed
+
+- WebAssembly packaging no longer requires unused VectorImage plugins after the
+  migration to Shape-based icons; required QML plugin checks remain enforced.
 
 ## [2.0.0] - 2026-08-27
 

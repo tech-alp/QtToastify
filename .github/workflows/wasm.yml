@@ -33,6 +33,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build pkg-config
 
+      - name: Test WebAssembly packaging checks
+        run: python3 tests/test_build_wasm.py
+
       - name: Cache Emscripten
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:

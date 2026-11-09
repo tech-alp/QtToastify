@@ -3,7 +3,6 @@ pragma ComponentBehavior:Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Effects
 import QtQuick.Shapes
 import Toastify 1.0
 import Toastify.Style 1.0
@@ -262,28 +261,14 @@ Control {
         objectName: "toastBackgroundContainer"
         clip: false
 
-        Item {
+        ToastShadow {
             id: backgroundShadow
+
             objectName: "toastShadow"
             anchors.fill: backgroundItem
-            opacity: root.styleProvider.shadow.opacity
-
-            Repeater {
-                objectName: "shadowLayers"
-                model: 3
-                Rectangle {
-                    required property int index
-                    readonly property real expansion: (root.styleProvider.shadow.spread ?? 0)
-                                                      + root.shadowBlurRadius * (3 - index) / 6
-                    x: -expansion + root.styleProvider.shadow.horizontalOffset
-                    y: -expansion + root.styleProvider.shadow.verticalOffset
-                    width: Math.max(0, backgroundShadow.width + 2 * expansion)
-                    height: Math.max(0, backgroundShadow.height + 2 * expansion)
-                    radius: Math.max(0, backgroundItem.radius + expansion)
-                    color: root.styleProvider.shadow.color
-                    opacity: 1 / 3
-                }
-            }
+            shadowStyle: root.styleProvider.shadow
+            cornerRadius: backgroundItem.radius
+            blurRadius: root.shadowBlurRadius
         }
 
         Rectangle {

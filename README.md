@@ -50,6 +50,10 @@ QtToastify comes with 4 pre-configured style providers:
 - **CMake 3.20+**
 - **C++17** compatible compiler
 
+Shadows use `RectangularShadow` when built with Qt 6.9+ and rendered with
+OpenGL, Vulkan, Metal, or Direct3D. Qt 6.8 and the Qt Quick software backend
+render without shadows; no approximation is drawn.
+
 ## Installation
 
 ### FetchContent
@@ -499,7 +503,7 @@ it after loading their own font.
 - `stackTransitionDuration` (int): Stack expand/collapse duration in ms
 
 #### Shadow
-- `shadow.blurRadius` (real): Approximate shadow softness in pixels; rendered as three flat translucent layers (no true blur)
+- `shadow.blurRadius` (real): Shadow blur radius in pixels (Qt 6.9+ with a supported graphics backend)
 - `shadow.spread` (real): Shadow spread in pixels
 - `shadow.blur` (real): Legacy normalized softness (0-1, used when `blurRadius` is omitted)
 - `shadow.color` (color): Shadow color
