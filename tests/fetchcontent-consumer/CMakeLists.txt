@@ -24,7 +24,7 @@ if(QTTOASTIFY_SOURCE_DIR)
         SOURCE_DIR "${QTTOASTIFY_SOURCE_DIR}"
     )
 else()
-    set(QTTOASTIFY_GIT_TAG "v2.0.0" CACHE STRING
+    set(QTTOASTIFY_GIT_TAG "v2.1.0" CACHE STRING
         "QtToastify release tag used by the consumer test"
     )
     FetchContent_Declare(QtToastify

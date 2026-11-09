@@ -61,7 +61,7 @@ include(FetchContent)
 
 FetchContent_Declare(QtToastify
     GIT_REPOSITORY https://github.com/tech-alp/QtToastify.git
-    GIT_TAG v2.0.0
+    GIT_TAG v2.1.0
     GIT_SHALLOW TRUE
 )
 
@@ -653,7 +653,7 @@ include(FetchContent)
 
 FetchContent_Declare(QtToastify
     GIT_REPOSITORY https://github.com/tech-alp/QtToastify.git
-    GIT_TAG v2.0.0
+    GIT_TAG v2.1.0
     GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(QtToastify)

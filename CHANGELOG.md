@@ -7,6 +7,8 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-11-09
+
 ### Added
 
 - `paused` pauses auto-close timers (e.g. while a dialog is open); `autoCloseByType` sets per-type default durations.
