@@ -90,6 +90,7 @@ Item {
 
     ToastStack {
         id: topRightColumn
+        horizontalAlignment: Qt.AlignRight
         objectName: "topRightStack"
         anchors.right: parent.right
         anchors.rightMargin: root.style.toastOffset
@@ -122,6 +123,7 @@ Item {
 
     ToastStack {
         id: bottomRightColumn
+        horizontalAlignment: Qt.AlignRight
         objectName: "bottomRightStack"
         anchors.right: parent.right
         anchors.rightMargin: root.style.toastOffset
@@ -139,6 +141,7 @@ Item {
 
     ToastStack {
         id: topCenterColumn
+        horizontalAlignment: Qt.AlignHCenter
         objectName: "topCenterStack"
         anchors.horizontalCenter: parent.horizontalCenter
         y: root.style.toastOffset
@@ -154,6 +157,7 @@ Item {
 
     ToastStack {
         id: bottomCenterColumn
+        horizontalAlignment: Qt.AlignHCenter
         objectName: "bottomCenterStack"
         anchors.horizontalCenter: parent.horizontalCenter
         y: parent.height - root.style.toastOffset

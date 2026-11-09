@@ -7,6 +7,8 @@ Item {
 
     property bool expandByDefault: false
     property bool bottomAligned: false
+    // Where narrower toasts sit inside the stack, whose width follows its widest toast.
+    property int horizontalAlignment: Qt.AlignLeft
     property bool newestOnTop: false
     property real expandedSpacing: 0
     property real collapsedOffset: 14
@@ -215,6 +217,11 @@ Item {
             implicitWidth: naturalWidth
             implicitHeight: naturalHeight
             width: implicitWidth
+            x: stack.horizontalAlignment === Qt.AlignHCenter
+               ? (stack.width - width) / 2
+               : stack.horizontalAlignment === Qt.AlignRight
+                 ? stack.width - width
+                 : 0
             height: stack.expanded || depth === 0
                     ? naturalHeight
                     : stack.frontHeight
