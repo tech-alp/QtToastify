@@ -1,5 +1,6 @@
 #include "PlaygroundRuntimeProbe.h"
 
+#include <QColor>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QEventLoop>
@@ -190,34 +191,56 @@ bool hasExclusiveTabStop(QObject *root,
     return true;
 }
 
+QColor buttonLabelColor(QObject *button)
+{
+    QObject *content = button->property("contentItem").value<QObject *>();
+    if (!content)
+        return {};
+    QObject *label = findObject(content, QStringLiteral("buttonLabel"));
+    return (label ? label : content)->property("color").value<QColor>();
+}
+
 bool hasExclusiveButtonSelection(QObject *root,
                                  const QString &groupObjectName,
                                  int optionCount,
                                  int selectedIndex)
 {
+    // StyleKit applies checked-state visuals during the next event-loop turn.
+    QEventLoop styleUpdateLoop;
+    QTimer::singleShot(50, &styleUpdateLoop, &QEventLoop::quit);
+    styleUpdateLoop.exec();
     QObject *buttonGroup = findObject(
         root, groupObjectName + QStringLiteral(".group"));
     if (!buttonGroup || !buttonGroup->property("exclusive").toBool())
         return false;
 
+    QColor selectedLabelColor;
+    QColor unselectedLabelColor;
     for (int index = 0; index < optionCount; ++index) {
         QObject *option = findObject(
             root,
             groupObjectName + QStringLiteral(".option.")
                 + QString::number(index));
         const bool selected = index == selectedIndex;
-        const QStringList expectedVariations = {
-            QStringLiteral("outline")
-        };
         if (!option || !option->property("checkable").toBool()
             || option->property("checked").toBool()
-                   != selected
-            || option->property("variant").toInt()
-                   != 2
-            || option->property("styleVariations").toStringList()
-                   != expectedVariations) {
+                   != selected) {
             return false;
         }
+        const QColor labelColor = buttonLabelColor(option);
+        if (!labelColor.isValid())
+            return false;
+        if (selected)
+            selectedLabelColor = labelColor;
+        else
+            unselectedLabelColor = labelColor;
+    }
+    // Merce's filled selected outline button must not retain the orange
+    // unselected text color, which disappears into the selected background.
+    if (selectedLabelColor == unselectedLabelColor) {
+        qCritical() << "Playground probe: selected label color did not change"
+                    << groupObjectName << selectedLabelColor;
+        return false;
     }
     return true;
 }

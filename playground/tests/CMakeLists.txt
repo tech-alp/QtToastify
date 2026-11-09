@@ -1,4 +1,4 @@
-find_package(Qt6 6.11 REQUIRED COMPONENTS Qml Test)
+find_package(Qt6 6.12 REQUIRED COMPONENTS Qml Test)
 
 qt_add_executable(tst_playground_state
     tst_playground_state.cpp

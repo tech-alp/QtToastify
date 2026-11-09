@@ -2,7 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
-import Qt.labs.StyleKit as SK
+import Qt.labs.StyleKit
 import Merce.Theme
 import Merce.Foundation
 import Merce.Controls
@@ -46,7 +46,7 @@ ColumnLayout {
 
         FieldLabel { text: qsTr("Message") }
 
-        SK.TextArea {
+        TextArea {
             id: messageInput
 
             objectName: "playground.input.message"
@@ -140,7 +140,7 @@ ColumnLayout {
             FieldLabel { text: qsTr("Auto-close (ms)") }
             FieldLabel { text: qsTr("Visible toasts") }
 
-            SK.SpinBox {
+            SpinBox {
                 objectName: "playground.input.autoClose"
                 Layout.fillWidth: true
                 from: 0
@@ -152,7 +152,7 @@ ColumnLayout {
                 onValueModified: root.playgroundState.autoClose = value
             }
 
-            SK.SpinBox {
+            SpinBox {
                 objectName: "playground.input.visibleToasts"
                 Layout.fillWidth: true
                 from: 1
@@ -164,7 +164,7 @@ ColumnLayout {
             }
         }
 
-        SK.Switch {
+        Switch {
             objectName: "playground.input.showCloseButton"
             Layout.fillWidth: true
             text: qsTr("Show close button")
@@ -172,7 +172,7 @@ ColumnLayout {
             onToggled: root.playgroundState.showCloseButton = checked
         }
 
-        SK.Switch {
+        Switch {
             objectName: "playground.input.closeOnClick"
             Layout.fillWidth: true
             text: qsTr("Close on click")
@@ -180,7 +180,7 @@ ColumnLayout {
             onToggled: root.playgroundState.closeOnClick = checked
         }
 
-        SK.Switch {
+        Switch {
             objectName: "playground.input.showProgressBar"
             Layout.fillWidth: true
             text: qsTr("Show progress bar")
@@ -188,7 +188,7 @@ ColumnLayout {
             onToggled: root.playgroundState.showProgressBar = checked
         }
 
-        SK.Switch {
+        Switch {
             objectName: "playground.input.newestOnTop"
             Layout.fillWidth: true
             text: qsTr("Newest on top")
@@ -226,7 +226,7 @@ ColumnLayout {
             rowSpacing: Theme.spacing.xs
 
             FieldLabel { text: qsTr("Expanded spacing") }
-            SK.SpinBox {
+            SpinBox {
                 objectName: "playground.input.toastSpacing"
                 Layout.fillWidth: true
                 from: 0
@@ -237,7 +237,7 @@ ColumnLayout {
             }
 
             FieldLabel { text: qsTr("Collapsed offset") }
-            SK.SpinBox {
+            SpinBox {
                 objectName: "playground.input.collapsedOffset"
                 Layout.fillWidth: true
                 from: 0
@@ -248,7 +248,7 @@ ColumnLayout {
             }
 
             FieldLabel { text: qsTr("Scale step (%)") }
-            SK.SpinBox {
+            SpinBox {
                 objectName: "playground.input.collapsedScaleStep"
                 Layout.fillWidth: true
                 from: 0

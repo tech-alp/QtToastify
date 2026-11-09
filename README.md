@@ -90,14 +90,14 @@ cmake --build build
 # Build with tests
 cmake -B build -S . -DBUILD_TESTS=ON
 
-# Build the Qt 6.11+ Merce-based playground
+# Build the Qt 6.12+ Merce-based playground
 cmake -B build-playground -S . \
   -DBUILD_PLAYGROUND=ON \
-  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.11.x/platform
+  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.12.x/platform
 ```
 
 `BUILD_PLAYGROUND` defaults to `OFF`, so the QtToastify library keeps its Qt
-6.8, CMake 3.20, and C++17 baseline. The playground requires Qt 6.11 and CMake
+6.8, CMake 3.20, and C++17 baseline. The playground requires Qt 6.12 and CMake
 3.30, and resolves the pinned public [Merce](https://github.com/tech-alp/Merce)
 revision. For local Merce development, add
 `-DQTTOASTIFY_MERCE_SOURCE_DIR=/absolute/path/to/Merce`.
@@ -543,7 +543,7 @@ The project includes a comprehensive playground application to explore different
 # Build and run playground
 cmake -B build-playground -S . \
   -DBUILD_PLAYGROUND=ON \
-  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.11.x/platform
+  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.12.x/platform
 cmake --build build-playground
 ./build-playground/playground/QtToastifyPlayground
 ```
