@@ -53,6 +53,8 @@ public slots:
 
     void qmlEngineAvailable(QQmlEngine *engine)
     {
+        engine->rootContext()->setContextProperty(
+            "nativeShadowAvailable", QT_VERSION >= QT_VERSION_CHECK(6, 9, 0));
         // Add import path for Toastify module
         engine->addImportPath("qrc:/qt/qml/");
         engine->addImportPath("../");

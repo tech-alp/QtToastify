@@ -7,6 +7,20 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `paused` pauses auto-close timers (e.g. while a dialog is open); `autoCloseByType` sets per-type default durations.
+- `detail` option for a second text line, per-type `backgroundColors` and `actionButton` colors/height in `ToastifyStyleProvider`.
+
+### Changed
+
+- Lowered the library baseline to Qt 6.8. Qt 6.9+ uses the original `RectangularShadow` on supported graphics backends; Qt 6.8 and software rendering use no shadow.
+
+### Fixed
+
+- WebAssembly packaging no longer requires unused VectorImage plugins after the
+  migration to Shape-based icons; required QML plugin checks remain enforced.
+
 ## [2.0.0] - 2026-08-27
 
 ### Added

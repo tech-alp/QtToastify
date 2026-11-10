@@ -11,7 +11,7 @@ function(qttoastify_resolve_merce)
         "Use a local Merce checkout for the QtToastify playground"
     )
     set(QTTOASTIFY_MERCE_GIT_TAG
-        "980cef48d1f8a07a6fb1de80646b7550a02cf362"
+        "93d4a4282359a76d6df8240596c369127ae681a3"
         CACHE STRING
         "Pinned Merce revision used by the QtToastify playground"
     )

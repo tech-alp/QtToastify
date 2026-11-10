@@ -15,8 +15,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
-  QT_VERSION: '6.11.1'
-  EMSCRIPTEN_VERSION: '4.0.7'
+  QT_VERSION: '6.12.0'
+  EMSCRIPTEN_VERSION: '5.0.5'
 
 jobs:
   wasm:
@@ -32,6 +32,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build pkg-config
+
+      - name: Test WebAssembly packaging checks
+        run: python3 tests/test_build_wasm.py
 
       - name: Cache Emscripten
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

@@ -2,7 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
-import Qt.labs.StyleKit as SK
+import Qt.labs.StyleKit
 import Merce.Theme
 import Merce.Foundation
 import Merce.Controls
@@ -79,7 +79,7 @@ Surface {
         }
     }
 
-    SK.Popup {
+    Popup {
         id: morePopup
 
         objectName: "playground.actions.morePopup"
@@ -88,7 +88,7 @@ Surface {
         width: 250
         padding: Theme.spacing.xs
         focus: true
-        closePolicy: SK.Popup.CloseOnEscape | SK.Popup.CloseOnPressOutside
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
         onClosed: moreButton.forceActiveFocus(Qt.PopupFocusReason)
 
         contentItem: ColumnLayout {

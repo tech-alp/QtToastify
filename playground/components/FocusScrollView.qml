@@ -1,18 +1,18 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import Qt.labs.StyleKit as SK
+import Qt.labs.StyleKit
 import Merce.Theme
 
-SK.ScrollView {
+ScrollView {
     id: root
 
     readonly property Flickable flickable: root.contentItem as Flickable
 
     clip: true
-    SK.ScrollBar.vertical.width: Theme.spacing.xxs
-    SK.ScrollBar.horizontal.visible: false
-    SK.ScrollBar.horizontal.height: 0
+    ScrollBar.vertical.width: Theme.spacing.xxs
+    ScrollBar.horizontal.visible: false
+    ScrollBar.horizontal.height: 0
 
     function containsItem(item, ancestor) {
         let current = item

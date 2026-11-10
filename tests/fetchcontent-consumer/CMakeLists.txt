@@ -5,16 +5,14 @@ project(QtToastifyFetchContentConsumer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.10 REQUIRED COMPONENTS
+find_package(Qt6 6.8 REQUIRED COMPONENTS
     Core
     Quick
     Qml
     QuickControls2
-    QuickVectorImage
-    QuickVectorImageHelpers
 )
 
-qt_standard_project_setup(REQUIRES 6.10)
+qt_standard_project_setup(REQUIRES 6.8)
 
 include(FetchContent)
 

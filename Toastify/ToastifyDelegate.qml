@@ -3,7 +3,6 @@ pragma ComponentBehavior:Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Effects
 import QtQuick.Shapes
 import Toastify 1.0
 import Toastify.Style 1.0
@@ -12,6 +11,7 @@ Control {
     id: root
 
     property string message: ""
+    property string detail: ""
     property int type: Toastify.Info
     property int position: Toastify.TopLeftCorner
     property int autoClose: 5000
@@ -42,9 +42,26 @@ Control {
     readonly property int closeButtonWidth: root.styleProvider.spacing.closeButton.width ?? root.closeButtonSize
     readonly property int closeButtonHeight: root.styleProvider.spacing.closeButton.height ?? root.closeButtonSize
     readonly property int closeButtonTotalWidth: root.closeButtonWidth + root.closeButtonPadding * 2
-    readonly property int closeButtonReservedWidth: root.closeButton
-                                                    ? root.closeButtonTotalWidth
-                                                    : 0
+    // Optional minimum tap target. The icon keeps its visual padding; the tap margin grows
+    // around it, and the content reserves room so the target does not overlap an action.
+    readonly property int closeButtonTouchSize: root.styleProvider.spacing.closeButton.touchSize ?? 0
+    readonly property bool closeButtonHasTouchSize: root.closeButtonTouchSize > 0
+    readonly property real closeButtonHitMargin: root.closeButtonHasTouchSize
+                                                 ? Math.max(root.closeButtonPadding,
+                                                            (root.closeButtonTouchSize
+                                                             - Math.min(root.closeButtonWidth,
+                                                                        root.closeButtonHeight)) / 2)
+                                                 : root.closeButtonPadding
+    readonly property int closeButtonReservedWidth: !root.closeButton
+                                                    ? 0
+                                                    : root.closeButtonHasTouchSize
+                                                      ? Math.max(root.closeButtonTotalWidth,
+                                                                 Math.ceil(root.closeButtonPadding
+                                                                           + root.closeButtonWidth
+                                                                           + root.closeButtonHitMargin
+                                                                           + root.mainSpacing
+                                                                           - root.containerPadding))
+                                                      : root.closeButtonTotalWidth
     readonly property bool hasAction: root.action !== null
                                       && typeof root.action === "object"
                                       && root.action.label !== undefined
@@ -138,10 +155,16 @@ Control {
             implicitWidth: Math.min(root.maximumWidth * 0.4,
                                     Math.max(48, actionLabel.implicitWidth
                                              + horizontalPadding * 2))
-            implicitHeight: Math.max(28, actionLabel.implicitHeight + 12)
-            color: root.styleProvider.textColors.color
+            readonly property var buttonStyle: root.styleProvider.actionButton ?? ({})
+            readonly property bool hasPressedColor: buttonStyle.pressedColor !== undefined
+
+            implicitHeight: Math.max(buttonStyle.minimumHeight ?? 28,
+                                     actionLabel.implicitHeight + 12)
+            color: actionTap.pressed && hasPressedColor
+                   ? buttonStyle.pressedColor
+                   : buttonStyle.backgroundColor ?? root.styleProvider.textColors.color
             opacity: !enabled ? 0.5
-                     : actionTap.pressed ? 0.75
+                     : actionTap.pressed && !hasPressedColor ? 0.75
                      : actionHover.hovered ? 0.9 : 1
             radius: Math.max(3, root.styleProvider.cornerRadius / 2)
             activeFocusOnTab: true
@@ -157,7 +180,8 @@ Control {
                 anchors.leftMargin: actionButtonItem.horizontalPadding
                 anchors.rightMargin: actionButtonItem.horizontalPadding
                 text: root.hasAction ? String(root.action.label) : ""
-                color: root.styleProvider.backgroundColor
+                color: actionButtonItem.buttonStyle.textColor
+                       ?? root.styleProvider.backgroundColor
                 font.family: root.styleProvider.fonts.family
                 font.pixelSize: Math.max(11,
                                          root.styleProvider.fonts.size - 2)
@@ -237,22 +261,14 @@ Control {
         objectName: "toastBackgroundContainer"
         clip: false
 
-        RectangularShadow {
+        ToastShadow {
             id: backgroundShadow
 
             objectName: "toastShadow"
             anchors.fill: backgroundItem
-            z: 0
-            visible: opacity > 0
-            color: root.styleProvider.shadow.color
-            opacity: root.styleProvider.shadow.opacity
-            radius: backgroundItem.radius
-            blur: root.shadowBlurRadius
-            spread: root.styleProvider.shadow.spread ?? 0
-            offset: Qt.vector2d(
-                        root.styleProvider.shadow.horizontalOffset,
-                        root.styleProvider.shadow.verticalOffset)
-            cached: false
+            shadowStyle: root.styleProvider.shadow
+            cornerRadius: backgroundItem.radius
+            blurRadius: root.shadowBlurRadius
         }
 
         Rectangle {
@@ -262,7 +278,7 @@ Control {
             anchors.fill: parent
             z: 1
             clip: false
-            color: root.styleProvider.backgroundColor
+            color: root.styleProvider.getBackgroundColorForType(root.type)
             radius: root.styleProvider.cornerRadius
 
             Item {
@@ -396,6 +412,19 @@ Control {
                     Layout.maximumWidth: textContentArea.Layout.maximumWidth
 
                 }
+
+                Label {
+                    objectName: "detailLabel"
+                    visible: root.detail.length > 0
+                    text: root.detail
+                    color: root.styleProvider.textColors.color
+                    font.family: root.styleProvider.fonts.family
+                    font.pixelSize: root.styleProvider.fonts.size
+                    font.weight: Font.Normal
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: textContentArea.Layout.maximumWidth
+                }
             }
         }
 
@@ -426,7 +455,8 @@ Control {
         visible: root.closeButton && !root.stackCovered
         width: root.closeButtonWidth
         height: root.closeButtonHeight
-        anchors.top: parent.top
+        anchors.top: root.closeButtonHasTouchSize ? undefined : parent.top
+        anchors.verticalCenter: root.closeButtonHasTouchSize ? parent.verticalCenter : undefined
         anchors.right: parent.right
         anchors.topMargin: root.closeButtonPadding
         anchors.rightMargin: root.closeButtonPadding
@@ -442,14 +472,14 @@ Control {
 
         HoverHandler {
             id: closeButtonHover
-            margin: root.closeButtonPadding
+            margin: root.closeButtonHitMargin
             cursorShape: Qt.PointingHandCursor
         }
 
         TapHandler {
             acceptedButtons: Qt.LeftButton
             gesturePolicy: TapHandler.WithinBounds
-            margin: root.closeButtonPadding
+            margin: root.closeButtonHitMargin
             onTapped: root.close()
         }
     }

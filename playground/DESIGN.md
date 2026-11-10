@@ -14,7 +14,7 @@ QtToastify API or raise the library's minimum Qt version.
   dark live preview on the right, and primary actions at the bottom.
 - Use Merce for semantic tokens, StyleKit control styling, icons, surfaces, and
   reusable controls instead of recreating a second design system.
-- Keep QtToastify usable with Qt 6.10 and C++17 when the playground is disabled.
+- Keep QtToastify usable with Qt 6.8 and C++17 when the playground is disabled.
 - Use the same playground target for desktop and GitHub Pages WebAssembly.
 
 ## Non-goals
@@ -148,9 +148,9 @@ PreviewPanel / Toastify
 ## Dependency Boundary
 
 ```text
-QtToastify library (Qt 6.10+, C++17)
+QtToastify library (Qt 6.8+, C++17)
 
-QtToastifyPlayground (Qt 6.11+)
+QtToastifyPlayground (Qt 6.12+)
 ├── local QtToastify targets
 └── Merce
     ├── Theme
@@ -172,7 +172,7 @@ QtToastifyPlayground (Qt 6.11+)
 
 - Native controls retain their StyleKit keyboard and accessibility behavior.
 - Closing the overflow popover restores focus to its More trigger.
-- Segmented selectors use checkable Merce `MButton` instances in exclusive
+- Segmented selectors use checkable Merce-styled StyleKit `Button` instances in exclusive
   `ButtonGroup` objects. Segmented and position controls expose accessible
   names, screen-reader press actions, focus rings, Tab navigation, and
   arrow-key selection.
@@ -185,8 +185,8 @@ QtToastifyPlayground (Qt 6.11+)
 
 ## Verification
 
-- Configure and build the library with Qt 6.10 and `BUILD_PLAYGROUND=OFF`.
-- Configure and build the playground with Qt 6.11 and local Merce.
+- Configure and build the library with Qt 6.8 and `BUILD_PLAYGROUND=OFF`.
+- Configure and build the playground with Qt 6.12 and local Merce.
 - Run QML lint for the playground module.
 - Verify startup has no QML warnings and no visible toast.
 - Exercise all four types, six positions, both stack modes, toggles, advanced

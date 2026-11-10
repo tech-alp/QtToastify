@@ -18,6 +18,13 @@ Item {
     property bool expand: false
     property int visibleToasts: 3
 
+    // Pauses auto-close timers, e.g. while a modal dialog is open.
+    property bool paused: false
+
+    // Default autoClose per Toastify.Type when options.autoClose is not given,
+    // e.g. ({ [Toastify.Success]: 4500, [Toastify.Error]: 0 }). Missing types use 5000.
+    property var autoCloseByType: ({})
+
     property int _toastSequence: 0
 
     anchors.fill: parent
@@ -31,6 +38,10 @@ Item {
 
     // Z-Index
     z: 9999
+
+    function autoCloseFor(type) {
+        return root.autoCloseByType[type] ?? 5000
+    }
 
     function getColumn(pos) {
         switch(pos) {
@@ -74,10 +85,12 @@ Item {
         transitionDuration: root.style.stackTransitionDuration
         visibleToasts: root.visibleToasts
         newestOnTop: root.newestOnTop
+        paused: root.paused
     }
 
     ToastStack {
         id: topRightColumn
+        horizontalAlignment: Qt.AlignRight
         objectName: "topRightStack"
         anchors.right: parent.right
         anchors.rightMargin: root.style.toastOffset
@@ -89,6 +102,7 @@ Item {
         transitionDuration: root.style.stackTransitionDuration
         visibleToasts: root.visibleToasts
         newestOnTop: root.newestOnTop
+        paused: root.paused
     }
 
     ToastStack {
@@ -104,10 +118,12 @@ Item {
         transitionDuration: root.style.stackTransitionDuration
         visibleToasts: root.visibleToasts
         newestOnTop: root.newestOnTop
+        paused: root.paused
     }
 
     ToastStack {
         id: bottomRightColumn
+        horizontalAlignment: Qt.AlignRight
         objectName: "bottomRightStack"
         anchors.right: parent.right
         anchors.rightMargin: root.style.toastOffset
@@ -120,10 +136,12 @@ Item {
         transitionDuration: root.style.stackTransitionDuration
         visibleToasts: root.visibleToasts
         newestOnTop: root.newestOnTop
+        paused: root.paused
     }
 
     ToastStack {
         id: topCenterColumn
+        horizontalAlignment: Qt.AlignHCenter
         objectName: "topCenterStack"
         anchors.horizontalCenter: parent.horizontalCenter
         y: root.style.toastOffset
@@ -134,10 +152,12 @@ Item {
         transitionDuration: root.style.stackTransitionDuration
         visibleToasts: root.visibleToasts
         newestOnTop: root.newestOnTop
+        paused: root.paused
     }
 
     ToastStack {
         id: bottomCenterColumn
+        horizontalAlignment: Qt.AlignHCenter
         objectName: "bottomCenterStack"
         anchors.horizontalCenter: parent.horizontalCenter
         y: parent.height - root.style.toastOffset
@@ -149,6 +169,7 @@ Item {
         transitionDuration: root.style.stackTransitionDuration
         visibleToasts: root.visibleToasts
         newestOnTop: root.newestOnTop
+        paused: root.paused
     }
 
 
@@ -167,13 +188,15 @@ Item {
             return null;
         }
 
+        const type = options.type ?? Toastify.Info;
+
         // Properties objesini oluştur
         let properties = {
             message: message,
             // Base properties
-            type: options.type ?? Toastify.Info,
+            type: type,
             position: position,
-            autoClose: options.autoClose ?? 5000,
+            autoClose: options.autoClose ?? autoCloseFor(type),
             closeOnClick: options.closeOnClick ?? true,
             hideProgressBar: options.hideProgressBar ?? false,
             clickAction: options.clickAction ?? null,
@@ -240,7 +263,7 @@ Item {
             return false;
 
         const writableProperties = [
-            "message", "type", "autoClose", "closeOnClick",
+            "message", "detail", "type", "autoClose", "closeOnClick",
             "hideProgressBar", "clickAction", "closeButton", "action",
             "isLoading"
         ];
@@ -439,7 +462,7 @@ Item {
             return update(toast, {
                 message: String(message),
                 type: type,
-                autoClose: options.autoClose ?? 5000,
+                autoClose: options.autoClose ?? autoCloseFor(type),
                 closeOnClick: options.closeOnClick ?? true,
                 hideProgressBar: options.hideProgressBar ?? false,
                 closeButton: options.closeButton ?? true,

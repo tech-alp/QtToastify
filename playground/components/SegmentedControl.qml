@@ -2,9 +2,8 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls as QQC
+import Qt.labs.StyleKit
 import Merce.Theme
-import Merce.Controls
 
 Item {
     id: root
@@ -28,7 +27,7 @@ Item {
         root.valueModified(root.model[boundedIndex].value)
     }
 
-    QQC.ButtonGroup {
+    ButtonGroup {
         id: selectionGroup
 
         objectName: root.objectName + ".group"
@@ -47,23 +46,23 @@ Item {
             id: segmentRepeater
             model: root.model
 
-            delegate: MButton {
+            delegate: Button {
                 required property int index
                 required property var modelData
                 readonly property bool keyboardTabStop: checked || activeFocus
 
                 objectName: root.objectName + ".option." + index
 
-                fullWidth: true
+                Layout.fillWidth: true
                 Layout.minimumWidth: Theme.spacing.touchTarget
                 text: String(modelData.text)
-                size: MButton.Medium
-                variant: MButton.Outline
+                font.pixelSize: Theme.typography.sizeMedium
+                StyleVariation.variations: ["outline"]
                 leftPadding: Theme.spacing.xs
                 rightPadding: Theme.spacing.xs
                 checkable: true
                 checked: root.currentValue === modelData.value
-                QQC.ButtonGroup.group: selectionGroup
+                ButtonGroup.group: selectionGroup
 
                 onClicked: root.selectIndex(index)
 

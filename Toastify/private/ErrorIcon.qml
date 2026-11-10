@@ -1,7 +1,6 @@
 // Generated from React-Toastify's error.svg using Qt 6.11 svgtoqml -c -p.
-// QtToastify customization: expose fill color and preserve the SVG aspect ratio.
+// QtToastify customization: expose fill color and preserve the SVG aspect ratio; remove the unused VectorImage import.
 import QtQuick
-import QtQuick.VectorImage
 import QtQuick.Shapes
 
 Item {

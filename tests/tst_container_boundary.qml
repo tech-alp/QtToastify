@@ -80,6 +80,18 @@ TestCase {
         compare(materialStyleProvider.fonts.family, "")
     }
 
+    function test_shadowWaitsForWindow() {
+        // Without a window GraphicsInfo is Unknown, not a supported backend.
+        var toast = toastComponent.createObject(null, { message: "No window" })
+        verify(toast !== null)
+        try {
+            compare(toast.GraphicsInfo.api, GraphicsInfo.Unknown)
+            compare(findChildByObjectName(toast, "nativeToastShadow"), null)
+        } finally {
+            toast.destroy()
+        }
+    }
+
     function test_rectangularShadowUsesStyleTokens() {
         var toast = createTemporaryObject(toastComponent, testCase, {
             message: "Rectangular shadow",
@@ -104,21 +116,23 @@ TestCase {
 
         compare(backgroundContainer.clip, false)
         compare(backgroundSurface.clip, false)
-        compare(backgroundShadow.cached, false)
-        fuzzyCompare(backgroundShadow.blur,
-                     darkStyleProvider.shadow.blurRadius, 0.01)
-        fuzzyCompare(backgroundShadow.spread,
-                     darkStyleProvider.shadow.spread, 0.01)
-        fuzzyCompare(backgroundShadow.radius,
-                     darkStyleProvider.cornerRadius, 0.01)
-        fuzzyCompare(backgroundShadow.opacity,
-                     darkStyleProvider.shadow.opacity, 0.01)
-        fuzzyCompare(backgroundShadow.offset.x,
-                     darkStyleProvider.shadow.horizontalOffset, 0.01)
-        fuzzyCompare(backgroundShadow.offset.y,
-                     darkStyleProvider.shadow.verticalOffset, 0.01)
-        compare(backgroundShadow.color.toString(),
-                darkStyleProvider.shadow.color)
+        compare(findChildByObjectName(backgroundShadow, "shadowLayers"), null)
+        var nativeShadow = findChildByObjectName(backgroundShadow, "nativeToastShadow")
+        if (testCase.GraphicsInfo.api === GraphicsInfo.Software) {
+            compare(nativeShadow, null, "Software rendering must have no shadow")
+        } else if (nativeShadowAvailable) {
+            verify(nativeShadow !== null, "GPU rendering must use RectangularShadow")
+            compare(nativeShadow.color.toString(), darkStyleProvider.shadow.color)
+            fuzzyCompare(nativeShadow.opacity, darkStyleProvider.shadow.opacity, 0.01)
+            compare(nativeShadow.blur, darkStyleProvider.shadow.blurRadius)
+            compare(nativeShadow.spread, darkStyleProvider.shadow.spread)
+            compare(nativeShadow.radius, darkStyleProvider.cornerRadius)
+            compare(nativeShadow.offset.x, darkStyleProvider.shadow.horizontalOffset)
+            compare(nativeShadow.offset.y, darkStyleProvider.shadow.verticalOffset)
+            compare(nativeShadow.cached, false)
+        } else {
+            compare(nativeShadow, null, "Qt 6.8 must have no shadow")
+        }
 
         fuzzyCompare(backgroundSurface.width, toast.width, 0.5)
         fuzzyCompare(backgroundSurface.height, toast.height, 0.5)
@@ -144,10 +158,15 @@ TestCase {
         verify(backgroundShadow !== null,
                "Rectangular shadow should exist")
         fuzzyCompare(toast.shadowBlurRadius, 8, 0.01)
-        fuzzyCompare(backgroundShadow.blur, 8, 0.01)
-        fuzzyCompare(backgroundShadow.spread, 0, 0.01)
-        fuzzyCompare(backgroundShadow.offset.x, 3, 0.01)
-        fuzzyCompare(backgroundShadow.offset.y, 5, 0.01)
+        compare(findChildByObjectName(backgroundShadow, "shadowLayers"), null)
+        var nativeShadow = findChildByObjectName(backgroundShadow, "nativeToastShadow")
+        if (nativeShadow !== null) {
+            compare(nativeShadow.blur, 8)
+            compare(nativeShadow.spread, 0)
+            compare(nativeShadow.offset.x, 3)
+            compare(nativeShadow.offset.y, 5)
+        }
+
     }
 
     function test_progressBarStaysInsideBottomEdge() {
@@ -255,6 +274,34 @@ TestCase {
 
     // Feature: toast-layout-fix, Property 2: Close Button Positioning
     // Validates: Requirements 2.1, 2.2, 2.3
+    ToastifyStyleProvider {
+        id: touchCloseStyleProvider
+        spacing: Object.assign({}, defaultsForTouch.spacing, {
+            closeButton: Object.assign({}, defaultsForTouch.spacing.closeButton, { touchSize: 48 })
+        })
+        readonly property ToastifyStyleProvider defaultsForTouch: ToastifyStyleProvider {}
+    }
+
+    function test_closeButtonTouchSizeKeepsVisualPadding() {
+        var toast = createTemporaryObject(toastComponent, testCase, {
+            message: "Retry failed",
+            styleProvider: touchCloseStyleProvider,
+            action: { label: "Retry", onClick: function() {} }
+        })
+        verify(toast !== null)
+        waitForRendering(toast)
+        var close = findChildByObjectName(toast, "closeButtonArea")
+        var padding = toast.closeButtonPadding
+        // Icon stays at its visual padding from the right edge and centres vertically.
+        fuzzyCompare(toast.width - close.x - close.width, padding, 0.5)
+        fuzzyCompare(close.y + close.height / 2, toast.height / 2, 0.5)
+        // Tap margin reaches the requested target size.
+        compare(toast.closeButtonHitMargin, (48 - close.width) / 2)
+        // The action ends one main spacing before the tap target.
+        var targetLeft = toast.width - padding - close.width - toast.closeButtonHitMargin
+        verify(toast.width - toast.rightPadding <= targetLeft - toast.mainSpacing + 1)
+    }
+
     function test_closeButtonPositioning_data() {
         return test_containerBoundaryEnforcement_data()
     }

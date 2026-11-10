@@ -3,7 +3,7 @@
 set -euo pipefail
 
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-qt_version="${QT_VERSION:-6.11.1}"
+qt_version="${QT_VERSION:-6.12.0}"
 emsdk_root="${EMSDK_ROOT:-${EMSDK:-${HOME}/.local/share/emsdk}}"
 qt_wasm_path="${QT_WASM_PATH:-${QT_ROOT_DIR:-${HOME}/Qt/${qt_version}/wasm_singlethread}}"
 qt_host_path="${QT_HOST_PATH:-}"
@@ -82,6 +82,8 @@ for output in "${outputs[@]}"; do
 done
 
 wasm_output="${target_dir}/QtToastifyPlayground.wasm"
+# Only require plugins imported by the playground. Toastify icons use Shapes,
+# and the optional Merce icon/notification modules are disabled.
 qml_plugins=(
     ToastifyPlugin
     Toastify_StylePlugin
@@ -90,8 +92,6 @@ qml_plugins=(
     Merce_StylePlugin
     Merce_ControlsPlugin
     Qt_labs_StyleKitPlugin
-    QtQuickVectorImagePlugin
-    QtQuickVectorImageHelpersPlugin
 )
 
 for qml_plugin in "${qml_plugins[@]}"; do

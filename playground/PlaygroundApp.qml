@@ -1,11 +1,11 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import Qt.labs.StyleKit as SK
+import Qt.labs.StyleKit
 import Merce.Style
 import Merce.Theme
 
-SK.ApplicationWindow {
+ApplicationWindow {
     id: root
 
     objectName: "playground.window"
@@ -16,16 +16,16 @@ SK.ApplicationWindow {
     visible: true
     title: qsTr("QtToastify Playground")
 
-    SK.StyleKit.style: MerceStyle {}
+    StyleKit.style: MerceStyle {}
 
     PlaygroundState {
-        id: playgroundState
+        id: playgroundModel
 
         toastFontFamily: Theme.typography.fontBody
     }
 
     PlaygroundWorkspace {
         anchors.fill: parent
-        playgroundState: playgroundState
+        playgroundState: playgroundModel
     }
 }

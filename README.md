@@ -2,7 +2,7 @@
 
 A modern, customizable toast notification library for Qt/QML applications, inspired by [react-toastify](https://fkhadra.github.io/react-toastify/introduction/).
 
-![QtToastify](https://img.shields.io/badge/Qt-6.10+-41CD52?style=for-the-badge&logo=qt)
+![QtToastify](https://img.shields.io/badge/Qt-6.8+-41CD52?style=for-the-badge&logo=qt)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 [![CI](https://github.com/tech-alp/QtToastify/actions/workflows/ci.yml/badge.svg)](https://github.com/tech-alp/QtToastify/actions/workflows/ci.yml)
@@ -42,15 +42,17 @@ QtToastify comes with 4 pre-configured style providers:
 
 ## Requirements
 
-- **Qt 6.10+** with modules:
+- **Qt 6.8+** with modules:
   - Core
   - Quick
   - Qml
   - QuickControls2
-  - QuickVectorImage
-  - QuickVectorImageHelpers
 - **CMake 3.20+**
 - **C++17** compatible compiler
+
+Shadows use `RectangularShadow` when built with Qt 6.9+ and rendered with
+OpenGL, Vulkan, Metal, or Direct3D. Qt 6.8 and the Qt Quick software backend
+render without shadows; no approximation is drawn.
 
 ## Installation
 
@@ -78,7 +80,7 @@ adds only the QtToastify library modules unless the application opts in.
 ```bash
 git clone https://github.com/tech-alp/QtToastify.git
 cd QtToastify
-cmake -B build -S . -DCMAKE_PREFIX_PATH=/path/to/Qt/6.10.x/platform
+cmake -B build -S . -DCMAKE_PREFIX_PATH=/path/to/Qt/6.8.x/platform
 cmake --build build
 ```
 
@@ -88,14 +90,14 @@ cmake --build build
 # Build with tests
 cmake -B build -S . -DBUILD_TESTS=ON
 
-# Build the Qt 6.11+ Merce-based playground
+# Build the Qt 6.12+ Merce-based playground
 cmake -B build-playground -S . \
   -DBUILD_PLAYGROUND=ON \
-  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.11.x/platform
+  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.12.x/platform
 ```
 
 `BUILD_PLAYGROUND` defaults to `OFF`, so the QtToastify library keeps its Qt
-6.10, CMake 3.20, and C++17 baseline. The playground requires Qt 6.11 and CMake
+6.8, CMake 3.20, and C++17 baseline. The playground requires Qt 6.12 and CMake
 3.30, and resolves the pinned public [Merce](https://github.com/tech-alp/Merce)
 revision. For local Merce development, add
 `-DQTTOASTIFY_MERCE_SOURCE_DIR=/absolute/path/to/Merce`.
@@ -223,6 +225,8 @@ be converted to `QVariant`.
 | `expand` | bool | `false` | Keep stacks permanently expanded; default stacks expand on hover |
 | `visibleToasts` | int | `3` | Maximum visible toasts per position stack |
 | `newestOnTop` | bool | `false` | Put newest first in permanently expanded stacks; compact/hover mode keeps newest at the edge anchor |
+| `paused` | bool | `false` | Pause auto-close timers, e.g. while a dialog is open |
+| `autoCloseByType` | object | `{}` | Default `autoClose` per `Toastify.Type` when the option is not given, e.g. `({ [Toastify.Success]: 4500, [Toastify.Error]: 0 })`; missing types use `5000` |
 
 ```qml
 Toastify {
@@ -266,6 +270,7 @@ Creates a new toast notification.
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `type` | int | `Toastify.Info` | Toast type (Info, Success, Warning, Error) |
+| `detail` | string | `""` | Optional second line under the message |
 | `position` | int | `Toastify.TopLeftCorner` | Toast position |
 | `autoClose` | int | `5000` | Auto-close duration in milliseconds (0 = no auto-close) |
 | `closeOnClick` | bool | `true` | Close toast on click |
@@ -386,7 +391,8 @@ ToastifyStyleProvider {
             padding: 7,
             size: 20,
             width: 20,
-            height: 20
+            height: 20,
+            touchSize: 48   // optional: minimum tap target; the icon keeps its padding
         }
     })
     
@@ -489,6 +495,7 @@ it after loading their own font.
 - `cornerRadius` (real): Corner radius in pixels
 - `iconSize` (real): Icon size in pixels
 - `backgroundColor` (color): Toast surface color
+- `backgroundColors` (object): Optional per-type surfaces keyed `info`, `success`, `warning`, `error`; missing keys use `backgroundColor`
 - `toastOffset` (real): Distance from screen edges
 - `toastSpacing` (real): Distance between stacked toasts
 - `collapsedToastOffset` (real): Visible offset between compact stacked cards
@@ -496,9 +503,9 @@ it after loading their own font.
 - `stackTransitionDuration` (int): Stack expand/collapse duration in ms
 
 #### Shadow
-- `shadow.blurRadius` (real): Shadow blur radius in pixels
+- `shadow.blurRadius` (real): Shadow blur radius in pixels (Qt 6.9+ with a supported graphics backend)
 - `shadow.spread` (real): Shadow spread in pixels
-- `shadow.blur` (real): Legacy normalized blur (0-1, used when `blurRadius` is omitted)
+- `shadow.blur` (real): Legacy normalized softness (0-1, used when `blurRadius` is omitted)
 - `shadow.color` (color): Shadow color
 - `shadow.opacity` (real): Shadow opacity (0-1)
 - `shadow.horizontalOffset` (real): Horizontal shadow offset
@@ -516,6 +523,12 @@ it after loading their own font.
 - `closeButtonStyle.opacity` (real): Default opacity
 - `closeButtonStyle.hoveredOpacity` (real): Hover opacity
 
+#### Action Button
+- `actionButton.minimumHeight` (int): Minimum button height (default `28`)
+- `actionButton.backgroundColor` (color): Button fill (default `textColors.color`)
+- `actionButton.textColor` (color): Label color (default `backgroundColor`)
+- `actionButton.pressedColor` (color): Fill while pressed (default: 0.75 opacity)
+
 #### Progress Bar
 - `progressBar.height` (int): Progress bar height in pixels
 - `progressBar.radius` (int): Progress bar corner radius
@@ -530,7 +543,7 @@ The project includes a comprehensive playground application to explore different
 # Build and run playground
 cmake -B build-playground -S . \
   -DBUILD_PLAYGROUND=ON \
-  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.11.x/platform
+  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.12.x/platform
 cmake --build build-playground
 ./build-playground/playground/QtToastifyPlayground
 ```
@@ -582,16 +595,14 @@ Fetch QtToastify and link its static QML modules into the application:
 cmake_minimum_required(VERSION 3.20)
 project(MyApp LANGUAGES CXX)
 
-find_package(Qt6 6.10 REQUIRED COMPONENTS
+find_package(Qt6 6.8 REQUIRED COMPONENTS
     Core
     Quick
     Qml
     QuickControls2
-    QuickVectorImage
-    QuickVectorImageHelpers
 )
 
-qt_standard_project_setup(REQUIRES 6.10)
+qt_standard_project_setup(REQUIRES 6.8)
 
 include(FetchContent)
 

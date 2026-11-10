@@ -277,6 +277,9 @@ TestCase {
 
         middle.requestedWidth = 300
         tryCompare(stack, "width", 300)
+        // Narrower toasts follow the stack's corner instead of its left edge.
+        compare(byAge[0].x, 60)
+        compare(byAge[1].x, 0)
 
         const previousExpandedHeight = stack.expandedHeight
         const previousOldestY = byAge[2].y
@@ -289,6 +292,29 @@ TestCase {
         compare(oldest.stackPaused, false)
         compare(middle.stackPaused, false)
         compare(front.stackPaused, false)
+    }
+
+    function test_centerStackCentersNarrowerToasts() {
+        const stack = customToastify.getColumn(Toastify.TopCenter)
+        const wide = customToastify.info("Wide", {
+            position: Toastify.TopCenter,
+            autoClose: 0,
+            closeOnClick: false,
+            requestedWidth: 300
+        })
+        const narrow = customToastify.info("Narrow", {
+            position: Toastify.TopCenter,
+            autoClose: 0,
+            closeOnClick: false,
+            requestedWidth: 200
+        })
+        createdCustomToasts.push(wide, narrow)
+        tryCompare(stack, "width", 300)
+        const byAge = stack.entriesByAge()
+        compare(byAge[0].toastObject, narrow)
+        compare(byAge[0].x, 50)
+        compare(byAge[1].x, 0)
+        compare(stack.x, (hostWindow.contentItem.width - 300) / 2)
     }
 
     function test_mixedHeightAndBottomAnchor() {

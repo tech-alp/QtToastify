@@ -1,6 +1,6 @@
 # QtToastify Playground
 
-The playground is a responsive Qt 6.11 application for configuring and testing
+The playground is a responsive Qt 6.12 application for configuring and testing
 real QtToastify notifications. Its application shell uses Merce tokens,
 StyleKit controls, and Merce components; the preview still renders the local
 QtToastify target.
@@ -22,20 +22,27 @@ inline validation and disables `Show Toast` until valid text is entered.
 
 ## Build and run
 
-Run from the repository root with Qt 6.11 or newer:
+Run from the repository root with Qt 6.12 (the tested playground baseline):
 
 ```bash
 cmake -S . -B build \
   -DBUILD_PLAYGROUND=ON \
   -DQTTOASTIFY_MERCE_SOURCE_DIR=/path/to/Merce \
-  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.11.x/<kit>
+  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.12.x/<kit>
 cmake --build build
 ./build/playground/QtToastifyPlayground
 ```
 
 When `QTTOASTIFY_MERCE_SOURCE_DIR` is omitted, CMake downloads the pinned public
 Merce revision. `Merce.Notifications`, Font Awesome, Merce tests, token tooling,
-and the Merce playground are disabled for this consumer.
+and the Merce playground are disabled for this consumer. The pinned revision
+contains the Qt 6.12 StyleKit API port. When reusing a build directory from the
+Qt 6.11 playground, use a fresh build directory or configure with
+`-UQTTOASTIFY_MERCE_GIT_TAG` to clear the old cached revision. Local Merce
+overrides must also support Qt 6.12.
+
+The WebAssembly workflow pairs Qt 6.12.0 with Emscripten 5.0.5 and requires
+a matching desktop Qt installation for host tools.
 
 ## Custom toast style
 

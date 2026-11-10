@@ -1,7 +1,7 @@
 # QtToastify Playground Examples
 cmake_minimum_required(VERSION 3.30)
 
-find_package(Qt6 6.11 REQUIRED COMPONENTS LabsStyleKit)
+find_package(Qt6 6.12 REQUIRED COMPONENTS LabsStyleKit)
 
 include(cmake/ResolveMerce.cmake)
 qttoastify_resolve_merce()
