@@ -72,6 +72,15 @@ Item {
         }
     }
 
+    Component {
+        id: timeoutTimerComponent
+
+        Timer {
+            objectName: "timeoutTimer"
+            repeat: false
+        }
+    }
+
     // Position stacks - compact by default, expanded on hover.
     ToastStack {
         id: topLeftColumn
@@ -384,6 +393,43 @@ Item {
         return pendingToast;
     }
 
+    function withTimeout(promiseOrFuture, ms, message = "Operation timed out") {
+        const input = isFutureBridge(promiseOrFuture)
+                      ? futureBridgePromise(promiseOrFuture)
+                      : Promise.resolve(promiseOrFuture);
+        if (ms <= 0)
+            return input;
+
+        return new Promise(function(resolve, reject) {
+            let timer = timeoutTimerComponent.createObject(root, { interval: ms });
+
+            function cleanup() {
+                if (timer) {
+                    timer.stop();
+                    timer.destroy();
+                    timer = null;
+                }
+            }
+
+            timer.triggered.connect(function() {
+                cleanup();
+                const error = new Error(message);
+                error.name = "TimeoutError";
+                error.timeout = ms;
+                reject(error);
+            });
+            timer.start();
+
+            input.then(function(result) {
+                cleanup();
+                resolve(result);
+            }, function(error) {
+                cleanup();
+                reject(error);
+            });
+        });
+    }
+
     function isFutureBridge(candidate) {
         if (!candidate || typeof candidate !== "object")
             return false;
@@ -454,13 +500,18 @@ Item {
             return dismiss(toast);
 
         try {
-            const message = typeof messageSpec === "function"
-                            ? messageSpec(value) : messageSpec;
-            if (message === undefined || message === null)
+            const spec = typeof messageSpec === "function"
+                         ? messageSpec(value) : messageSpec;
+            const messageOptions = spec !== null && typeof spec === "object"
+                                   ? spec : { message: spec };
+            if (messageOptions.message === undefined
+                    || messageOptions.message === null)
                 return dismiss(toast);
 
             return update(toast, {
-                message: String(message),
+                message: String(messageOptions.message),
+                detail: messageOptions.detail,
+                action: messageOptions.action,
                 type: type,
                 autoClose: options.autoClose ?? autoCloseFor(type),
                 closeOnClick: options.closeOnClick ?? true,

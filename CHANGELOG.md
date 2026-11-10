@@ -7,10 +7,17 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-11-09
+
 ### Added
 
 - `paused` pauses auto-close timers (e.g. while a dialog is open); `autoCloseByType` sets per-type default durations.
 - `detail` option for a second text line, per-type `backgroundColors` and `actionButton` colors/height in `ToastifyStyleProvider`.
+- `withTimeout(promiseOrFuture, ms, message?)` for Promises, thenables, and
+  `ToastFuture` bridges. It rejects with `TimeoutError`, cleans up its timer,
+  and ignores late results without canceling the underlying work.
+- Promise `success` and `error` message objects (also returned by functions)
+  with `message`, `detail`, and `action`, including Retry or Undo callbacks.
 
 ### Changed
 
@@ -20,6 +27,10 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - WebAssembly packaging no longer requires unused VectorImage plugins after the
   migration to Shape-based icons; required QML plugin checks remain enforced.
+
+### Fixed
+
+- Action callbacks no longer run again while the toast is closing.
 
 ## [2.0.0] - 2026-08-27
 

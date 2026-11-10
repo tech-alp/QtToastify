@@ -24,7 +24,7 @@ Pages after successful builds on `main`.
 - ✨ **Smooth Animations**: Enter and exit animations for polished user experience
 - 🗂️ **Sonner-Style Stacks**: Compact by default, expanded on hover or permanently with `expand`
 - 🖱️ **Interactive**: Click-to-close and custom action buttons
-- 🔄 **Async Lifecycle**: Keep one toast alive while a JavaScript Promise resolves or rejects
+- 🔄 **Async Lifecycle**: Promise/QFuture toasts with timeout composition and per-result actions
 - 🎯 **Style Provider System**: Easy theming with pluggable style providers
 - 📱 **Responsive**: Automatic text wrapping and container sizing
 - 🔤 **Vector Icons**: SVG paths compiled to native QML Shapes with `svgtoqml`
@@ -65,7 +65,7 @@ include(FetchContent)
 
 FetchContent_Declare(QtToastify
     GIT_REPOSITORY https://github.com/tech-alp/QtToastify.git
-    GIT_TAG v2.0.0
+    GIT_TAG v2.1.0
     GIT_SHALLOW TRUE
 )
 
@@ -179,9 +179,29 @@ toastify.promise(saveOperation(), {
 })
 ```
 
-The same toast object is updated from loading to success or error. Version 1
+The same toast object is updated from loading to success or error. It
 accepts QML JavaScript `Promise` objects, thenables, and `QFuture` values wrapped
 with `ToastFuture::watch()`.
+
+Use `withTimeout()` to bound the wait and message objects to offer an action:
+
+```qml
+function saveWithToast() {
+    toastify.promise(toastify.withTimeout(saveOperation(), 10000), {
+        loading: "Saving...",
+        success: { message: "Saved", detail: "Your changes are stored" },
+        error: function(error) {
+            return {
+                message: error.name === "TimeoutError" ? "Timed out" : "Failed",
+                detail: String(error),
+                action: { label: "Retry", onClick: saveWithToast }
+            }
+        }
+    })
+}
+```
+
+The Retry callback starts the work again; QtToastify only displays the action.
 
 ### QFuture Integration
 
@@ -289,12 +309,41 @@ click dismissal, and no progress bar.
 ##### `promise(promiseOrFunction, options)`
 
 Creates one loading toast and updates that same object when the Promise settles.
-Use `loading` (or `pending`), `success`, `error`, and optional `finally` callbacks.
-If the success or error message is omitted, the toast is dismissed.
+Use `loading` (or `pending`), `success`, `error`, and an optional `finally` callback.
+
+`success` and `error` each accept a string, a function returning a string, a
+message object `{ message, detail, action }`, or a function returning that object.
+Functions receive the resolved result or rejection reason. Objects apply their
+`message`, `detail`, and `action` through `update()`. `detail` is additional text
+below the message. `action` uses the regular toast action shape: `label`,
+`onClick`, optional `dismiss` and `enabled`. Clicking calls `onClick` once and
+closes the toast by default; `dismiss: false` keeps it open.
+
+If the success or error message is omitted, the toast is dismissed. `finally`
+runs exactly once when the supplied Promise settles, even if its toast has
+already been dismissed. Compose with `withTimeout()` to settle by a deadline.
+
+##### `withTimeout(promiseOrFuture, ms, message = "Operation timed out")`
+
+Returns a Promise adapted from a JavaScript Promise, a thenable, or a
+`ToastFuture` bridge created by `ToastFuture::watch()`. It works without creating
+a toast.
+
+- `ms` is the timeout in milliseconds. The timer starts at the call and never
+  pauses, including while a toast is hovered.
+- `ms <= 0` disables the timeout and passes the input's result or rejection
+  through, adapted to a Promise.
+- If the input settles first, its result or rejection is passed through and the
+  timer is stopped and destroyed.
+- On expiry, the returned Promise rejects with an `Error` whose `name` is
+  `"TimeoutError"`, `timeout` is `ms`, and `message` is the supplied text (default
+  `"Operation timed out"`). The timer is destroyed.
+- Late results are ignored. The underlying work continues; cancellation belongs
+  to the caller.
 
 ##### `update(toast, patch)`
 
-Updates a live toast. Supported fields are `message`, `type`, `autoClose`,
+Updates a live toast. Supported fields are `message`, `detail`, `type`, `autoClose`,
 `closeOnClick`, `hideProgressBar`, `clickAction`, `closeButton`, `action`, and
 `isLoading`.
 
@@ -608,7 +657,7 @@ include(FetchContent)
 
 FetchContent_Declare(QtToastify
     GIT_REPOSITORY https://github.com/tech-alp/QtToastify.git
-    GIT_TAG v2.0.0
+    GIT_TAG v2.1.0
     GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(QtToastify)
